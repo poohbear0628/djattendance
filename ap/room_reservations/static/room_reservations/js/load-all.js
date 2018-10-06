@@ -25,13 +25,14 @@ function displayTicker(ans) {
   var temp = $("<span></span>");
   for (var i = 0; i < anslen; i++) {
     //Format ticker announcements here
-    temp.append("<b>&ltAnnouncement #" + (i+1) + ":</b> " + ans[i] + "<b>&gt</b>&nbsp&nbsp");
+    temp.append("<b>" + (i+1) + ". </b> " + ans[i] + "<b></b>&nbsp&nbsp&nbsp&nbsp");
   }
   var anns = $("<p style=\"white-space:nowrap\"></p>");
   $("#ticker").append(anns.append(temp));
   var annsSize = $("#ticker").width();
 
   var totalSize = annsSize + $(document).width();
+  //Animates the ticker announcements
   $("#ticker").animate({left: "100%"},0,"linear");
   $("#ticker").animate({left: "-" + annsSize + "px"},totalSize*10,"linear");
 }
