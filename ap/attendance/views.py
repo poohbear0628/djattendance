@@ -296,15 +296,16 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
     audit_log = dict()
 
     # filter for the selected gender
+    ct = Term.current_term()
     trainees_secondyear = Trainee.objects.filter(current_term__gt=2)
-    rolls_all = Roll.objects.filter(trainee__in=trainees_secondyear)
+    rolls_all = Roll.objects.filter(trainee__in=trainees_secondyear, date__gte=ct.start)
 
     # audit trainees that are not attendance monitor
     # this treats an attendance monitor as a regular trainee, may need to reconsider for actual cases
     for t in trainees_secondyear.order_by('lastname'):
       t_values = {'gender': t.gender, 'self_attendance': t.self_attendance, 'name': t.full_name2, 'mismatch': 0, 'AT_discrepancy': 0, 'details': dict()}
       audit_log.setdefault(t.id, t_values)
-      if not self_attendance:
+      if not t.self_attendance:
         continue
 
       details = dict()
@@ -313,29 +314,32 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
       roll_am = rolls.exclude(submitted_by=t).values('status', 'date', 'event').order_by('date')  # rolls taken by attendance monitor
       mismatch = 0
       AT_discrepancy = 0
+
       for r in roll_am:
+        period = ct.period_from_date(r['date'])
         potential_roll = roll_trainee.filter(event=r['event'], date=r['date'])
-        if not potential_roll.exists():
+        if not potential_roll.exists() or potential_roll.first().status != r['status']:
           mismatch += 1
+          details_dict = audit_log[t.id]['details']
+
         else:
           roll = potential_roll.first()
-          if roll.status != r['status']:
-            mismatch += 1
+          if roll.status == 'A' and r['status'] in set(['T', 'U', 'L']):
+            AT_discrepancy += 1
 
-        if self_status:
-            r_stat_trainee = self_status[0]['status']
 
-        # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
-        if r_stat_trainee == 'P' and r.status != 'P':
-          mismatch += 1
-          details.append("MF %d/%d %s" % (r.date.month, r.date.day, r.event.code))
 
-        # PM indicates that AT discrepancy is only when AM marks A and trainee marks a type of T
-        if r.status == 'A' and r_stat_trainee in set(['T', 'U', 'L']):
-          AT_discrepancy += 1
-          details.append("AT %d/%d %s" % (r.date.month, r.date.day, r.event.code))
+      #   # PM indicates that mismatch is only when trainee marks P and AM marks otherwise
+      #   if r_stat_trainee == 'P' and r.status != 'P':
+      #     mismatch += 1
+      #     details.append("MF %d/%d %s" % (r.date.month, r.date.day, r.event.code))
 
-      audit_log.append([t.gender, t.self_attendance, t, mismatch, AT_discrepancy, ", ".join(details)])
+      #   # PM indicates that AT discrepancy is only when AM marks A and trainee marks a type of T
+      #   if r.status == 'A' and r_stat_trainee in
+      #     AT_discrepancy += 1
+      #     details.append("AT %d/%d %s" % (r.date.month, r.date.day, r.event.code))
+
+      # audit_log.append([t.gender, t.self_attendance, t, mismatch, AT_discrepancy, ", ".join(details)])
 
     context['audit_log'] = audit_log
     return self.render_to_response(context)
