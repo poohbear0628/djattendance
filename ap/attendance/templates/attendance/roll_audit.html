@@ -68,6 +68,13 @@ function render_table(){
     }
   }
 
+  $("td:contains('True')").each(function(){
+    $(this).html('<span class="glyphicon glyphicon-ok-circle" style="color:green"></span>')
+  })
+  $("td:contains('False')").each(function(){
+    $(this).html('<span class="glyphicon glyphicon-remove-circle" style="color:red"></span>')
+  })
+
   $("#audittable").show()
   $(".image_container").hide()
   setdatatable()
@@ -107,6 +114,7 @@ function setdatatable(){
       info: false,
       paging: false,
       autoWidth: true,
+      order: [[ 1, "asc" ]],
       columnDefs: [
       {
         targets: '_details',

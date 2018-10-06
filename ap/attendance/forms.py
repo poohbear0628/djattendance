@@ -1,6 +1,5 @@
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
-from aputils.custom_fields import CSIMultipleChoiceField
 from aputils.widgets import DatePicker
 from attendance.models import Roll, SelfAttendancePool
 from django import forms
