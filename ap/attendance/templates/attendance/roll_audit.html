@@ -9,9 +9,28 @@
 {{ block.super }}
 <script type="text/javascript">
 
-var table;
-var audit_log = []
-var base_info;
+var audit_log = [];
+var base_info = [];
+
+function render_table(){
+  table_body = $("#audittable").children('tbody').children()
+  for (var i = 0; i < base_info.length; i++) {
+    record = base_info[i]
+    node = document.createElement('tr')
+    t_id = Object.keys(record)[0]
+    node.setAttribute('id', t_id)
+    table_body.append(node)
+    row = $("#"+t_id).children()
+    
+
+
+  }
+
+  $("#audittable").show()
+  $(".image_container").hide()
+  setdatatable()
+
+}
 
 function getTraineeAudit(traineeId, url){
   $.ajax({
@@ -23,27 +42,109 @@ function getTraineeAudit(traineeId, url){
     success: function(response){
       console.log(response)
       audit_log.push(response)
+      if (audit_log.length == base_info.length){
+        setHeaders()
+        render_table()
+      }
 
     },
   });
 }
 
-function getAuditLog(ids, url){
-  traineeIds = ids;  // redundant, but leaving it
+function getAuditLog(records, url){
 
-  traineeIds.forEach(function(element) {
-    getTraineeAudit(element, url);
+  records.forEach(function(element) {
+    traineeId = Object.keys(element)[0]
+    getTraineeAudit(traineeId, url);
   });
+
+}
+
+function setdatatable(){
+  $("#audittable").DataTable({
+      info: false,
+      paging: false,
+      autoWidth: true,
+      columnDefs: [
+      {
+        targets: 'period_details',
+        visible: false
+      },
+      {
+        targets: '_all',
+        visible: true
+      }
+      ],
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      fixedHeader: {
+        header: true
+      },
+      buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'csvHtml5',
+        text: 'CSV',
+        exportOptions: {
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'pdf',
+        text: 'PDF',
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'collection',
+        buttons: 'columnsVisibility',
+        text: 'Show/Hide Columns',
+        columns: ':gt(1)',
+      },
+      ],
+    });
+}
+
+function setHeaders(){
+  period = parseInt("{{last_period}}");
+  table_headers = $("#audittable").children('thead').children()
+  for (i = 0; i < period + 1; i++) {
+    node = document.createElement('th')
+    node.classList.add("period_details");
+    text = document.createTextNode('Per. ' + i + ' MF')
+    node.appendChild(text);
+    table_headers.append(node)
+
+    node = document.createElement('th')
+    node.classList.add("period_details");
+    text = document.createTextNode('Per. ' + i + ' A/T Dis.')
+    node.appendChild(text);
+    table_headers.append(node)
+
+    node = document.createElement('th')
+    node.classList.add("period_details");
+    text = document.createTextNode('Per. ' + i + ' Det.')
+    node.appendChild(text);
+    table_headers.append(node)
+  }
 
 }
 
 $(document).ready(function() {
 
-  base_info = {{ base_info|safe }};
-  trainee_ids = Object.keys(base_info)
-  getAuditLog(trainee_ids, "{% url 'attendance:single-trainee-audit' %}")
+  $("#audittable").hide()
 
-  // setdatatable();
+  base_info = {{ base_info|safe }};
+  getAuditLog(base_info, "{% url 'attendance:single-trainee-audit' %}")
 
   $("body").on('click', 'span.glyphicon',function(){
     var state_tobe;
@@ -74,39 +175,24 @@ $(document).ready(function() {
 
 });
 
-function setdatatable(){
-  table = $("#audittable").DataTable({
-    info: true,
-    autowidth: true,
-    ordering: true,
-    paging: false,
-    order: [],
-  });
-}
-
 </script>
 {% endblock %}
 
 {% block references %}
 {{ block.super }}
-
-<meta name="viewport" content="width=device-width, user-scalable=no">
 <style type="text/css">
-
-#gender{
-  display:inline-block;
-  margin-right:10px;
-  margin-top: 10px;
-  margin-bottom: 10px
+/* Container holding the image and the text */
+.image_container {
+  position: relative;
+  text-align: center;
 }
 
-#period{
-  display:inline-block;
-  margin-right:10px;
-}
-
-#generate_table{
-  display:inline-block;
+/* Centered text */
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 </style>
@@ -116,40 +202,21 @@ function setdatatable(){
 
 <h2>{{title}}</h2>
 
-<table id="audittable" class="table table-striped table-bordered">
-  <thead>
-    <tr>
-      <th>On Self-Attendance</th>
-      <th>Trainee</th>
-      <th>Mismatched Frequencies</th>
-      <th>A/T Discrepancy</th>
-      <th>Rolls Detail - Text</th>
-    </tr>
-  </thead>
-  <tbody id="tablebody">
-    {% for id, record in audit_log.items %}
-    <tr>
-      <td id="{{id}}">
-        {% if record.self_attendance == True %}
-        <span class="glyphicon glyphicon-ok-circle" style="color:green" title="On Self-Attendance"></span>
-        {% elif record.self_attendance == False %}
-        <span class="glyphicon glyphicon-remove-circle" style="color:red" title="Not On Self-Attendance"></span>
-        {% endif %}
-        <div hidden>{{record.self_attendance}}</div>
-      </td>
-      <td>{{record.name}}</td>
-      <td>{{record.mismatch}}</td>
-      <td>{{record.AT_discrepancy}}</td>
-      <td>
-      {% for period in record.details %}
-        {{ record.details|get_index:period }}
-      {% empty %}
+<div class="image_container">
+  <img class="loading-image" src="{% static 'gospel_trips/images/loading.gif' %}"/>
+  <div class="centered">Loading...</div>
+</div>
 
-      {% endfor %}
-      </td>
-  </tr>
-  {% endfor %}
-</tbody>
+<table id="audittable" class="table table-striped table-bordered">
+  <thead><tr>
+    <th>On Self-Attendance</th>
+    <th>Trainee</th>
+    <th class="period_details">Gender</th>
+    <th>Mismatched Frequencies</th>
+    <th>A/T Discrepancy</th>
+    <th>Rolls Detail - Text</th>
+  </tr></thead>
+  <tbody></tbody>
 </table>
 
 {% endblock %}
