@@ -23,14 +23,26 @@ function displayTicker(ans) {
   }
   var anslen = ans.length;
   var temp = $("<span></span>");
+  //Hide the announcement section if there is no accouncement
+  if (anslen < 1) {
+    $("#ticker-wrap").fadeOut();
+    $("#ticker-heading").fadeOut();
+    $("#ticker-heading-wrap").fadeOut();
+  }
   for (var i = 0; i < anslen; i++) {
     //Format ticker announcements here
-    temp.append("<b>" + (i+1) + ". </b> " + ans[i] + "<b></b>&nbsp&nbsp&nbsp&nbsp");
+    temp.append("<b>" + (i+1) + ". </b> " + ans[i]);
+    if (i+1 !== anslen) {
+      //Spacing between the announcements
+      temp.append("&nbsp&nbsp&nbsp&nbsp");
+    }
   }
   var anns = $("<p style=\"white-space:nowrap\"></p>");
   $("#ticker").append(anns.append(temp));
   var annsSize = $("#ticker").width();
-  //Change speed here
+  var headingSize = $("#ticker-heading-wrap").width();
+  var annsSize = $("#ticker").width() - headingSize;
+  //Change speed here (higher = faster)
   var speed = 12;
   if (speed <= 0) {
     speed = 10;
