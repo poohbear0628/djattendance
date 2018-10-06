@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
 
 {% block title %}{{title}}{% endblock %}
 
@@ -164,7 +166,7 @@ function setdatatable(){
         text: 'Show/Hide Columns',
         columns: ':gt(1)',
       },
-      "onto_self_attendance",
+      // "onto_self_attendance",
       ],
     });
 }
@@ -196,6 +198,7 @@ function setHeaders(){
 $(document).ready(function() {
 
   $("#audittable").hide();
+  $('.select-fk').select2({width: "100%"});
 
   base_info = {{ base_info|safe }};
   getAuditLog(base_info, "{% url 'attendance:single-trainee-audit' %}");
@@ -281,11 +284,15 @@ $(document).ready(function() {
         </button>
       </div>
       <div class="modal-body">
-
+        <form method="post" action="">
+        {% csrf_token %}
+        {% bootstrap_form self_attendance_form %}
+        <input type="submit"/>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        {# <button type="button" class="btn btn-primary">Save changes</button> #}
       </div>
     </div>
   </div>

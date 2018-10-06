@@ -298,18 +298,32 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
     trainee.save()
     self_attendance_status = trainee.self_attendance
 
-    ct = Term.objects.current_term()
-    existing = SelfAttendancePool.objects.filter(term=ct, date=datetime.date.today(), trainees=trainee)
+    ct = Term.current_term()
+    today = date.today()
+    existing = SelfAttendancePool.objects.filter(term=ct, date=today, trainees=trainee)
     if existing.exists():
       existing = existing.first()
       if existing.onto_self_attendance != self_attendance_status:
         existing.trainees.remove(trainee)
         existing.save()
+        RollsFinalization.objects.filter(trainee=trainee, events_type='EV').delete()
+        week, day = ct.reverse_date(today)
+        week_string = '0'
+        for i in range(1, week):
+          week_string =+ ',' + i
+        for monitor in ['AM', 'TM', 'HC']:
+          RollsFinalization.objects.create(trainee=trainee, events_type=monitor, weeks=week_string)
 
     else:
-      sap, created = SelfAttendancePool.objects.get_or_create(term=ct, date=datetime.date.today(), onto_self_attendance=self_attendance_status)
+      sap, created = SelfAttendancePool.objects.get_or_create(term=ct, date=today, onto_self_attendance=self_attendance_status)
       sap.trainees.add(trainee)
       sap.save()
+      week, day = ct.reverse_date(today)
+      week_string = '0'
+      for i in range(1, week):
+        week_string =+ ',' + i
+      RollsFinalization.objects.filter(trainee=trainee).exclude(events_type='EV').delete()
+      RollsFinalization.objects.create(trainee=trainee, weeks=week_string, events_type='EV')
 
     res = {trainee_id: str(self_attendance_status)}
     return JsonResponse(res)

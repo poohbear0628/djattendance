@@ -73,6 +73,11 @@ class SelfAttendanceForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(SelfAttendanceForm, self).__init__(*args, **kwargs)
+    self.fields['term'].hidden = True
+
+    self.fields['trainees'].widget.attrs['class'] = 'select-fk'
+    self.fields['term'].widget.attrs['class'] = 'select-fk'
+    self.fields['date'].widget = DatePicker()
 
   class Meta:
     model = SelfAttendancePool
