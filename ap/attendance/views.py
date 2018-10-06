@@ -296,8 +296,22 @@ class AuditRollsView(GroupRequiredMixin, TemplateView):
     trainee = Trainee.objects.get(pk=trainee_id)
     trainee.self_attendance = not trainee.self_attendance
     trainee.save()
+    self_attendance_status = trainee.self_attendance
 
-    res = {trainee_id: str(trainee.self_attendance)}
+    ct = Term.objects.current_term()
+    existing = SelfAttendancePool.objects.filter(term=ct, date=datetime.date.today(), trainees=trainee)
+    if existing.exists():
+      existing = existing.first()
+      if existing.onto_self_attendance != self_attendance_status:
+        existing.trainees.remove(trainee)
+        existing.save()
+
+    else:
+      sap, created = SelfAttendancePool.objects.get_or_create(term=ct, date=datetime.date.today(), onto_self_attendance=self_attendance_status)
+      sap.trainees.add(trainee)
+      sap.save()
+
+    res = {trainee_id: str(self_attendance_status)}
     return JsonResponse(res)
 
   def get_context_data(self, **kwargs):
