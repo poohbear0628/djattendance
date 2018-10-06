@@ -5,8 +5,6 @@
 
 {% block scripts %}
 <script type="text/javascript">
-  var TYPESTRINGS = {"A": "approved", "D": "denied", "S": "TA sister approved"};
-
   var bulkSelect = {};
 
   function select(slipRow, dict) {
@@ -69,30 +67,18 @@
 
     $('[data-toggle="tooltip"]').tooltip();
 
-    ajaxify($('.modify-status'), function(element, data) {
-      new Notification(Notification.SUCCESS, $(data).find('.announce__title').html()).show();
-      var row = $(element).parentsUntil("tbody");
-      var id = row[row.length-1].id.split("-")[0];
-      row.fadeOut(1000, function() {
-        delete bulkSelect[id];
-        if (Object.keys(bulkSelect).length <= 1) {
-          $(".bulk-actions").hide();
-        }
-      });
-    });
-
     $("#checkall").click(function () {
-        if ($("#checkall").is(':checked')) {
-          $("#display_leaveslips .leaveslip-row").each(function () {
-            select($(this), bulkSelect);
-          });
-        } else {
-          $("#display_leaveslips .leaveslip-row").each(function () {
-            deselect($(this), bulkSelect);
-          });
-          $(".bulk-actions").hide();
-        }
-      });
+      if ($("#checkall").is(':checked')) {
+        $("#display_leaveslips .leaveslip-row").each(function () {
+          select($(this), bulkSelect);
+        });
+      } else {
+        $("#display_leaveslips .leaveslip-row").each(function () {
+          deselect($(this), bulkSelect);
+        });
+        $(".bulk-actions").hide();
+      }
+    });
 
     function bulkAction(type, slips) {
       $.ajax({
@@ -119,11 +105,7 @@
     $("#bulk-approve").click(function () {
       var check = confirm("Do you want to approve " + Object.keys(bulkSelect).length.toString() + " leave slips?");
       if (check) {
-        {% if request.user.gender == "S" %}
-          bulkAction("S", bulkSelect);
-        {% else %}
-          bulkAction("A", bulkSelect);
-        {% endif %}
+        bulkAction("A", bulkSelect);
       }
     });
 
@@ -131,6 +113,20 @@
       var check = confirm("Do you want to deny " + Object.keys(bulkSelect).length.toString() + " leave slips?");
       if (check) {
         bulkAction("D", bulkSelect);
+      }
+    });
+
+    $("#bulk-approve-transfer").click(function () {
+      var check = confirm("Do you want to approve and transfer " + Object.keys(bulkSelect).length.toString() + " leave slips?");
+      if (check) {
+        bulkAction("S", bulkSelect);
+      }
+    });
+
+    $("#bulk-transfer").click(function () {
+      var check = confirm("Do you want to transfer " + Object.keys(bulkSelect).length.toString() + " leave slips?");
+      if (check) {
+        bulkAction("T", bulkSelect);
       }
     });
 
@@ -159,6 +155,7 @@
 
   });
 </script>
+{% include 'leaveslips/_ta_actions_js.html' with individual=None %}
 {% endblock %}
 {% block references %}
   <link rel="stylesheet" href="{% static 'seating/css/seating.css' %}"/>
@@ -186,7 +183,6 @@
 {% block content %}
 
 <h1>TA Leave Slips List</h1>
-<a id="ajax-redirect" href="{% url 'leaveslips:ta-leaveslip-list' %}"></a>
 <!-- Select box for view leave slips for TA -->
 <div class="row">
   <div class="col-md-12">
@@ -287,7 +283,7 @@
               {% include "leaveslips/_ta_labels.html" %}
             </td>
             <td>
-              {% include 'leaveslips/_ta_actions.html' with detail=False %}
+              {% include 'leaveslips/_ta_actions.html' %}
             </td>
             <td>
               <a class="leaveslip_detail" href="{{leaveslip.get_ta_update_url}}">Details</a>
@@ -299,16 +295,29 @@
   </div>
 </div>
 <div class="bulk-actions">
-  <div>
-    <button type="button" title="Approve" class="btn btn-success" id="bulk-approve">
-      <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-    </button>
-  </div>
-  <div>
-    <button type="button" title="Deny" class="btn btn-danger" id="bulk-deny">
-      <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-    </button>
-  </div>
+  {% if request.user.gender == "S" %}
+    <div>
+      <button type="button" title="Approve and Transfer" class="btn btn-success" id="bulk-approve-transfer">
+        <span class="glyphicon glyphicon-check" aria-hidden="true"></span><span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div>
+      <button type="button" title="Transfer" class="btn btn-info" id="bulk-transfer">
+        <span class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span>
+      </button>
+    </div>
+  {% else %}
+    <div>
+      <button type="button" title="Approve" class="btn btn-success" id="bulk-approve">
+        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div>
+      <button type="button" title="Deny" class="btn btn-danger" id="bulk-deny">
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+      </button>
+    </div>
+  {% endif %}
 </div>
 
 {% endblock %}
