@@ -29,26 +29,18 @@ def get_week():
       return i
 
 #In Progress
-def GospelStatisticsView(request):
-  current_user = request.user
-  context = {
-    'team' : current_user.team,
-    'page_title' : 'Team Statistics',
-    'gospel_partners' : current_user.firstname+' '+current_user.lastname,
-    'cols' : attributes,
-    'week' : get_week(),
-  }
+class GospelStatisticsView(TemplateView):
+  template_name = "gospel_statistics/gospel_statistics.html"
 
-  '''
-  stats = GospelStat.objects.filter(team=current_user.team)
-  ctx = {'Tracts_Distributed': 0}
-  for i in stats:
-    ctx['Tracts_Distributed']+=i.tracts_distributed
-  for i in ctx:
-    context[i]=ctx[i]
-  '''
-
-  return render(request, 'gospel_statistics/gospel_statistics.html', context=context)
+  def get_context_data(self, **kwargs):
+    current_user = self.request.user
+    context = super(GospelStatisticsView, self).get_context_data(**kwargs)
+    context['team'] = current_user.team
+    context['page_title'] = 'Team Statistics'
+    context['gospel_pairs'] = current_user.firstname+' '+current_user.lastname
+    context['cols'] = attributes
+    context['week'] = get_week()
+    return context
 
 def GospelStatisticsSave(request):
   current_user = request.user
