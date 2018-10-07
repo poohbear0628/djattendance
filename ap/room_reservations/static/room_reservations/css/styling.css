@@ -105,7 +105,7 @@ body {
   background-color:#3A7F99;
   bottom:3em;
   height:2.5em;
-  left:0em;
+  left:0;
   position:fixed;
   width:16.5em;
   z-index:11;
