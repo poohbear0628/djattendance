@@ -41,7 +41,7 @@ function displayTicker(ans) {
   $("#ticker").append(anns.append(temp));
   var annsSize = $("#ticker").width();
   var headingSize = $("#ticker-heading-wrap").width();
-  annsSize = $("#ticker").width() - headingSize;
+  var annsSize = $("#ticker").width() - headingSize;
   //Change speed here (higher = faster)
   var speed = 12;
   if (speed <= 0) {
