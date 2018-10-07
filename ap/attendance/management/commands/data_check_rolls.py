@@ -51,10 +51,15 @@ class Command(BaseCommand):
         dest='mislink_rolls',
         help='Pull rolls with a mislink in schedules',
     )
-    parser.add_argument(  # --mr2 1
-        '--mr2',
-        dest='mislink_rolls2',
+    parser.add_argument(  # --mra 1
+        '--mra',
+        dest='mislink_rolls_accurate',
         help='Pull rolls with a mislink in schedules, improved',
+    )
+    parser.add_argument(  # --sa 1
+        '--sa',
+        dest='self_attendance_rolls',
+        help='Pull rolls that are semi-ghost do to moving of trainee onto/off self-attendance',
     )
     parser.add_argument(  # --gr 1
         '--gr',
@@ -184,10 +189,10 @@ class Command(BaseCommand):
       for r in [r for r in other_rolls if r.trainee == t]:
         print "Roll ID", r.id, r, "submitted by", r.submitted_by, "on", r.last_modified
 
-  file_name = '../all_mislink_rolls' + RIGHT_NOW + '.txt'
+  file_name = '../accurate_mislink_rolls' + RIGHT_NOW + '.txt'
 
   # @open_file(file_name)
-  def _mislink_rolls2(self):
+  def _mislink_rolls_accurate(self):
     mislinked_rolls_ids = []
     ct = Term.current_term()
     ct_rolls = Roll.objects.filter(date__gte=ct.start)
@@ -205,6 +210,30 @@ class Command(BaseCommand):
           mislinked_rolls_ids.append(r.id)
 
     print mislinked_rolls_ids
+
+  file_name = '../self_attendance_rolls' + RIGHT_NOW + '.txt'
+
+  # @open_file(file_name)
+  def _self_attendance_rolls(self):
+    mislinked_rolls_ids = {}
+    ct = Term.current_term()
+    ct_rolls = Roll.objects.filter(date__gte=ct.start)
+    for t in Trainee.objects.all().order_by('lastname'):
+      rolls = ct_rolls.filter(trainee=t).order_by('date').values_list('pk', flat=True)
+      valid_rolls = t.current_rolls().values_list('pk', flat=True)
+      set1 = set(rolls) - set(valid_rolls)
+      set2 = set(valid_rolls) - set(rolls)
+      set_total = set1 | set2
+      if len(set_total) > 0:
+        mislinked_rolls_ids[t_id] = set_total
+
+    for t_id in mislinked_rolls_ids:
+      trainee = Trainee.objects.get(pk=t_id)
+      print trainee
+      rolls = Roll.objects.filter(id__in=mislinked_rolls_ids[t_id]).order_by('date')
+      for roll in rolls:
+        print roll
+      print '\n'
 
 
   file_name = '../ghost_rolls' + RIGHT_NOW + '.txt'
@@ -358,14 +387,17 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
     allcmd = False
-    if all(options[x] is None for x in ['mislink_rolls','mislink_rolls2', 'ghost_rolls', 'mislink_slips', 'invalid_duplicates']):
+    if all(options[x] is None for x in ['mislink_rolls','mislink_rolls_accurate', 'self_attendance_rolls', 'ghost_rolls', 'mislink_slips', 'invalid_duplicates']):
       allcmd = True
     if allcmd or options['mislink_rolls']:
       print('* Pulling Rolls with mislinked Trainee...')
       self._mislink_rolls()
-    if allcmd or options['mislink_rolls2']:
+    if allcmd or options['mislink_rolls_accurate']:
       print('* Actually pulling Rolls with mislinked Trainee...')
-      self._mislink_rolls2()
+      self._mislink_rolls_accurate()
+    if allcmd or options['self_attendance_rolls']:
+      print('* Pull Rolls submitted by wrong people...')
+      self._mislink_rolls_accurate()
     if allcmd or options['ghost_rolls']:
       print('* Pulling "present" Rolls with no leavslips attached...')
       self._ghost_rolls()
