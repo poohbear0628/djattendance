@@ -10,19 +10,21 @@
   {% include 'attendance/_attendance_data.html' %}
   <script type="text/javascript">
     $(document).ready(() => {
-      $("#id_TA").val({{default_transfer_ta.id}});
-
+      $("#id_TA").val(null);
       $('.hidden-input').hide();
 
       //rearrange form buttons
-      var transferField = document.getElementById("id_TA").parentNode;
-      var form = transferField.parentNode;
-      if (document.getElementById("approve-ls")) {form.insertBefore(document.getElementById("approve-ls"), transferField);}
-      if (document.getElementById("deny-ls")) {form.insertBefore(document.getElementById("deny-ls"), transferField);}
-      if (document.getElementById("fellowship-ls")) {form.insertBefore(document.getElementById("fellowship-ls"), transferField);}
-      if (document.getElementById("unfellowship-ls")) {form.insertBefore(document.getElementById("unfellowship-ls"), transferField);}
-      if (document.getElementById("delete-ls")) {form.insertBefore(document.getElementById("delete-ls"), transferField);}
-      if (document.getElementById("save-ls")) {form.insertBefore(document.getElementById("save-ls"), transferField);}
+      if ("{{ sister }}" == "True") {
+        $("#id_TA").val("{{ default_transfer_ta.id }}");
+        var transferField = document.getElementById("id_TA").parentNode;
+        var form = transferField.parentNode;
+        if (document.getElementById("approve-ls")) {form.insertBefore(document.getElementById("approve-ls"), transferField);}
+        if (document.getElementById("deny-ls")) {form.insertBefore(document.getElementById("deny-ls"), transferField);}
+        if (document.getElementById("fellowship-ls")) {form.insertBefore(document.getElementById("fellowship-ls"), transferField);}
+        if (document.getElementById("unfellowship-ls")) {form.insertBefore(document.getElementById("unfellowship-ls"), transferField);}
+        if (document.getElementById("delete-ls")) {form.insertBefore(document.getElementById("delete-ls"), transferField);}
+        if (document.getElementById("save-ls")) {form.insertBefore(document.getElementById("save-ls"), transferField);}
+      }
 
       let redirect = $('#ajax-redirect').attr('href');
       $(".delete-slip").click(function (e) {
@@ -45,9 +47,9 @@
 
       $("#save-ls").click(function (e) {
         {% block onsubmit %}{% endblock %}
-        var postData = $("#leaveslip-form").serialize()
-        if ("{{sister}}" == "True") {
-          var i = postData.indexOf('TA=')
+        var postData = $("#leaveslip-form").serialize();
+        if ("{{ sister }}" == "True" || !$("#id_TA").val()) {
+          var i = postData.indexOf('TA=');
           for (i; i < postData.length; i++) {
             if (postData[i] == '&') {break;}
           }
