@@ -52,8 +52,6 @@ function displayTicker(ans) {
   var totalSize = (screen - annsSize - headingSize)*10/speed;
 
   //Animates the ticker announcements if it is longer than the screen width
-  console.log($("#ticker").width());
-  console.log(screen-headingSize);
   if ($("#ticker").width()>screen-headingSize-50) {
     $("#ticker").animate({left: "100%"},0,"linear");
     $("#ticker").animate({left: annsSize + "px"},totalSize*10,"linear");
