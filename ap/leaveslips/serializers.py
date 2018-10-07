@@ -57,7 +57,18 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         instance.rolls.add(newroll)
 
     try:
-      instance.TA = TrainingAssistant.objects.get(id=validated_data.get('TA', instance.TA_id))
+      # TA detail view posts TA id instead of TA objects like react
+      if isinstance(validated_data.get('TA'), basestring):
+        TA_id = validated_data.get('TA')
+      else:
+        TA_id = validated_data.get('TA', instance).id
+      instance.TA = TrainingAssistant.objects.get(id=TA_id)
+
+      if isinstance(validated_data.get('TA_informed'), basestring):
+        TA_informed_id = validated_data.get('TA_informed')
+      else:
+        TA_informed_id = validated_data.get('TA_informed', instance).id
+      instance.TA_informed = TrainingAssistant.objects.get(id=TA_informed_id) if TA_informed_id else None
     except TrainingAssistant.DoesNotExist:
       # id POSTed does not match to a TA, don't update instance.TA
       pass
