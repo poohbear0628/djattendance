@@ -10,10 +10,11 @@ from zipfile import ZipFile
 from accounts.models import Trainee
 from aputils.eventutils import EventUtils
 from aputils.utils import render_to_pdf
-from attendance.models import Roll
+from attendance.models import Roll, SelfAttendancePool
 from braces.views import GroupRequiredMixin
 from django.http import HttpResponse, JsonResponse
 from django.views.generic.base import TemplateView
+from django.db.models import Q
 from leaveslips.models import GroupSlip
 from localities.models import Locality
 from terms.models import Term
@@ -236,9 +237,7 @@ def attendance_report_trainee(request):
   if date_to > ct.end:
     date_to = ct.end
 
-  rolls = Roll.objects.filter(trainee=trainee, date__gte=date_from, date__lte=date_to).exclude(status='P').exclude(event__monitor=None)
-  if trainee.self_attendance:
-    rolls = rolls.filter(submitted_by=trainee)
+  rolls = trainee.current_rolls().filter(date__gte=date_from, date__lte=date_to).exclude(status='P').exclude(event__monitor=None)
 
   start_datetime = datetime.combine(date_from, datetime.min.time())
   end_datetime = datetime.combine(date_to, datetime.max.time())
@@ -285,7 +284,7 @@ def attendance_report_trainee(request):
   res["classes_missed_percentage"] = str(round(missed_classes.count() / float(possible_class_rolls_count) * 100, 2)) + "%"
 
   # CALCULATE %SICKNESS
-  rolls_covered_by_sickness = Roll.objects.filter(trainee=trainee, leaveslips__status='A', leaveslips__type='SICK', date__gte=date_from, date__lte=date_to).distinct()
+  rolls_covered_by_sickness = trainee.current_rolls().filter(leaveslips__status='A', leaveslips__type='SICK', date__gte=date_from, date__lte=date_to).distinct()
 
   res["sickness_percentage"] = str(round(rolls_covered_by_sickness.count() / float(total_possible_rolls_count) * 100, 2)) + "%"
 

@@ -335,8 +335,34 @@ class Trainee(User):
   def current_rolls(self):
     c_term = Term.current_term()
     rolls = self.rolls.filter(date__gte=c_term.start, date__lte=c_term.end)
-    if self.self_attendance:
+    sap_list = list(self.selfattpool.all().order_by('-date'))
+    sap_length = len(sap_list)
+    if sap_length == 0 and self.self_attendance:
       rolls = rolls.filter(submitted_by=self)
+    elif sap_length == 1:
+      sap = sap_list[0]
+      change_date = sap.date
+      if sap.onto_self_attendance:
+        rolls = rolls.filter(Q(date__gte=change_date, submitted_by=self) | Q(date__lt=change_date))
+      else:
+        rolls = rolls.filter(Q(date__lte=change_date, submitted_by=trainee) | Q(date__gt=change_date))
+
+    elif sap_length > 1:
+      last_sap = sap_list.pop()
+      for sap in sap_list:
+        change_date = sap.date
+        onto_self_attendance = sap.onto_self_attendance
+        if onto_self_attendance:
+          rolls = rolls.filter(Q(date__lt=change_date) | Q(date__gte=change_date, submitted_by=self))
+        else:
+          rolls = rolls.filter(Q(date__lt=change_date, submitted_by=self) | Q(date__gte=change_date))
+      change_date = last_sap.date
+      if last_sap.onto_self_attendance:
+        rolls = rolls.filter(Q(date__lt=change_date) | Q(date__gte=change_date, submitted_by=self))
+      else:
+        rolls = rolls.filter(Q(date__lt=change_date, submitted_by=self) | Q(date__gte=change_date))
+
+
     return rolls
 
   def __unicode__(self):
