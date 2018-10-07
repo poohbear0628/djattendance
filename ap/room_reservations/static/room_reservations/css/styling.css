@@ -105,9 +105,9 @@ body {
   background-color:#3A7F99;
   bottom:3em;
   height:2.5em;
-  left:.5em;
+  left:0em;
   position:fixed;
-  width:15.9em;
+  width:16.5em;
   z-index:11;
 }
 
