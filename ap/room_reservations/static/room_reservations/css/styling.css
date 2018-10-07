@@ -73,7 +73,7 @@ body {
 }
 
 #ticker{
-  bottom:.75em;
+  bottom:1.95em;
   color:#393A42;
   font-size: 1.5em;
   left:0;
@@ -81,9 +81,18 @@ body {
   z-index:10;
 }
 
+#ticker-heading{
+  bottom:2.4em;
+  color:white;
+  font-size: 1.5em;
+  left:2em;
+  position:fixed;
+  z-index:12;
+}
+
 #ticker-wrap{
   background-color:#A6C5D1;
-  bottom:1.3em;
+  bottom:3em;
   display:block;
   height:2.5em;
   left:0;
@@ -92,20 +101,11 @@ body {
   z-index:9;
 }
 
-#ticker-heading{
-  bottom:1.2em;
-  color:white;
-  font-size: 1.5em;
-  left:1.7em;
-  position:fixed;
-  z-index:12;
-}
-
 #ticker-heading-wrap{
   background-color:#3A7F99;
-  bottom:1.3em;
+  bottom:3em;
   height:2.5em;
-  left:0;
+  left:.5em;
   position:fixed;
   width:15.9em;
   z-index:11;
