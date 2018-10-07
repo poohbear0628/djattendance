@@ -57,7 +57,18 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         instance.rolls.add(newroll)
 
     try:
-      instance.TA = TrainingAssistant.objects.get(id=validated_data.get('TA', instance.TA_id))
+      # TA detail view posts TA id instead of TA objects like react
+      if isinstance(validated_data.get('TA'), basestring):
+        TA_id = validated_data.get('TA')
+      else:
+        TA_id = validated_data.get('TA', instance).id
+      instance.TA = TrainingAssistant.objects.get(id=TA_id)
+
+      if isinstance(validated_data.get('TA_informed'), basestring):
+        TA_informed_id = validated_data.get('TA_informed')
+      else:
+        TA_informed_id = validated_data.get('TA_informed', instance).id
+      instance.TA_informed = TrainingAssistant.objects.get(id=TA_informed_id) if TA_informed_id else None
     except TrainingAssistant.DoesNotExist:
       # id POSTed does not match to a TA, don't update instance.TA
       pass
@@ -70,7 +81,7 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
     instance.finalized = validated_data.get('finalized', instance.finalized)
     instance.description = validated_data.get('description', instance.description)
     instance.comments = validated_data.get('comments', instance.comments)
-    instance.comments = validated_data.get('private_TA_comments', instance.private_TA_comments)
+    instance.private_TA_comments = validated_data.get('private_TA_comments', instance.private_TA_comments)
     instance.texted = validated_data.get('texted', instance.texted)
     instance.informed = validated_data.get('informed', instance.informed)
     instance.location = validated_data.get('location', instance.location)

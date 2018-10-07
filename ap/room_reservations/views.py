@@ -9,6 +9,7 @@ from django.core.serializers import serialize
 from django.http import JsonResponse, HttpResponse
 
 from .models import RoomReservation
+from announcements.models import Announcement
 from .forms import RoomReservationForm
 from accounts.models import User
 from rooms.models import Room
@@ -132,7 +133,6 @@ def tv_page_version(request):
 def zero_pad(time):
   return '0' + str(time) if time < 10 else str(time)
 
-
 def tv_page_reservations(request):
   limit = int(request.GET.get('limit', 10))
   offset = int(request.GET.get('offset', 0))
@@ -147,8 +147,7 @@ def tv_page_reservations(request):
     res = []
     for reservation in reservations:
       # Exclude events not on the current weekday
-
-      if reservation.date > date.today() and reservation.date < Term.current_term().monday_start or date.today().weekday() != reservation.date.weekday():
+      if date.today().weekday() != reservation.date.weekday():
         continue
       hours = reservation.end.hour - reservation.start.hour
       minutes = reservation.end.minute - reservation.start.minute
@@ -166,5 +165,11 @@ def tv_page_reservations(request):
     room_data.append({'name': r.name, 'res': res})
   return HttpResponse(json.dumps(room_data))
 
+def tv_page_ticker(stuff):
+  ans = []
+  announcements = Announcement.objects.filter(type='TV', announcement_date__lte=date.today(), announcement_end_date__gte=date.today(), status='A')
+  for i in announcements:
+    ans.append(i.announcement)
+  return HttpResponse(json.dumps(ans))
 
 reservation_modify_status = modify_model_status(RoomReservation, reverse_lazy('room_reservations:ta-room-reservation-list'))
