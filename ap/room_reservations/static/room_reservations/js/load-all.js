@@ -12,8 +12,8 @@ function displayTicker(ans) {
     //Check that the announcements present are the same
     var anss = ans.concat().sort();
     var oldAnss = oldAns.concat().sort();
-    for(var i = 0; i < anss.length; i++) {
-      if (anss[i] !== oldAnss[i]) {
+    for(var each = 0; each < anss.length; each++) {
+      if (anss[each] !== oldAnss[each]) {
         location.reload(true);
       }
     }
