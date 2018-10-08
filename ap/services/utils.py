@@ -12,9 +12,12 @@ from sets import Set
 from .constants import (MAX_PREPS_PER_WEEK, MAX_SERVICE_CATEGORY_PER_WEEK,
                         MAX_SERVICES_PER_DAY, PREP)
 from .models import (Assignment, Prefetch, SeasonalServiceSchedule, Service,
-                     ServiceException, ServiceSlot, Sum, WorkerGroup)
+                     ServiceException, ServiceAttendance, ServiceSlot, Sum, Worker, WorkerGroup)
 from .service_scheduler import ServiceScheduler
 
+from aputils.trainee_utils import is_trainee, trainee_from_user
+from terms.models import Term
+import datetime
 
 '''
 Pseudo-code for algo
@@ -423,3 +426,22 @@ SERVICE_CHECKS = [
     ServiceCheck(assignment_cat, MAX_SERVICE_CATEGORY_PER_WEEK, '> {0} category/week'.format(MAX_SERVICE_CATEGORY_PER_WEEK)),
     ServiceCheck(assignment_prep, MAX_PREPS_PER_WEEK, '> {0} prep/week'.format(MAX_PREPS_PER_WEEK)),
 ]
+
+def unfinalized_service(user):
+  # return list of service_id and week  
+  term = Term.current_term()
+  try:
+    if is_trainee(user):
+      current_term = Term.current_term()
+      current_week = Term.reverse_date(current_term, datetime.date.today())[0]
+      worker = trainee_from_user(user).worker
+      designated_services = worker.designated.all()
+      for service in designated_services:
+        print service.id
+        for week in range(0, current_week-1):
+          if (not ServiceAttendance.objects.filter(designated_service=service).filter(worker=worker).filter(term=current_term).filter(week=week) or
+            ServiceAttendance.objects.get(designated_service=service,worker=worker,term=current_term,week=week).get_service_hours() == 0):
+            return [service.id,week]
+  except AttributeError:
+    pass
+  return None
