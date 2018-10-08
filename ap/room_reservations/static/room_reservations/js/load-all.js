@@ -9,10 +9,11 @@ function displayTicker(ans) {
     if (oldAns.length !== ans.length) {
       location.reload(true);
     }
-    ans = ans.concat().sort();
-    oldAns = oldAns.concat().sort();
-    for(var i = 0; i < ans.length; i++) {
-      if (ans[i] !== oldAns[i]) {
+    //Check that the announcements present are the same
+    anss = ans.concat().sort();
+    oldAnss = oldAns.concat().sort();
+    for(var i = 0; i < anss.length; i++) {
+      if (anss[i] !== oldAnss[i]) {
         location.reload(true);
       }
     }
@@ -31,10 +32,10 @@ function displayTicker(ans) {
   }
   for (var i = 0; i < anslen; i++) {
     //Format ticker announcements here
-    temp.append("<b></b> " + ans[i]);
+    temp.append("<b></b>" + ans[i]);
     if (i+1 !== anslen) {
       //Spacing between the announcements
-      temp.append("<b>&nbsp&nbsp&nbsp&nbsp</b>");
+      temp.append("<b>&nbsp&nbsp</b>");
     }
   }
   var anns = $("<p style=\"white-space:nowrap\"></p>");
