@@ -73,7 +73,7 @@ body {
 }
 
 #ticker{
-  bottom:1.85em;
+  bottom:1.51em;
   color:#393A42;
   font-size: 1.5em;
   left:0;
@@ -82,7 +82,7 @@ body {
 }
 
 #ticker-heading{
-  bottom:2.35em;
+  bottom:1.98em;
   color:white;
   font-size: 1.5em;
   left:2em;
@@ -92,7 +92,7 @@ body {
 
 #ticker-wrap{
   background-color:#A6C5D1;
-  bottom:3em;
+  bottom:2.4em;
   display:block;
   height:2.5em;
   left:0;
@@ -103,7 +103,7 @@ body {
 
 #ticker-heading-wrap{
   background-color:#3A7F99;
-  bottom:3em;
+  bottom:2.4em;
   height:2.5em;
   left:0;
   position:fixed;
