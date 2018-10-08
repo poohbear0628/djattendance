@@ -1,5 +1,5 @@
 from collections import Counter, OrderedDict
-from datetime import datetime
+import datetime
 from itertools import combinations
 
 from accounts.models import User
@@ -17,7 +17,6 @@ from .service_scheduler import ServiceScheduler
 
 from aputils.trainee_utils import is_trainee, trainee_from_user
 from terms.models import Term
-import datetime
 
 '''
 Pseudo-code for algo
@@ -429,15 +428,13 @@ SERVICE_CHECKS = [
 
 def unfinalized_service(user):
   # return list of service_id and week  
-  term = Term.current_term()
   try:
-    if is_trainee(user):
+    if is_trainee(user):      
       current_term = Term.current_term()
-      current_week = Term.reverse_date(current_term, datetime.date.today())[0]
-      worker = trainee_from_user(user).worker
-      designated_services = worker.designated.all()
-      for service in designated_services:
-        print service.id
+      current_week = Term.reverse_date(current_term, datetime.date.today())[0]      
+      worker = trainee_from_user(user).worker      
+      designated_services = worker.designated.all()      
+      for service in designated_services:        
         for week in range(0, current_week-1):
           if (not ServiceAttendance.objects.filter(designated_service=service).filter(worker=worker).filter(term=current_term).filter(week=week) or
             ServiceAttendance.objects.get(designated_service=service,worker=worker,term=current_term,week=week).get_service_hours() == 0):
