@@ -427,14 +427,14 @@ SERVICE_CHECKS = [
 ]
 
 def unfinalized_service(user):
-  # return list of service_id and week  
+  # return list of service_id and week
   try:
-    if is_trainee(user):      
+    if is_trainee(user):
       current_term = Term.current_term()
-      current_week = Term.reverse_date(current_term, datetime.date.today())[0]      
-      worker = trainee_from_user(user).worker      
-      designated_services = worker.designated.all()      
-      for service in designated_services:        
+      current_week = Term.reverse_date(current_term, datetime.date.today())[0]
+      worker = trainee_from_user(user).worker
+      designated_services = worker.designated.all()
+      for service in designated_services:
         for week in range(0, current_week-1):
           if (not ServiceAttendance.objects.filter(designated_service=service).filter(worker=worker).filter(term=current_term).filter(week=week) or
             ServiceAttendance.objects.get(designated_service=service,worker=worker,term=current_term,week=week).get_service_hours() == 0):
