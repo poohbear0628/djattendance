@@ -350,7 +350,7 @@ class ExceptionActiveViewSet(BulkModelViewSet):
   serializer_class = ExceptionActiveSerializer
 
 
-class ServiceHours(GroupRequiredMixin, UpdateView):
+class ServiceHours(UpdateView):
   model = ServiceAttendance
   template_name = 'services/service_hours.html'
   form_class = ServiceAttendanceForm
