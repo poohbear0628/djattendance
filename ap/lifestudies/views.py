@@ -255,40 +255,6 @@ class SummaryUpdateView(SuccessMessageMixin, UpdateView):
     return context
 
 
-class CreateHouseDiscipline(TemplateView):
-  template_name = 'lifestudies/discipline_house.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(CreateHouseDiscipline, self).get_context_data(**kwargs)
-    context['form'] = HouseDisciplineForm()
-    return context
-
-  def post(self, request, *args, **kwargs):
-    """this manually creates Disciplines for each house member"""
-    if request.method == 'POST':
-      form = HouseDisciplineForm(request.POST)
-      if form.is_valid():
-        house = House.objects.get(id=request.POST['House'])
-        listTrainee = Trainee.objects.filter(house=house)
-        for trainee in listTrainee:
-          discipline = Discipline(
-            infraction=form.cleaned_data['infraction'],
-            quantity=form.cleaned_data['quantity'],
-            due=form.cleaned_data['due'],
-            offense=form.cleaned_data['offense'],
-            note=form.cleaned_data['note'],
-            trainee=trainee)
-          try:
-            discipline.save()
-          except IntegrityError:
-            transaction.rollback()
-        messages.success(request, "Disciplines Assigned to House!")
-        return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
-    else:
-      form = HouseDisciplineForm()
-    return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
-
-
 class AttendanceAssign(ListView):
   """this view mainly displays trainees, their roll status, and the number
    of summary they are to be assigned. The actual assigning is done by
