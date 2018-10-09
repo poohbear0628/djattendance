@@ -442,3 +442,12 @@ def unfinalized_service(user):
   except AttributeError:
     pass
   return None
+
+def has_designated_service(user):
+  term = Term.current_term()
+  worker = trainee_from_user(user).worker
+  designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
+  if designated_assignments.exists():
+    return True
+
+  return None

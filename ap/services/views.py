@@ -354,7 +354,6 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
   model = ServiceAttendance
   template_name = 'services/service_hours.html'
   form_class = ServiceAttendanceForm
-  group_required = ['designated_service']
   service = None
   designated_assignments = None
   service_id = 0  # from ajax
@@ -364,15 +363,15 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
     term = Term.current_term()
     worker = trainee_from_user(self.request.user).worker
     self.designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
-    try:
+    if 'week' in self.kwargs.keys():
       self.week = self.kwargs['week']
-    except KeyError:
+    else:
       self.week = term.term_week_of_date(datetime.now().date())
 
     # get service
-    try:
+    if 'sevice_id' in self.kwargs.keys():
       self.service_id = self.kwargs['service_id']
-    except KeyError:
+    else:
       self.service_id = self.designated_assignments[0].service.id
 
     self.service = Service.objects.get(id=self.service_id)
@@ -388,11 +387,15 @@ class ServiceHours(GroupRequiredMixin, UpdateView):
 
   def dispatch(self, request, *args, **kwargs):
     if request.method == 'GET':
-      try:
+      kwarg_keys = self.kwargs.keys()
+      if 'week' in kwarg_keys and 'service_id' in kwarg_keys:
         self.kwargs['week']
         self.kwargs['service_id']
-      except KeyError:
-        self.get_object()
+      else:
+        try:
+          self.get_object()
+        except IndexError:
+          return redirect('home')
         return redirect(reverse('services:designated_service_hours', kwargs={'service_id': self.service_id, 'week': self.week}))
     return super(ServiceHours, self).dispatch(request, *args, **kwargs)
 
