@@ -86,7 +86,7 @@ class EventUtils:
           weekday = ev.weekday
           try:
             ev.priority = schedule.priority
-          except:
+          except AttributeError:
             ev.priority = schedule['priority']
           day_evnts = w_tb.setdefault((w, weekday), OrderedDict())
 
