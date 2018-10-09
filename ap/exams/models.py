@@ -149,6 +149,10 @@ class Section(models.Model):
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
+  class Meta:
+    ordering = ['exam', 'section_index']
+    unique_together = ('exam', 'section_index')
+
   def autograde(self, response):
     if self.section_type != 'E':
       responses = response.responses
@@ -216,6 +220,7 @@ class Responses(models.Model):
 
   class Meta:
     verbose_name = "response"
+    unique_together = ('session', 'section')
 
 
 # Makeup are deleted upon creation of session.
@@ -223,3 +228,6 @@ class Makeup(models.Model):
   trainee = models.ForeignKey(Trainee, related_name='exam_makeup', on_delete=models.SET_NULL, null=True)
   exam = models.ForeignKey(Exam, on_delete=models.SET_NULL, null=True)
   time_opened = models.DateTimeField(auto_now_add=True)
+
+  class Meta:
+    unique_together = ('trainee', 'exam')
