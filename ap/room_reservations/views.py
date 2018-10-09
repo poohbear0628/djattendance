@@ -121,7 +121,8 @@ class RoomReservationTVView(TemplateView):
 
 def weather_api(request):
   ANAHEIM_WEATHER = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22anaheim%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
-  return JsonResponse(requests.get(ANAHEIM_WEATHER).json())
+  response_text = requests.get(ANAHEIM_WEATHER).text.replace('\n', '')
+  return JsonResponse(json.loads(response_text))
 
 
 # to be incremented for convenience rather than having to go into room to
