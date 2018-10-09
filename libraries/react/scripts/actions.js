@@ -403,6 +403,7 @@ export const deleteLeaveSlip = (slip) => {
       url: '/api/individualslips/' + slip.id.toString(),
       type: 'DELETE',
       success: function(data, status, jqXHR) {
+        dispatch(resetLeaveslipForm());
         new Notification(Notification.SUCCESS, "Leave slip deleted!").show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -492,6 +493,7 @@ export const deleteGroupSlip = (slip) => {
       url: '/api/groupslips/' + slip.id.toString(),
       type: 'DELETE',
       success: function(data, status, jqXHR) {
+        dispatch(resetGroupslipForm());
         new Notification(Notification.SUCCESS, "Group slip deleted!").show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
