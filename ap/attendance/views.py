@@ -628,7 +628,6 @@ class RollViewSet(BulkModelViewSet):
     create = False
     update = False
     user_id = self.request.user.id
-    is_AM = user_id in list(Trainee.objects.filter(groups__name='attendance_monitors').values_list('pk', flat=True))
     roll = Roll.objects.none()
 
     # interface dependent adjustment for rolls if on self-attendance
