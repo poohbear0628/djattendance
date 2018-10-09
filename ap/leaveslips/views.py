@@ -75,11 +75,13 @@ class IndividualSlipUpdate(LeaveSlipUpdate):
     update = request.POST.dict()
     if request.POST.get('events'):
       update['events'] = json.loads(request.POST.get('events'))
+    # 'on' is the POSTed value for checked checkboxes, 'off' for unchecked
     if request.POST.get('ta_sister_approved'):
-      update['ta_sister_approved'] = bool(request.POST.get('ta_sister_approved')) #risky business, be watchful of the POSTed value for ta_sister_approved
+      update['ta_sister_approved'] = True if request.POST.get('ta_sister_approved') == 'on' else False
+    if request.POST.get('texted'):
+      update['texted'] = True if request.POST.get('texted') == 'on' else False
 
     IndividualSlipSerializer().update(self.get_object(), update)
-    # super(IndividualSlipUpdate, self).post(request, **kwargs)
     return HttpResponse('ok')
 
 
