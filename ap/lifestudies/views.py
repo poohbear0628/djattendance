@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from copy import deepcopy
 
 from ap.forms import TraineeSelectForm
 from accounts.models import Trainee
@@ -24,7 +23,7 @@ from rest_framework.decorators import permission_classes
 from teams.models import Team
 from terms.models import Term
 
-from .forms import (EditSummaryForm, HouseDisciplineForm, NewDisciplineForm,
+from .forms import (EditSummaryForm, NewDisciplineForm,
                     NewSummaryForm)
 from .models import Discipline, Summary
 from .permissions import IsOwner

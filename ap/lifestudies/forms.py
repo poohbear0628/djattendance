@@ -83,13 +83,3 @@ class EditSummaryForm(forms.ModelForm):
     if commit:
       summary.save()
     return summary
-
-
-class HouseDisciplineForm(forms.ModelForm):
-
-  class Meta:
-    model = Discipline
-    exclude = ('trainee',)
-    widgets = {'due': DatetimePicker()}
-
-  House = forms.ModelChoiceField(House.objects)
