@@ -1,22 +1,22 @@
-import requests
 import json
 from datetime import date
 
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import TemplateView
-from django.core.urlresolvers import reverse_lazy
-from django.core.serializers import serialize
-from django.http import JsonResponse, HttpResponse
-
-from .models import RoomReservation
-from .forms import RoomReservationForm
+import requests
 from accounts.models import User
-from rooms.models import Room
+from announcements.models import Announcement
 from aputils.trainee_utils import is_TA
 from aputils.utils import modify_model_status
+from braces.views import GroupRequiredMixin
+from django.core.serializers import serialize
+from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse, JsonResponse
+from django.views.generic import TemplateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from rooms.models import Room
 from terms.models import Term
 
-from braces.views import GroupRequiredMixin
+from .forms import RoomReservationForm
+from .models import RoomReservation
 
 TIMES_AM = [
     '%s:%s%s' % (h, m, 'am')
@@ -26,7 +26,7 @@ TIMES_AM = [
 
 TIMES_PM = [
     '%s:%s%s' % (h, m, 'pm')
-    for h in ([12] + list(range(1, 12))) #list addition to capture 12pm
+    for h in ([12] + list(range(1, 12)))  # list addition to capture 12pm
     for m in ('00', '30')
 ]
 
@@ -95,6 +95,7 @@ class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
 class RoomReservationDelete(RoomReservationSubmit, DeleteView):
   model = RoomReservation
 
+
 class TARoomReservationList(GroupRequiredMixin, TemplateView):
   model = RoomReservation
   group_required = ['training_assistant']
@@ -120,7 +121,8 @@ class RoomReservationTVView(TemplateView):
 
 def weather_api(request):
   ANAHEIM_WEATHER = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22anaheim%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
-  return JsonResponse(requests.get(ANAHEIM_WEATHER).json())
+  response_text = requests.get(ANAHEIM_WEATHER).text.replace('\n', '')
+  return JsonResponse(json.loads(response_text))
 
 
 # to be incremented for convenience rather than having to go into room to
@@ -147,8 +149,7 @@ def tv_page_reservations(request):
     res = []
     for reservation in reservations:
       # Exclude events not on the current weekday
-
-      if reservation.date > date.today() and reservation.date < Term.current_term().monday_start or date.today().weekday() != reservation.date.weekday():
+      if date.today().weekday() != reservation.date.weekday():
         continue
       hours = reservation.end.hour - reservation.start.hour
       minutes = reservation.end.minute - reservation.start.minute
@@ -165,6 +166,14 @@ def tv_page_reservations(request):
           minute = 30
     room_data.append({'name': r.name, 'res': res})
   return HttpResponse(json.dumps(room_data))
+
+
+def tv_page_ticker(stuff):
+  ans = []
+  announcements = Announcement.objects.filter(type='TV', announcement_date__lte=date.today(), announcement_end_date__gte=date.today(), status='A')
+  for i in announcements:
+    ans.append(i.announcement)
+  return HttpResponse(json.dumps(ans))
 
 
 reservation_modify_status = modify_model_status(RoomReservation, reverse_lazy('room_reservations:ta-room-reservation-list'))
