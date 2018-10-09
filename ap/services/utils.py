@@ -444,7 +444,7 @@ def unfinalized_service(user):
   return None
 
 def has_designated_service(user):
-  if user.type == 'R':
+  if is_trainee(user):
     worker = trainee_from_user(user).worker
     designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
     if designated_assignments.exists():
