@@ -1,13 +1,21 @@
 from django import forms
 
 from .models import Discipline, Summary
-from accounts.models import Statistics, User
+from accounts.models import Trainee, Statistics
+from accounts.widgets import TraineeSelect2MultipleInput
 from houses.models import House
 from books.models import Book
 from aputils.widgets import DatetimePicker
 
 
 class NewDisciplineForm(forms.ModelForm):
+
+  trainee = forms.ModelMultipleChoiceField(
+    queryset=Trainee.objects.all(),
+    required=True,
+    widget=TraineeSelect2MultipleInput,
+  )
+
   class Meta:
     model = Discipline
     fields = '__all__'
@@ -19,7 +27,7 @@ class NewDisciplineForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(NewDisciplineForm, self).__init__(*args, **kwargs)
     self.fields['missed_service'].widget.attrs['placeholder'] = 'If this is a missed service, type in the date and service of the service'
-    self.fields['trainee'].queryset = User.objects.filter(is_active=True, type='R').order_by('lastname')
+    self.fields['trainee'].widget.attrs['id'] = 'id_trainees'
 
   def save(self, commit=True):
     discipline = super(NewDisciplineForm, self).save(commit=False)
