@@ -1,7 +1,7 @@
 from django import forms
 
 from .models import Discipline, Summary
-from accounts.models import Trainee, Statistics
+from accounts.models import Statistics, User
 from houses.models import House
 from books.models import Book
 from aputils.widgets import DatetimePicker
@@ -19,6 +19,7 @@ class NewDisciplineForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(NewDisciplineForm, self).__init__(*args, **kwargs)
     self.fields['missed_service'].widget.attrs['placeholder'] = 'If this is a missed service, type in the date and service of the service'
+    self.fields['trainee'].queryset = User.objects.filter(is_active=True, type='R').order_by('lastname')
 
   def save(self, commit=True):
     discipline = super(NewDisciplineForm, self).save(commit=False)
