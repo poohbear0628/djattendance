@@ -12,7 +12,7 @@ from sets import Set
 from .constants import (MAX_PREPS_PER_WEEK, MAX_SERVICE_CATEGORY_PER_WEEK,
                         MAX_SERVICES_PER_DAY, PREP)
 from .models import (Assignment, Prefetch, SeasonalServiceSchedule, Service,
-                     ServiceException, ServiceAttendance, ServiceSlot, Sum, Worker, WorkerGroup)
+                     ServiceException, ServiceAttendance, ServiceSlot, Sum, WorkerGroup)
 from .service_scheduler import ServiceScheduler
 
 from aputils.trainee_utils import is_trainee, trainee_from_user
@@ -444,7 +444,6 @@ def unfinalized_service(user):
   return None
 
 def has_designated_service(user):
-  term = Term.current_term()
   worker = trainee_from_user(user).worker
   designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
   if designated_assignments.exists():
