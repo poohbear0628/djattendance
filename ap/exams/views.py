@@ -249,14 +249,13 @@ class SingleExamGradesListView(GroupRequiredMixin, TemplateView):
 
         sessions = trainee.current_sessions
         # Save grades for trainees who use paper submission
-        session = Session(
-            exam=exam,
-            trainee=trainee,
-            is_submitted_online=False,
-            time_finalized=datetime.now(),
-            is_graded=True,
-            grade=float(grades[index]))
-        session.save()
+        session, created = Session.objects.update_or_create(
+          exam=exam,
+          trainee=trainee,
+          is_submitted_online=False,
+          time_finalized=datetime.now(),
+          is_graded=True,
+          grade=float(grades[index]))
 
       grades2 = P.getlist('session-id-grade')
       session_ids = P.getlist('session-id')
