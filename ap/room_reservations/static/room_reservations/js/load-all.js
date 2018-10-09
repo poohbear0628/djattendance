@@ -9,10 +9,11 @@ function displayTicker(ans) {
     if (oldAns.length !== ans.length) {
       location.reload(true);
     }
-    ans = ans.concat().sort();
-    oldAns = oldAns.concat().sort();
-    for(var i = 0; i < ans.length; i++) {
-      if (ans[i] !== oldAns[i]) {
+    //Check that the announcements present are the same
+    var anss = ans.concat().sort();
+    var oldAnss = oldAns.concat().sort();
+    for(var each = 0; each < anss.length; each++) {
+      if (anss[each] !== oldAnss[each]) {
         location.reload(true);
       }
     }
@@ -31,10 +32,10 @@ function displayTicker(ans) {
   }
   for (var i = 0; i < anslen; i++) {
     //Format ticker announcements here
-    temp.append("<b>" + (i+1) + ". </b> " + ans[i]);
+    temp.append("<b></b>" + ans[i]);
     if (i+1 !== anslen) {
       //Spacing between the announcements
-      temp.append("&nbsp&nbsp&nbsp&nbsp");
+      temp.append("<b>&nbsp&nbsp</b>");
     }
   }
   var anns = $("<p style=\"white-space:nowrap\"></p>");
@@ -42,15 +43,25 @@ function displayTicker(ans) {
   var annsSize = $("#ticker").width();
   var headingSize = $("#ticker-heading-wrap").width();
   annsSize = $("#ticker").width() - headingSize;
+  annsSize *= -1;
   //Change speed here (higher = faster)
   var speed = 12;
   if (speed <= 0) {
     speed = 10;
   }
-  var totalSize = (annsSize + $(document).width())*10/speed;
-  //Animates the ticker announcements
-  $("#ticker").animate({left: "100%"},0,"linear");
-  $("#ticker").animate({left: "-" + annsSize + "px"},totalSize*10,"linear");
+  var screen = $(document).width();
+  var totalSize = (screen - annsSize - headingSize)*10/speed;
+
+  //Animates the ticker announcements if it is longer than the screen width
+  if ($("#ticker").width()>screen-headingSize-50) {
+    $("#ticker").animate({left: "100%"},0,"linear");
+    $("#ticker").animate({left: annsSize + "px"},totalSize*10,"linear");
+  }
+  //otherwise keep it stationary
+  else {
+    var buffer = headingSize+7;
+    $("#ticker").animate({left: buffer+"px"},0);
+  }
 }
 
 function loadTicker() {
