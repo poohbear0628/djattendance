@@ -3,12 +3,12 @@
 
 $table-background-color:          $white !default;
 $table-background-striped:        $tan-light !default;
-$table-background-hover:          $tan !default;
+$table-background-hover:          $blue-highlight !default;
 $table-border-color:              $tan-light !default;
 $table-border-editable:           $tan !default;
 
-$table-header-color:              $tan !default;
-$table-text-color:                $brown !default;
+$table-header-color:              darken($tan, 50%) !default;
+$table-text-color:                darken($brown, 50%) !default;
 
 
 // Exports
@@ -30,8 +30,15 @@ $table-text-color:                $brown !default;
     color: $table-header-color;
   }
   td {
-    text-align: left;
+    text-align: center;
     color: $table-text-color;
+  }
+  tr{
+    text-align: center;
+  }
+
+  .td-text {
+    text-align: left;
   }
 
 
@@ -119,6 +126,35 @@ $table-text-color:                $brown !default;
     }
   }
 
+  .table-bordered-wkly-sum {
+    @extend .table-bordered;
+    font-size: 16px;
+    border: 1.5px solid $grey-light;
+    width: 100%;
+    > thead {
+      > tr {
+        > th {
+          color: $grey;
+          border: 1.5px solid $grey-light;
+        }
+      }
+    }
+    > tbody,
+    > tfoot {
+      > tr {
+        > th {
+          color: $grey;
+          text-align: left;
+          border: 1.5px solid $grey-light;
+        }
+        > td {
+          width: 60px;
+          color: $black;
+          border: 1.5px solid $grey-light;
+        }
+      }
+    }
+  }
 
   // Zebra-striping
   //
@@ -130,7 +166,6 @@ $table-text-color:                $brown !default;
     }
   }
 
-
   // Hover effect
   //
   // Placed here since it has to come after the potential zebra striping
@@ -138,10 +173,18 @@ $table-text-color:                $brown !default;
   .table-hover {
     > tbody > tr:hover {
       background-color: $table-background-hover;
-      > td {
-        color: $white;
-      }
     }
   }
 
+  // Addition styling for front page table
+  td.bibleReadingRow {
+    border: 5px;
+    padding: 0;
+    margin: 5px;
+    text-align: center;
+  }
+
+  tr.bibleTrackerButton{
+    padding: 0;
+  }
 }

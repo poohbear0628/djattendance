@@ -1,23 +1,32 @@
 {% extends "leaveslips/leaveslip_update.html" %}
 
+{% block scripts %}
+  {{ block.super }}
+  {% include 'leaveslips/_ta_actions_js.html' with individual=False %}
+{% endblock %}
+
+{% block ls_link %}
+href="{{next_ls_url}}"
+{% endblock %}
+
+{% block references %}
+  {{ block.super }}
+  {{ form.media }}
+  <style type="text/css" media="screen">
+    li[title="{{ leaveslip.trainee.full_name }}"] {
+      background-color: #FFDB77 !important;
+    }
+  </style>
+{% endblock %}
+
 {% block leaveslip_script %}
   <script>
-    $(document).ready(function() {
-      var leaveslip_start = "{{leaveslip.start|date:'c'}}";
-      var leaveslip_end = "{{leaveslip.end|date:'c'}}";
-      events = $('#calendar').fullCalendar('clientEvents');
-      for (var i=0; i<events.length; i++) {
-        e = events[i];
-        if(e.start.isBetween(leaveslip_start, leaveslip_end) || e.end.isBetween(leaveslip_start, leaveslip_end)) {
-          e.backgroundColor = calendar_color['L'];
-        } else {
-          e.backgroundColor = "";
-        }
-      }
-
-      $('#calendar').fullCalendar('render');
-      $('#id_trainees').select2({width: '100%'});
-      $('#calendar').fullCalendar('gotoDate', leaveslip_start);
+    $(document).ready(() => {
+      $("label[for|='id_trainees']").append(
+        '<span id="submitter_display" style="margin-left: 10px; font-size: 12px;">Submitter: {{ leaveslip.trainee.full_name }}</span>');
+      $("#id_trainees").djangoSelect2({
+        width: "100%"
+      });
     });
   </script>
 {% endblock %}

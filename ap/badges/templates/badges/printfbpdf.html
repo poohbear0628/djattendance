@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% load render_bundle from webpack_loader %}
+{% load common_tags %}
 
 <head style="margin-bottom:100px">
   {% render_bundle 'jquery_bootstrap' %}
@@ -87,7 +88,7 @@ p {
                 <div class="col-xs-12">
                   <p class="badge__text">
                     <b>
-                      {{badge.firstname}} {{badge.middlename}}{% if badge.middlename %}.{% endif %}
+                      {{badge.firstname}} {% if badge.middlename %}{{badge.middlename}}.{% endif %}
                       <br>{{badge.lastname}}
                       <br>
                     </b>

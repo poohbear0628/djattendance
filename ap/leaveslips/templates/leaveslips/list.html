@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Leaveslips{% endblock %}
+{% block title %}Leave Slips{% endblock %}
 
 {% block content %}
-<h1>Leaveslips</h1>
+<h1>Leave Slips</h1>
 
 {% regroup object_list by get_status_display as sorted %}
   <div>
@@ -66,7 +66,7 @@
         <br>Submitted on {{leaveslip.submitted}}
 
       <!-- Modal -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Delete Leaveslip" aria-hidden="true">
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="Delete Leave Slip" aria-hidden="true">
         <div class="modal-dialog">
         <div class="modal-content">
 
@@ -90,7 +90,7 @@
     {% endfor %}
     </div>
   {% empty %}
-    <h4><i>You have no leaveslips.</i></h4>
+    <h4><i>You have no leave slips.</i></h4>
   {% endfor %}
   </div>
 
@@ -100,8 +100,8 @@
       var slipId = +$(this).val();
       console.log(slipId)
       var csrf_token = "{% csrf_token %}";
-      $('#deleteModal .modal-title').html('Delete Leaveslip');
-      $('#deleteModal .modal-body').html('<p>Are you sure you want to delete this leaveslip?</p>');
+      $('#deleteModal .modal-title').html('Delete Leave Slip');
+      $('#deleteModal .modal-body').html('<p>Are you sure you want to delete this leave slip?</p>');
       //load form into Modal
       //$('#deleteModal .modal-form').load('individual/delete/' + slipId);
       $('#deleteModal .modal-form').html('<form action="individual/delete/'+ slipId+'" method="post">'+ csrf_token +'<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button><input class="btn btn-danger" type="submit" value="Delete"/></form>');
@@ -113,8 +113,8 @@
       var slipId = +$(this).val();
       console.log(slipId)
       var csrf_token = "{% csrf_token %}";
-      $('#deleteModal .modal-title').html('Delete Leaveslip');
-      $('#deleteModal .modal-body').html('<p>Are you sure you want to delete this leaveslip?</p>');
+      $('#deleteModal .modal-title').html('Delete Leave Slip');
+      $('#deleteModal .modal-body').html('<p>Are you sure you want to delete this leave slip?</p>');
       //load form into Modal
       //$('#deleteModal .modal-form').load('individual/delete/' + slipId);
       $('#deleteModal .modal-form').html('<form action="group/delete/'+ slipId+'" method="post">'+ csrf_token +'<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button><input class="btn btn-danger" type="submit" value="Delete"/></form>');

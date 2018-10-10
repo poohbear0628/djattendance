@@ -1,21 +1,24 @@
-from django.forms import ModelForm, MultipleChoiceField
-from django.forms.models import ModelChoiceField, ModelMultipleChoiceField
-
-from .models import Exam, Section, Session
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
 from classes.models import Class
+from django.forms import ModelForm
+from django.forms.models import ModelChoiceField, ModelMultipleChoiceField
+
+from .models import Exam, Session
 
 
 class ExamCreateForm(ModelForm):
-  training_class = ModelChoiceField(Class.objects.all(), empty_label=None)
+  training_class = ModelChoiceField(
+    Class.regularclasses.all(), empty_label=None, label="Training Class"
+  )
+
   class Meta:
     model = Exam
-    fields = ('training_class', 'description', 'is_open', 'duration', 'category', 'term')
+    fields = ('training_class', 'description', 'is_open', 'is_graded_open', 'duration', 'category', 'term')
 
 
 class ExamReportForm(ModelForm):
-  exam = ModelChoiceField(queryset=Exam.objects.all(), required=False, label='Select an exam')
+  exam = ModelChoiceField(queryset=Exam.objects.all(), required=False, label='Select an exam (Default - all exams)')
   label = 'Trainees whose exams to generate a report for'
   trainee = ModelMultipleChoiceField(
     widget=TraineeSelect2MultipleInput,

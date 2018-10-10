@@ -1,7 +1,8 @@
 import {format, isWithinRange} from 'date-fns'
+import { getWeekFromDate } from './constants'
 
 import { getDateDetails } from './selectors/selectors'
-import { taInformedToServerFormat } from './constants'
+import { taInformedToServerFormat, TA_EMPTY } from './constants'
 
 export const TOGGLE_LEGEND = 'TOGGLE_LEGEND'
 export const toggleLegend = () => {
@@ -10,10 +11,18 @@ export const toggleLegend = () => {
   }
 }
 
+export const TOGGLE_PERIOD_SELECT = 'TOGGLE_PERIOD_SELECT'
+export const togglePeriodSelect = () => {
+  return {
+    type: TOGGLE_PERIOD_SELECT
+  }
+}
+
 export const selectPeriod = (period) => {
   return (dispatch, getState) => {
     let dateDetails = getDateDetails(getState())
     dispatch(changeDate((period - dateDetails.period) * 14))
+    dispatch(deselectAllEvents())
   }
 }
 
@@ -27,10 +36,17 @@ export const changeDate = (days) => {
 
 export const TOGGLE_EVENT = 'TOGGLE_EVENT'
 export const toggleEvent = (ev) => {
+  return (dispatch, getState) => {
+    if (getState().show !='summary') {
+      dispatch(toggle(ev))
+    }
+  }
+}
+const toggle = (ev) => {
   return {
     type: TOGGLE_EVENT,
-    event: ev
-  };
+    event: ev,
+  }
 }
 
 export const DESELECT_ALL_EVENTS = 'DESELECT_ALL_EVENTS'
@@ -53,7 +69,10 @@ export const finalizeRoll = () => {
       contentType: 'application/json',
       data: JSON.stringify(dateDetails),
       success: function(data, status, jqXHR) {
-        dispatch(submitRoll(data.rolls))
+        let weeks = JSON.parse(data.finalized_weeks).weeks.split(',')
+        dispatch(finalizeWeeks(weeks))
+        //dispatch(submitRoll(data.rolls))
+        new Notification(Notification.SUCCESS, 'Finalized').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -76,8 +95,14 @@ export const postRollSlip = (rollSlip, selectedEvents, slipId) => {
     return function(dispatch) {
       dispatch(postRoll(rollSlip, selectedEvents, slipId, true));
     }
-  } else {
-    // dispatch(receiveResponse('Error no data for roll or slips'));
+  }
+}
+
+export const FINALIZE_WEEKS = 'FINALIZE_WEEKS'
+export const finalizeWeeks = (weeks) => {
+  return {
+    type: FINALIZE_WEEKS,
+    weeks: weeks
   }
 }
 
@@ -114,7 +139,7 @@ export const postRoll = (values) => {
   var rolls = [];
   var roll = {
     "event": null,
-    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
+    "trainee": values.traineeView.id,
     "status": values.rollStatus.id,
     "finalized": false,
     "notes": "",
@@ -123,18 +148,11 @@ export const postRoll = (values) => {
     "date": null
   }
   let selectedEvents = values.selectedEvents;
-  if (selectedEvents.length == 0) {
-    //need to create an error action
-    return function(dispatch) {
-      // dispatch(receiveResponse('error no events selected'));
-    }
-  } else {
-    for (var i = 0; i < selectedEvents.length; i++) {
-      rolls.push(Object.assign({}, roll, {
-        event: selectedEvents[i].id,
-        date: format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
-      }));
-    }
+  for (var i = 0; i < selectedEvents.length; i++) {
+    rolls.push(Object.assign({}, roll, {
+      event: selectedEvents[i].id,
+      date: format(selectedEvents[i].start_datetime, 'YYYY-MM-DD')
+    }));
   }
   return function(dispatch) {
     var data = null;
@@ -152,6 +170,7 @@ export const postRoll = (values) => {
       success: function(data, status, jqXHR) {
         dispatch(submitRoll(rolls));
         dispatch(resetRollForm());
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Roll post error!');
@@ -170,10 +189,11 @@ export const changeRollForm = (values) => {
 }
 
 export const UPDATE_TRAINEE_VIEW = 'UPDATE_TRAINEE_VIEW'
-export const updateTraineeView = (trainee) => {
+export const updateTraineeView = (trainee, TA) => {
   return {
     type: UPDATE_TRAINEE_VIEW,
-    traineeView: trainee
+    traineeView: trainee,
+    TA: TA,
   }
 }
 
@@ -195,8 +215,8 @@ export const updateAttendance = (attendance) => {
 
 export const CHANGE_TRAINEE_VIEW = 'CHANGE_TRAINEE_VIEW'
 export const changeTraineeView = (trainee) => {
-  return function(dispatch) {
-    dispatch(updateTraineeView(trainee))
+  return function(dispatch, getState) {
+    dispatch(updateTraineeView(trainee, getState().tas.filter(ta => ta.id == trainee.TA)[0]))
     $.ajax({
       url: '/api/events',
       type: 'GET',
@@ -231,8 +251,21 @@ export const changeTraineeView = (trainee) => {
   }
 }
 
+export const duplicateSlip = (values) => {
+  let type = CHANGE_LEAVESLIP_FORM
+  if (values.classname == 'group') {
+    type = CHANGE_GROUPSLIP_FORM
+  }
+  return {
+    type: type,
+    values: {
+      ...values,
+      id: undefined,
+    }
+  }
+}
+
 export const CHANGE_LEAVESLIP_FORM = 'CHANGE_LEAVESLIP_FORM'
-  //values here is all the values of the form
 export const changeLeaveSlipForm = (values) => {
   return {
     type: CHANGE_LEAVESLIP_FORM,
@@ -264,11 +297,13 @@ export const postLeaveSlip = (values) => {
     name: e.name,
     code: e.code,
   }))
+  let TA_informed = values.ta.id == TA_EMPTY.id ? undefined : values.ta.id;
   var slip = {
     "type": values.slipType.id,
     "status": "P",
-    "TA": values.ta.id,
-    "trainee": values.traineeView ? values.traineeView.id : values.trainee.id,
+    "TA_informed": TA_informed,
+    "TA": values.traineeView.TA,
+    "trainee": values.traineeView.id,
     "submitted": Date.now(),
     "last_modified": Date.now(),
     "finalized": null,
@@ -294,6 +329,7 @@ export const postLeaveSlip = (values) => {
         console.log("returned data", data, status, jqXHR);
         dispatch(submitLeaveSlip(data));
         dispatch(resetLeaveslipForm());
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -361,12 +397,14 @@ export const editGroupLeaveSlip = (slip) => {
 
 export const deleteLeaveSlip = (slip) => {
   return function(dispatch) {
+    dispatch(showCalendar(0));
     dispatch(destroyLeaveSlip(slip));
     return $.ajax({
       url: '/api/individualslips/' + slip.id.toString(),
       type: 'DELETE',
       success: function(data, status, jqXHR) {
-        // dispatch(receiveResponse(status));
+        dispatch(resetLeaveslipForm());
+        new Notification(Notification.SUCCESS, "Leave slip deleted!").show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
@@ -397,6 +435,7 @@ export const postGroupSlip = (gSlip) => {
       gSlip.end = event.end_datetime;
     }
   }
+  let TA_informed = gSlip.ta.id == TA_EMPTY.id ? undefined : gSlip.ta.id;
   var slip = {
     "type": gSlip.slipType.id,
     "status": "P",
@@ -407,8 +446,9 @@ export const postGroupSlip = (gSlip) => {
     "comments": gSlip.comments,
     "start": gSlip.start,
     "end": gSlip.end,
-    "TA": gSlip.ta.id,
-    "trainee": gSlip.traineeView ? gSlip.traineeView.id : gSlip.trainee.id,
+    "TA": gSlip.traineeView.TA,
+    "TA_informed": TA_informed,
+    "trainee": gSlip.traineeView.id,
     "trainees": gSlip.trainees.map(t => t.id),
     ...taInformedToServerFormat(gSlip.ta_informed),
   }
@@ -423,11 +463,11 @@ export const postGroupSlip = (gSlip) => {
       data: JSON.stringify(slipId ? [slip] : slip),
       success: function(data, status, jqXHR) {
         // only add the groupslip to display if the trainee is in it
-        if (slip.trainees.indexOf(getState().trainee.id) >= 0) {
+        if (slip.trainees.indexOf(getState().form.traineeView.id) >= 0) {
           dispatch(submitGroupSlip(data));
         }
-        // dispatch(receiveResponse(status));
-        dispatch(resetGroupslipForm())
+        dispatch(resetGroupslipForm());
+        new Notification(Notification.SUCCESS, 'Saved').show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip post error!');
@@ -447,12 +487,14 @@ export const destroyGroupSlip = (slip) => {
 
 export const deleteGroupSlip = (slip) => {
   return function(dispatch) {
+    dispatch(showCalendar(0));
     dispatch(destroyGroupSlip(slip));
     return $.ajax({
       url: '/api/groupslips/' + slip.id.toString(),
       type: 'DELETE',
       success: function(data, status, jqXHR) {
-        // dispatch(receiveResponse(status));
+        dispatch(resetGroupslipForm());
+        new Notification(Notification.SUCCESS, "Group slip deleted!").show();
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log('Slip delete error!');
@@ -467,7 +509,7 @@ export const selectTab = (index) => {
   return function(dispatch, getState) {
     let show = getState().show
     // deselect events if going to and from the group slip tab. Reset the forms.
-    if ((show!=='groupslip' && index===3) || (show==='groupslip' && index!==3)) {
+    if ((show !== 'groupslip' && index === 3) || (show === 'groupslip' && index !== 3)) {
       dispatch(resetGroupslipForm())
       dispatch(resetLeaveslipForm())
       dispatch(resetRollForm())

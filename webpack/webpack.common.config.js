@@ -18,6 +18,9 @@ module.exports = {
     select_2: [
       '../ap/templates/bundles/select_2.js',
     ],
+    tinymce: [
+      '../ap/templates/bundles/tinymce.js',
+    ],
   },
 
   output: {
@@ -32,7 +35,28 @@ module.exports = {
         exclude: [/node_modules/],
         use: [{
           loader: 'babel-loader',
-          query: { 'plugins': ['react-hot-loader/babel'], 'presets': ['react', ['es2015', {'modules': false}], 'stage-2'] },
+          options: {
+            'plugins': [
+              "react-hot-loader/babel",
+              // Stage 2
+              ["@babel/plugin-proposal-decorators", { "legacy": true }],
+              "@babel/plugin-proposal-function-sent",
+              "@babel/plugin-proposal-export-namespace-from",
+              "@babel/plugin-proposal-numeric-separator",
+              "@babel/plugin-proposal-throw-expressions"
+            ],
+            'presets': [
+              ['@babel/preset-env', {
+                'targets': {
+                  "browsers": [
+                    "safari >= 7"
+                  ]
+                },
+                'modules': false
+              }],
+              "@babel/preset-react"
+            ]
+          },
         }],
       }, {
         test: /\.woff2?$|\.ttf$|\.eot$|\.svg$|\.png$|\.gif$/,

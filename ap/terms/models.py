@@ -1,12 +1,10 @@
 import datetime
-from datetime import timedelta, date
-import logging
-from exceptions import ValueError
+from datetime import date, timedelta
 
+from aputils.utils import ensure_date
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
-from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 """ TERM models.py
 
@@ -23,8 +21,13 @@ FIRST_WEEK = 0
 LAST_PERIOD = 9
 LAST_WEEK = 19
 
+SPRING = 'Spring'
+FALL = 'Fall'
+
 
 class Term(models.Model):
+  class Meta:
+    ordering = ['year', '-season']
 
   # cache variable stores current term
   # TODO: cache needs to be refreshed each term (on import)
@@ -36,8 +39,8 @@ class Term(models.Model):
   # a term's season; i.e. Spring/Fall
   season = models.CharField(max_length=6,
                             choices=(
-                              ('Spring', 'Spring'),
-                              ('Fall', 'Fall'),
+                              (SPRING, SPRING),
+                              (FALL, FALL),
                             ),
                             default=None)
 
@@ -85,15 +88,25 @@ class Term(models.Model):
       # try to return term by date (will not work for interim)
       try:
         return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
-      except ObjectDoesNotExist, ProgrammingError:
+      except (ObjectDoesNotExist, ProgrammingError):
         # logging.critical('Could not find any terms that match current date!')
         return None
     except MultipleObjectsReturned:
       # logging.critical('More than one term marked as current term! Check your Term models')
       # try to return term by date (will not work for interim)
       return Term.objects.get(Q(start__lte=today), Q(end__gte=today))
-    except:
+    except Exception:
       return None
+
+  @staticmethod
+  def next_term():
+    """Return the next term"""
+    current = Term.current_term()
+
+    if current.season == SPRING:
+      return Term(season=FALL, year=current.year)
+    else:
+      return Term(season=SPRING, year=current.year + 1)
 
   @staticmethod
   def current_season():
@@ -132,8 +145,9 @@ class Term(models.Model):
     '''
     return self.start - timedelta(days=self.start.weekday())
 
-  def is_date_within_term(self, date):
-    return date >= self.start and date <= self.end
+  def is_date_within_term(self, d):
+    d = ensure_date(d)
+    return d >= self.start and d <= self.end
 
   def currently_in_term(self):
     today = date.today()
@@ -157,24 +171,40 @@ class Term(models.Model):
     '''
       Accepts Periods in range: 0-9
     '''
-    return self.startdate_of_week(period*2)
+    return self.startdate_of_week(period * 2)
 
   def enddate_of_period(self, period):
     '''
       Accepts Periods in range: 0-9
     '''
-    return self.enddate_of_week(period*2+1)
+    return self.enddate_of_week(period * 2 + 1)
 
   def period_from_date(self, date):
     if not self.is_date_within_term(date):
-      print 'Outside term range, defaulting to last period'
-      return LAST_PERIOD
+      log_str = 'Outside term range, defaulting to '
+      d = ensure_date(date)
+      if d > self.end:
+        log_str += 'last period'
+        print log_str
+        return LAST_PERIOD
+      if d < self.start:
+        log_str += 'first period'
+        print log_str
+        return FIRST_PERIOD
     return (self.term_week_of_date(date)) // 2
 
   def term_week_of_date(self, date):
     if not self.is_date_within_term(date):
-      print 'Outside term range, defaulting to last week'
-      return LAST_WEEK
+      log_str = str(date) + ' outside term range, defaulting to '
+      d = ensure_date(date)
+      if d > self.end:
+        log_str += 'last week'
+        print log_str
+        return LAST_WEEK
+      if d < self.start:
+        log_str += 'first week'
+        print log_str
+        return FIRST_WEEK
     return (date.isocalendar()[1] - self.start.isocalendar()[1])
 
   def get_date(self, week, day):
@@ -192,16 +222,20 @@ class Term(models.Model):
       return (delta.days / 7, delta.days % 7)
     # if not within the dates the term, raise an error
     else:
-      raise ValueError('Invalid date for this term: ' + str(date))
+      # by default return last date in term
+      return (19, 6)
 
   def is_attendance_finalized(self, week, trainee):
-    today = datetime.date.today()
     term = self.current_term()
-    week_start = term.enddate_of_week(week)
+    week_start = term.startdate_of_week(week)
     week_end = term.enddate_of_week(week)
-    if not trainee.rolls.filter(date__lt=week_end, date__gt=week_start, finalized=True).exists():
+    if trainee.rolls.filter(date__lte=week_end, date__gte=week_start, finalized=True, submitted_by=trainee).count() > 0:
+      return True
+    else:
       return False
-    return True
 
   def __unicode__(self):
-    return self.name
+    try:
+      return self.name
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

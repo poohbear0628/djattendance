@@ -14,6 +14,41 @@
   <script type="text/javascript" src="{% static 'lifestudies/js/click-all.js' %}"></script>
   <script type="text/javascript" src="{% static 'lifestudies/js/checkboxes.js' %}"></script>
   <script type="text/javascript" src="{% static 'lifestudies/js/tooltip-submit-date.js' %}"></script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+    $("#mytable").DataTable({
+      info: false,
+      paging: true,
+      lengthMenu: [ [50, 100, -1], [50, 100, "All"] ],
+      autoWidth: true,
+      order: [6, 'desc'],
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      fixedHeader: {
+        header: true
+      },
+      buttons: [
+      {
+        extend: 'print',
+        text: 'Print',
+        autoPrint: true,
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      {
+        extend: 'pdf',
+        text: 'PDF',
+        exportOptions:{
+          columns: ':visible'
+        },
+      },
+      ],
+    });
+
+  });
+  </script>
 {% endblock %}
 
 {% block tab1 %} class="active" {% endblock %}
@@ -33,7 +68,9 @@
           <div class="panel panel-default">
             <div class="panel-heading">
               <h2 class="panel-title">
-                Discipline assigned for {{discipline.get_infraction_display}}. Summaries left: <b>{{discipline.get_num_summary_due}}</b>.
+                {% with infrac=discipline.get_infraction_display %}
+                Discipline assigned for {{infrac}} {% if infrac == 'Missed Service' %} ({{discipline.missed_service}}) {% endif %}. Summaries left: <b>{{discipline.get_num_summary_due}}</b>.
+                {% endwith %}
                 {% if discipline.offense == 'MO' %}
                   Offense type: <b><span class="text-danger">{{discipline.get_offense_display}}</span></b>.
                 {% else %}
@@ -78,7 +115,7 @@
                   </a>
                 {% endif %}
               {% empty %}
-              <div class="alert alert-warning"><i>You have not completed any life studies for this discipline.</i></div>
+              <div class="alert alert-comment"><i>You have not completed any life studies for this discipline.</i></div>
               {% endfor %}
               </ul>
             </div>
@@ -114,7 +151,6 @@
           </thead>
           <tbody>
           {% for discipline in disciplines %}
-            {% if discipline.is_completed == False %}
               <tr>
                 <td><input type="checkbox" name="selection" value="{{discipline.pk}}"></input></td>
                 <td>
@@ -122,7 +158,7 @@
                     <span class="glyphicon glyphicon-pencil"></span>
                   </a>
                 </td>
-                <td>{{discipline.trainee.firstname}} {{discipline.trainee.lastname|slice:"1"}}.</td>
+                <td>{{discipline.trainee.firstname}} {{discipline.trainee.lastname}}</td>
                 <td class="text-danger">{{discipline.infraction}}</td>
                 <td>{{discipline.offense}}</td>
                 <td>{{discipline.quantity}}</td>
@@ -152,7 +188,7 @@
                   {% endfor %}
                 </td>
               </tr>
-            {% endif %}
+
           {% endfor %}
         </tbody>
       </table>

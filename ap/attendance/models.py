@@ -1,9 +1,13 @@
 from datetime import date, datetime
 
+from accounts.models import Trainee, User
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db import models
 from schedules.models import Event
-from accounts.models import Trainee
 from terms.models import Term
+
+from django.core.validators import validate_comma_separated_integer_list
 
 """ attendance models.py
 The attendance module takes care of data and logic directly related
@@ -18,19 +22,35 @@ DATA MODELS:
 """
 
 
+class RollManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(RollManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date__gte=start_date, date__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class RollAllManager(models.Manager):
+  def get_queryset(self):
+    return super(RollAllManager, self).get_queryset()
+
+
 class Roll(models.Model):
 
   ROLL_STATUS = (
-    ('P', 'Present'),
-    ('A', 'Absent'),
-    ('T', 'Tardy'),
-    ('U', 'Uniform'),
-    ('L', 'Left Class')
+      ('P', 'Present'),
+      ('A', 'Absent'),
+      ('T', 'Tardy'),
+      ('U', 'Uniform'),
+      ('L', 'Left Class')
   )
 
-  event = models.ForeignKey(Event)
+  event = models.ForeignKey(Event, null=True, on_delete=models.SET_NULL)
 
-  trainee = models.ForeignKey(Trainee, related_name='rolls')
+  trainee = models.ForeignKey(Trainee, null=True, related_name='rolls', on_delete=models.SET_NULL)
 
   status = models.CharField(max_length=1, choices=ROLL_STATUS)
 
@@ -45,7 +65,7 @@ class Roll(models.Model):
   # for second year it can either by a second year trainee and/or any of the roles listed above
   # for second year there can be two roll objects per event, one submitted by the second year trainee and one submitted by a monitor, this is for audits
 
-  submitted_by = models.ForeignKey(Trainee, null=True, related_name='submitted_rolls')
+  submitted_by = models.ForeignKey(User, null=True, related_name='submitted_rolls', on_delete=models.SET_NULL)
 
   # when the roll was last updated
   last_modified = models.DateTimeField(auto_now=True)
@@ -54,8 +74,15 @@ class Roll(models.Model):
   date = models.DateField()
 
   def __unicode__(self):
-    # return status, trainee name, and event
-    return "[%s] %s @ [%s] %s" % (self.date, self.event, self.status, self.trainee)
+    try:
+      # return status, trainee name, and event
+      return "ID %s [%s] %s @ [%s] %s" % (self.id, self.date, self.event, self.status, self.trainee.full_name)
+    except (AttributeError, MultipleObjectsReturned, ObjectDoesNotExist) as e:
+      return str(self.id) + ": " + str(e)
+
+  class Meta:
+    ordering = ['-last_modified']
+    unique_together = ('trainee', 'event', 'date', 'submitted_by')
 
   @staticmethod
   def update_or_create(validated_data):
@@ -77,3 +104,41 @@ class Roll(models.Model):
     newroll, created = Roll.objects.update_or_create(**validated_data)
 
     return newroll
+
+  def self_submitted(self):
+    return self.trainee == self.submitted_by
+
+  def get_absolute_url(self):
+    return reverse('attendance:admin-roll', kwargs={'pk': self.id})
+
+  def get_delete_url(self):
+    return reverse('attendance:admin-roll-delete', kwargs={'pk': self.id})
+
+
+class RollsFinalization(models.Model):
+
+  EVENT_TYPES = (
+    ('EV', 'Everything'),
+    ('AM', 'Attendance Monitor'),
+    ('TM', 'Team Monitor'),
+    ('HC', 'House Coordinator'),
+  )
+
+  trainee = models.ForeignKey(Trainee)
+
+  weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, blank=True, null=False)
+
+  events_type = models.CharField(max_length=2, choices=EVENT_TYPES)
+
+  class Meta:
+    unique_together = ('trainee', 'events_type')
+
+  def __unicode__(self):
+    return "%s for %s" % (self.trainee, self.get_events_type_display())
+
+  def has_week(self, week):
+    if self.weeks != '':
+      weeks = [int(x) for x in self.weeks.split(',')]
+      return week in weeks
+    else:
+      return False

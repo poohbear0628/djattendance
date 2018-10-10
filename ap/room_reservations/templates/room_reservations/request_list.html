@@ -1,14 +1,32 @@
 {% load common_tags %}
 
+{% block script %}
+{% if user|is_TA %}
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    datatable = $('#request-table').DataTable({
+      "paging":   false,
+      "ordering": true,
+      "info":     false,
+      "search":{
+        "regex": true,
+        "search": "Pending|Marked"
+      },
+    });
+  });
+</script>
+
+{% endif %}
+{% endblock %}
+
 {% if reservations %}
 <div class="row">
-  <div id="request-table" class="col-md-12 col-xs-12">
-    <table class="table">
+  <div class="col-md-12 col-xs-12">
+    <table id="request-table" class="table">
       <thead>
         <tr>
-          {% if view.request.user|is_trainee %}
-            <th>Status</th>
-          {% endif %}
+          <th>Status</th>
           <th>Group</th>
           {% if view.request.user|is_TA %}
             <th>Submitted By</th>
@@ -17,7 +35,6 @@
           <th>Start</th>
           <th>End</th>
           <th>Room</th>
-          <th>Group Size</th>
           <th>Frequency</th>
           <th>Reason</th>
           <th>Actions</th>
@@ -26,9 +43,7 @@
       <tbody>
       {% for reservation in reservations %}
         <tr>
-          {% if view.request.user|is_trainee %}
-            <td>{{reservation.status}}</td>
-          {% endif %}
+          <td>{{reservation.get_status_display}}</td>
           <td>{{reservation.group}}</td>
           {% if view.request.user|is_TA %}
             <td>{{reservation.requester.full_name}}</td>
@@ -37,7 +52,6 @@
           <td>{{reservation.start|time}}</td>
           <td>{{reservation.end|time}}</td>
           <td>{{reservation.room}}</td>
-          <td>{{reservation.group_size}}</td>
           <td>{{reservation.frequency}}</td>
           <td>{{reservation.reason}}</td>
           <td>
@@ -57,14 +71,13 @@
                   <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                 </button>
               </a>
-            {% elif reservation.status != 'A' %}
               <a href="{{ reservation.get_update_url }}">
-                <button type="button" title="Approve" class="btn btn-primary">
+                <button type="button" title="Edit" class="btn btn-primary">
                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                 </button>
               </a>
               <a href="{{ reservation.get_delete_url }}">
-                <button class="btn btn-danger delete_request_button" type="submit" title="Delete"/>
+                <button class="btn btn-danger delete-request-button" type="submit" title="Delete"/>
                   <span class="glyphicon glyphicon-trash"></span>
                 </button>
               </a>

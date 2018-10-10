@@ -1,24 +1,26 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from itertools import chain
 
-from django.db import models
-
-from .models import Classnotes
+from accounts.models import Trainee
 from attendance.models import Roll
-from attendance.utils import Period
 from leaveslips.models import IndividualSlip, GroupSlip
 from terms.models import Term
-from accounts.models import Trainee
-from classes.models import Class
+
+from .models import Classnotes
 
 
-def assign_classnotes():
+def assign_classnotes(week=None):
+  term = Term.current_term()
+  start = term.start
+  end = term.end
+  if week is not None:
+    end = term.enddate_of_week(week)
   for trainee in Trainee.objects.all().iterator():
     update_classnotes_list(trainee)
-    assign_individual_classnotes(trainee)
+    assign_individual_classnotes(trainee, start, end)
 
 
-def assign_individual_classnotes(trainee):
+def assign_individual_classnotes(trainee, start, end):
   '''
     Assign Classnotes based on class absences
     - Any special leave of absence (eg. interviews, wedding):
@@ -29,13 +31,22 @@ def assign_individual_classnotes(trainee):
   # look at trainee's absences (for class event).
   # Increment absence_counts based on classname (HStore)
   regular_absence_counts = {}
-  term = Term.current_term()
-  rolls = trainee.rolls.all().filter(date__gte=term.start, date__lte=term.end, status='A', event__type='C').order_by('date').select_related('event')
+  rolls = trainee.rolls.all().filter(date__gte=start, date__lte=end, status='A', event__type='C').order_by('date').select_related('event')
+  if trainee.self_attendance:
+    rolls = rolls.filter(submitted_by=trainee)
+  else:
+    rolls = rolls.exclude(submitted_by=trainee)
+
+  # Afternoon classes
+  rolls = rolls.exclude(event__class_type='AFTN')
+  # Monday Revival Meeting
+  rolls = rolls.exclude(event__name='Monday Revival Meeting')
+  rolls = rolls.exclude(event__name='Morning Revival Fellowship')
+
   for roll in rolls.iterator():
       classname = roll.event.name
-      number_classnotes = calculate_number_classnotes(trainee, roll)
-      leavesliplist = get_leaveslip(trainee, roll)
-      if leavesliplist:
+      leavesliplist = list(get_leaveslip(trainee, roll))
+      if len(leavesliplist) > 0:
         for leaveslip in leavesliplist:
           # Special: Wedding, Graduation, Funeral, Interview.
           if leaveslip.type in ['INTVW', 'GRAD', 'WED', 'FUNRL']:
@@ -45,19 +56,17 @@ def assign_individual_classnotes(trainee):
           if leaveslip.type in ['OTHER', 'SICK', 'FWSHP', 'SPECL', 'NOTIF']:
             if classname in regular_absence_counts:
               regular_absence_counts[classname] += 1
-              if (regular_absence_counts[classname] - number_classnotes) > 2:
+              if (regular_absence_counts[classname]) > 2:
                 generate_classnotes(trainee, roll, 'R')
-                regular_absence_counts[classname] -= 1
             else:
               regular_absence_counts[classname] = 1
           # Missed classes with conference or service leave slips results in no class notes
       else:
-        # no leaveslip == unexcused absence
+        # no leave slip == unexcused absence
         if classname in regular_absence_counts:
           regular_absence_counts[classname] += 1
-          if (regular_absence_counts[classname] - number_classnotes) > 2:
+          if (regular_absence_counts[classname]) > 2:
             generate_classnotes(trainee, roll, 'R')
-            regular_absence_counts[classname] -= 1
         else:
           regular_absence_counts[classname] = 1
 
@@ -71,8 +80,8 @@ def update_classnotes_list(trainee):
     if roll and not roll.status == 'A':
       classnotes.delete()
     if roll and roll.status == 'A':
-      # check if there is an updated leaveslip for it
-      # delete classnotes if the leaveslip is a conference or service
+      # check if there is an updated leave slip for it
+      # delete classnotes if the leave slip is a conference or service
       leavesliplist = get_leaveslip(trainee, roll)
       for leaveslip in leavesliplist:
         if leaveslip.type == 'CONF' or leaveslip.type == 'SERV':

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{form.media}}
+{{block.super}}
+  <script type="text/javascript">
+
+    var fields = ['testimony', 'consideration', 'website', 'outline', 'misc', 'remembrance', 'xb'];
+
+    var dt_options = {
+      timepicker: false,
+      format: 'm/d/Y',
+      formatDate: 'm/d/Y',
+      defaultSelect: true
+    }
+
+    function hide_field(field){
+      $('label[for="id_' + field + '_due_date"]').hide();
+      $('#id_' + field + '_due_date').hide();
+    }
+
+    function show_field(field){
+      $('label[for="id_' + field + '_due_date"]').show();
+      $('#id_' + field + '_due_date').show();
+    }
+
+    function hide_or_show_all(){
+      for (field of fields) {
+        if ($('#id_' + field + '_show_status').find(":selected").val() !== 'NO'){
+          show_field(field);
+        } else {
+          hide_field(field);
+        }
+      }
+    }
+
+    function hide_or_show_element(el){
+      field = fields[fields.findIndex(f => el.id.includes(f))];
+      if (el.value !== 'NO'){
+        show_field(field);
+      } else {
+        hide_field(field);
+      }
+    }
+
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+
+    $( document ).ready(() => {
+
+      $( ".btn.btn-primary" ).click((e) => {
+        if (e.target.innerHTML === '{{button_label|safe}}') {
+          $('form#id_grad_admin_form').submit();
+        }
+      });
+
+      $('.datepicker').datetimepicker(dt_options);
+
+      if ($('#id_trainees').attr('multiple') === 'multiple') {
+        $('#id_trainees').select2();
+      }
+
+      hide_or_show_all();
+      $( "select" ).change((e) => hide_or_show_element(e.target));
+
+      $('#id_xb_due_date').datetimepicker(dt_options);
+
+      $("#id_trainees").djangoSelect2({
+        width: '100%'
+      })
+
+    });
+  </script>
+{% endblock %}
+
+{% block references %}
+{{block.super}}
+<style type="text/css">
+  table {
+    table-layout:fixed
+  }
+</style>
+
+{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+  <!-- Error messaging -->
+    <div id="errors">
+      <div class="inner">
+        <p>There were some errors in the information you entered. Please correct the following:</p>
+        {{ form.non_field_errors }}
+        <ul>
+          {% for field in form %}
+            {% if field.errors %}<li>{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  <!-- /Error messaging -->
+{% endif %}
+  <h2>{{ page_title }}</h2>
+
+  <p>Stats</p>
+  {% for stat, v in stats.items %}
+    <p>{{stat}}: {{v}} / {{4th_count}}</p>
+  {% endfor %}
+  <form id="id_grad_admin_form" action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-xs-12">
+        <table class="table table-bordered" id="table">
+          <tr>
+            <th></th>
+            <th>Show Status</th>
+            <th>Due Date</th>
+            <th>Report</th>
+          </tr>
+          <tr>
+            <td><label for="{{form.testimony_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:testimony-view' %}">TESTIMONY</a></label></td>
+            <td>{{form.testimony_show_status}}</td>
+            <td>{{form.testimony_due_date}}</td>
+            <td><a href="{% url 'graduation:testimony-report' %}">View</a></td>
+          </tr>
+          <tr>
+            <td><label for="{{form.consideration_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:consideration-view' %}">CONSIDERATION</a></label></td>
+            <td>{{form.consideration_show_status}}</td>
+            <td>{{form.consideration_due_date}}</td>
+            <td><a href="{% url 'graduation:consideration-report' %}">View</a></td>
+          </tr>
+           <tr>
+            <td><label for="{{form.website_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:website-view' %}">WEBSITE</a></label></td>
+            <td>{{form.website_show_status}}</td>
+            <td>{{form.website_due_date}}</td>
+            <td><a href="{% url 'graduation:website-report' %}">View</a></td>
+          </tr>
+          <tr>
+            <td><label for="{{form.outline_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:outline-view' %}">OUTLINE</a></label></td>
+            <td>{{form.outline_show_status}}</td>
+            <td>{{form.outline_due_date}}</td>
+            <td><a href="{% url 'graduation:outline-report' %}">View</a></td>
+          </tr>
+          <tr>
+            <td><label for="{{form.remembrance_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:remembrance-view' %}"><strong>REMEMBRANCE</strong></a></label><br>Character Limit {{form.remembrance_char_limit}}</td>
+            <td>{{form.remembrance_show_status}}</td>
+            <td>{{form.remembrance_due_date}}</td>
+            <td><a href="{% url 'graduation:rem-report' %}">View</a></td>
+          </tr>
+          <tr>
+            <td><label for="{{form.misc_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'graduation:misc-view' %}">MISC</a></label></td>
+            <td>{{form.misc_show_status}}</td>
+            <td>{{form.misc_due_date}}</td>
+            <td><a href="{% url 'graduation:misc-report' %}">View</a></td>
+          </tr>
+          <tr>
+            <td><label for="{{xb_form.xb_show_status.id_for_label}}" data-toggle="tooltip" data-placement="right" title="Trainee View"><a href="{% url 'xb:xb-application' %}">XB</a></label></td>
+            <td>{{xb_form.xb_show_status}}</td>
+            <td>{{xb_form.xb_due_date}}</td>
+            <td><a href="{% url 'xb:xb-report' %}">View</a></td>
+          </tr>
+          <tr>
+            <th><label data-toggle="tooltip" data-placement="right">{{form.speaking_trainees.label}}</a></label></th>
+            <th colspan="2">{{form.speaking_trainees}}</th>
+            <td><a href="{% url 'graduation:speaking-report' %}">View</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary btn-save">{{button_label|safe}}</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

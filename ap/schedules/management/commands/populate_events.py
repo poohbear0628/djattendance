@@ -259,7 +259,7 @@ class Command(BaseCommand):
     e.save()
 
     name = "Campus Study"
-    code = "CP Study"
+    code = "Study"
     type = "S"
     start = time(16, 30)
     end = time(17, 45)
@@ -306,6 +306,69 @@ class Command(BaseCommand):
     e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday, monitor='TM')
     e.save()
 
+    # group events for Group Events schedule
+    for i in range(1, 6):
+      name = "Session I"
+      code = "SESS1"
+      type = 'C'
+      start = time(8, 25)
+      end = time(10, 0)
+      weekday = i
+      description = "generic first session for group events"
+      e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday, monitor='AM', description=description)
+      e.save()
+
+    
+    for i in range(1, 5):
+      name = "Session II"
+      code = "SESS2"
+      type = 'C'
+      start = time(10, 15)
+      end = time(11, 30)
+      weekday = i
+      description = "generic second session for group events"
+      e = Event(name=name, code=code, type=type, start=start, end=end, weekday=weekday, monitor='AM', description=description)
+      e.save()
+
+      name = "Session II"
+      code = "SESS2"
+      type = 'C'
+      start = time(10, 0)
+      end = time(11, 45)
+      description = "generic second session for group events"
+      e = Event(name=name, code=code, type=type, start=start, end=end, weekday=5, monitor='AM', description=description)
+      e.save()
+
+    times = [time(16, 15), time(16, 30), time(16, 45)]
+    for i in range(1, 4):
+      name = "YPC Work"
+      code = "YPCW"
+      type = 'T'
+      start = time(14, 15)
+      description = "generic second afternoon session for group events"
+      e = Event(name=name, code=code, type=type, start=start, end=times[i-1], weekday=i, monitor='', description=description)
+      e.save()
+
+    name = "Team Fellowship"
+    code = "TF"
+    type = 'T'
+    start = time(14, 15)
+    end = time(17, 45)
+    description = "generic second session for group events"
+    e = Event(name=name, code=code, type=type, start=start, end=end, weekday=4, monitor='TM', description=description)
+    e.save()
+
+    name = "Lang/Char"
+    code = "LANG/CHAR"
+    type = 'C'
+    start = time(16, 45)
+    end = time(17, 45)
+    description = "Greek or German or Character class"
+    for i in [1, 3]:
+      e = Event(name=name, code=code, type=type, start=start, end=end, weekday=i, monitor='AM', description=description)
+      e.save()
+
   def handle(self, *args, **options):
+    Event.objects.all().delete()
     print("* Populating events...")
     self._create_events()

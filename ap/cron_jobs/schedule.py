@@ -56,13 +56,18 @@ else:
   job = DjangoJob(task='task.py', every='1.day', at='02:00')
   cron.job(job)
 
-  absentee_report_job = DjangoCommandJob(task='send_absentee_roster_emails', every='1.day', at='08:00')
-  cron.job(absentee_report_job)
+  for day in ('sunday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'):
+      absentee_report_job = DjangoCommandJob(
+          task='send_absentee_roster_emails',
+          every=day,
+          at='08:25'
+      )
+      cron.job(absentee_report_job)
   # cron.command('env > ~/cronenv', every='1.minute')
   # cron.command('ls /tmp', every='1.day', at='12:00')
   # cron.command('pwd', every='2.month')
   # cron.command('pwd', every='1.minute')
-  #cron.command('echo $(pwd) + $(date) >> ' + os.path.join(SITE_ROOT, 'cron.log'), every='1.day', at='16:39')
+  # cron.command('echo $(pwd) + $(date) >> ' + os.path.join(SITE_ROOT, 'cron.log'), every='1.day', at='16:39')
   # cron.command('echo "ray" + $(date) >>', every='1.minute')
 
 

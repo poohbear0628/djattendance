@@ -1,4 +1,4 @@
-{#
+{% comment %}
 TRAINEE SELECT MODAL:
 form to select groups of trainees by:
   - terms
@@ -22,7 +22,7 @@ This template tag is included the base template.
 
 On the button that pops up the modal, set data-toggle="modal" and data-target="#trainee_select":
   <button type="button" data-toggle="modal" data-target="#trainee_select">Add Trainee Group</button>
-#}
+{% endcomment %}
 
 {% load bootstrap3 %}
 
@@ -32,18 +32,19 @@ On the button that pops up the modal, set data-toggle="modal" and data-target="#
 
 </head>
 
-{#
+{% comment %}
 This script is included from TraineeSelect2MultipleInput in accounts/widgets.py.
 Because that widget can be used anywhere, we don't have a way to place this modal
 in the top level in the document body, outside any other forms, etc. (Can't have
 a form within a form). So we use javascript instead to append this string.
 (see trainee_select.js)
-#}
+{% endcomment %}
 
 <script>
 var TRAINEE_SELECT_MODAL_HTML = `
   <!-- add the display: none to fix the modal blocking the page -->
-  <div id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true">
+  <!-- necessary because Django Suit uses an outdated Bootstrap version -->
+  <div id="trainee_select" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="trainee_select_form" aria-hidden="true" style="display: none">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

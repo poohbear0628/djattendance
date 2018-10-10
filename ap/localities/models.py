@@ -15,10 +15,13 @@ Data Models:
 
 class Locality(models.Model):
 
-  city = models.ForeignKey(City)
+  city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
 
   def __unicode__(self):
-    return self.city.name + ", " + str(self.city.state)
+    try:
+      return self.city.name + ", " + str(self.city.state)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   class Meta:
     verbose_name_plural = 'localities'

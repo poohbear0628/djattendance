@@ -1,7 +1,34 @@
 from django import forms
 from accounts.models import Trainee
 from houses.models import House
-from .models import HCSurvey, HCRecommendation, HCTraineeComment
+from .models import HCSurveyAdmin, HCRecommendationAdmin, HCSurvey, HCRecommendation, HCTraineeComment
+from aputils.widgets import DatetimePicker
+
+
+class HCRecommendationAdminForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(HCRecommendationAdminForm, self).__init__(*args, **kwargs)
+
+  class Meta:
+    model = HCRecommendationAdmin
+    fields = ["open_time", "close_time", "open_survey", ]
+    widgets = {
+      "open_time": DatetimePicker(),
+      "close_time": DatetimePicker(),
+    }
+
+
+class HCSurveyAdminForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(HCSurveyAdminForm, self).__init__(*args, **kwargs)
+
+  class Meta:
+    model = HCSurveyAdmin
+    fields = ["open_time", "close_time", "open_survey", ]
+    widgets = {
+      "open_time": DatetimePicker(),
+      "close_time": DatetimePicker(),
+    }
 
 
 class HCSurveyForm(forms.ModelForm):
@@ -10,7 +37,7 @@ class HCSurveyForm(forms.ModelForm):
 
   class Meta:
     model = HCSurvey
-    exclude = ['hc', 'house', 'period', ]
+    fields = ['atmosphere', 'situations', 'comment', ]
     widgets = {
       'atmosphere': forms.Textarea(attrs={'rows': 4}),
       'situations': forms.Textarea(attrs={'rows': 4}),

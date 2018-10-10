@@ -1,19 +1,18 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
+from accounts.models import Trainee
+from aputils.eventutils import EventUtils
+from aputils.models import QueryFilter
+from aputils.utils import comma_separated_field_is_in_regex
+from django.core.urlresolvers import reverse
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.db.models import Q
-from django.core.validators import validate_comma_separated_integer_list
-
-from terms.models import Term
-from accounts.models import Trainee
-from seating.models import Chart
-from aputils.models import QueryFilter
-from teams.models import Team
-
-from aputils.utils import comma_separated_field_is_in_regex
-from aputils.eventutils import EventUtils
-
 from schedules.constants import WEEKDAYS
+from seating.models import Chart
+from teams.models import Team
+from terms.models import Term
+
 
 """ SCHEDULES models.py
 This schedules module is for representing weekly trainee schedules.
@@ -96,7 +95,7 @@ class Event(models.Model):
 
   # Reference to Chart
   # Optional field, not all Events have seating chart
-  chart = models.ForeignKey(Chart, blank=True, null=True)
+  chart = models.ForeignKey(Chart, blank=True, null=True, on_delete=models.SET_NULL)
 
   # Unifies the way to get weekday from events with self.day or self.weekday
   def get_uniform_weekday(self):
@@ -120,11 +119,20 @@ class Event(models.Model):
     return (self.end > event.start) and (event.end > self.start)
 
   def __unicode__(self):
-    if self.day:
-      date = self.day
-    else:
-      date = self.get_weekday_display()
-    return "%s %s [%s - %s] %s" % (date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+    try:
+      if self.day:
+        date = self.day
+      else:
+        date = self.get_weekday_display()
+      return "ID %s: %s %s [%s - %s] %s" % (self.id, date, self.weekday, self.start.strftime('%H:%M'), self.end.strftime('%H:%M'), self.name)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
+  def get_absolute_url(self):
+    return reverse('schedules:admin-event', kwargs={'pk': self.id})
+
+  def get_delete_url(self):
+    return reverse('schedules:admin-event-delete', kwargs={'pk': self.id})
 
 
 class ScheduleManager(models.Manager):
@@ -161,13 +169,14 @@ class Schedule(models.Model):
 
   # Add filter choices here.
   TRAINEE_FILTER = (
-      ('MC', 'Main Classroom'),  # A for all trainees
+      ('MC', 'Main Classroom'),  # for all trainees
       ('FY', 'First Year'),
       ('SY', 'Second Year'),
       ('TE', 'Team'),
       ('YP', 'YP'),
       ('CH', 'Children'),
-      ('MA', 'Manual')
+      ('MA', 'Manual'),
+      ('GP', 'Group')
   )
 
   name = models.CharField(max_length=255)
@@ -201,10 +210,11 @@ class Schedule(models.Model):
                             default=None)
 
   # Choose auto fill trainees or manually selecting trainees
+  # currently not used
   trainee_select = models.CharField(max_length=2, choices=TRAINEE_FILTER, default='MC')
 
   # Choose which team roll this schedule shows up on
-  team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True)
+  team_roll = models.ForeignKey(Team, related_name='schedules', blank=True, null=True, on_delete=models.SET_NULL)
 
   date_created = models.DateTimeField(auto_now=True)
 
@@ -214,7 +224,7 @@ class Schedule(models.Model):
   # Parent schedule points to a full-term version of the most-recent schedule, which can be
   # easily imported to the next term.
   # This is to keep historical data intact. See assign_trainees_to_schedule method
-  parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True)
+  parent_schedule = models.ForeignKey('self', related_name='parent', null=True, blank=True, on_delete=models.SET_NULL)
 
   # Is this already a parent schedule this term?
   is_parent_schedule = models.BooleanField(default=False)
@@ -231,9 +241,9 @@ class Schedule(models.Model):
   # is_locked flag
   is_locked = models.BooleanField(default=False)
 
-  term = models.ForeignKey(Term, null=True, blank=True)
+  term = models.ForeignKey(Term, null=True, blank=True, on_delete=models.SET_NULL)
 
-  query_filter = models.ForeignKey(QueryFilter, null=True, blank=True)
+  query_filter = models.ForeignKey(QueryFilter, null=True, blank=True, on_delete=models.SET_NULL)
 
   # Hides "deleted" schedule but keeps it for the sake of record
   is_deleted = models.BooleanField(default=False)
@@ -274,7 +284,10 @@ class Schedule(models.Model):
     ordering = ('priority', 'season')
 
   def __unicode__(self):
-    return '[%s] %s - %s schedule' % (self.priority, self.name, self.season)
+    try:
+      return 'ID %s: [%s] %s - %s schedule' % (self.id, self.priority, self.name, self.season)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
 
   @staticmethod
   def current_term_schedules():
@@ -300,14 +313,15 @@ class Schedule(models.Model):
     # print wks_reg, trainees
     # Queries schedules with week defined
     active_schedules = Schedule.current_term_schedules()
-    active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees)
+    active_schedules = active_schedules.filter(is_deleted=False, weeks__regex=wks_reg, trainees__in=trainees).exclude(trainee_select='GP')
     if team:
       active_schedules = active_schedules.filter(team=team)
+
     active_schedules = active_schedules.distinct().order_by('priority')
     return active_schedules
 
   @staticmethod
-  def get_roll_table_by_type_in_weeks(trainees, type, weeks, team=None):
+  def get_roll_table_by_type_in_weeks(trainees, monitor, weeks, event_type):
     '''
       Grab all active schedules of trainees and collapse in order of priority.
       This saves us from recalculated shared schedule common among many trainees,
@@ -342,95 +356,43 @@ class Schedule(models.Model):
     t_set = set(trainees)
     schedules = Schedule.get_all_schedules_in_weeks_for_trainees(weeks, trainees)
     w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, schedules, t_set)
-    return EventUtils.flip_roll_list(EventUtils.export_typed_ordered_roll_list(w_tb, type))
+    event_trainee_tb = EventUtils.export_typed_ordered_roll_list(w_tb, monitor)
+    if monitor == 'AM':
+      event_trainee_tb = [ev_ts for ev_ts in event_trainee_tb if ev_ts[0].type == event_type]
 
-  def __get_qf_trainees(self):
+    return EventUtils.flip_roll_list(event_trainee_tb)
+
+  def save(self, *args, **kwargs):
+    super(Schedule, self).save(*args, **kwargs)
+
+  def _get_qf_trainees(self):
     if not self.query_filter:
       return Trainee.objects.all()
+    query = eval(self.query_filter.query)
+    if isinstance(query, dict):
+      return Trainee.objects.filter(**query)
     else:
-      return Trainee.objects.filter(**eval(self.query_filter.query))
+      return Trainee.objects.filter(query)
 
-  # TODO: Hailey will write a wiki to explain this function.
-  def assign_trainees_to_schedule(self):
-    if self.is_locked:
-      return
+  """
+  Suggest using this to populate query filters for teams
+  for t in Team.objects.all():
+    q = QueryFilter(name=t.name, query="{{'team__name': '{}'}}".format(t.name))
+    q.save()
+  """
+  def assign_trainees(self):
+    trainees = self._get_qf_trainees()
+    if trainees:
+      self.trainees.set(trainees)
 
-    new_set = self.__get_qf_trainees()
-    current_set = self.trainees.all()
+  def get_assign_url(self):
+    return reverse('schedules:assign-trainees', kwargs={'pk': self.id})
 
-    # If the schedules are identical, bail early
-    to_add = new_set.exclude(pk__in=current_set)
-    to_delete = current_set.exclude(pk__in=new_set)
+  def get_absolute_url(self):
+    return reverse('schedules:admin-schedule', kwargs={'pk': self.id})
 
-    if not to_add and not to_delete:
-      return
+  def get_delete_url(self):
+    return reverse('schedules:admin-schedule-delete', kwargs={'pk': self.id})
 
-    # Does the schedule need to be split?
-    term = Term.current_term()
-    if term is None or datetime.now().date() > term.end:
-      return
-
-    if datetime.now().date() < term.start:
-      week = -1
-    else:
-      week = term.term_week_of_date(datetime.today().date())
-
-    weeks = eval(self.weeks)
-
-    # todo(import2): this doesn't work yet
-    if False:  # (len(Set(range(0, week + 1)).intersection(weeks_set))> 0):
-      # Splitting
-      s1 = Schedule(
-          name=self.name,
-          comments=self.comments,
-          priority=self.priority,
-          season=self.season,
-          term=term
-      )
-      s2 = Schedule(
-          name=self.name,
-          comments=self.comments,
-          priority=self.priority,
-          season=self.season,
-          term=term
-      )
-
-      if self.parent_schedule:
-        s1.parent_schedule = self.parent_schedule
-        s2.parent_schedule = self.parent_schedule
-      else:
-        s1.parent_schedule = self
-        s2.parent_schedule = self
-
-      sched_weeks = [int(x) for x in self.weeks.split(',')]
-      s1_weeks = []
-      s2_weeks = []
-      for x in sched_weeks:
-        if x <= week:
-          s1_weeks.append(x)
-        else:
-          s2_weeks.append(x)
-
-      s1.weeks = str(s1_weeks)
-      s2.weeks = str(s2_weeks)
-
-      s1.is_locked = True
-
-      # only the most recent needs a query_filter.  Older ones don't need it.
-      s2.query_filter = self.query_filter
-      s1.save()
-      s2.save()
-
-      s1.trainees = current_set
-      s2.trainees = new_set
-
-      s1.save()
-      s2.save()
-
-      self.trainees = []
-      self.is_locked = True
-      self.save()
-    else:
-      # No split necessary
-      self.trainees = new_set
-      self.save()
+  def get_split__partial_url(self):
+    return '/schedules/admin/schedules/split/%s/' % str(self.id)

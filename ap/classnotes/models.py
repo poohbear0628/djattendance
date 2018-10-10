@@ -1,16 +1,37 @@
-from datetime import datetime, time, date, timedelta
-from pytz import timezone
-import pytz
+from datetime import date, datetime, timedelta
 
+from accounts.models import Trainee
 from django.db import models
-from django.contrib.postgres.fields import HStoreField
-
-from accounts.models import User, Trainee
-from classes.models import Class
+from terms.models import Term
+from pytz import timezone
 from schedules.models import Event
 
 
+class ClassnotesManager(models.Manager):
+  def get_queryset(self):
+    queryset = super(ClassnotesManager, self).get_queryset()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      return queryset.filter(date_assigned__gte=start_date, date_assigned__lte=end_date).distinct()
+    else:
+      return queryset
+
+
+class ClassnotesAllManager(models.Manager):
+  def get_queryset(self):
+    return super(ClassnotesAllManager, self).get_queryset()
+
+
 class Classnotes(models.Model):
+
+  objects = ClassnotesManager()
+  objects_all = ClassnotesAllManager()
+
+  class Meta:
+    ordering = ['-date_assigned']
+    verbose_name = 'class notes'
+    verbose_name_plural = 'class notes'
 
   CN_STATUS = (
     ('A', 'Approved'),
@@ -34,7 +55,7 @@ class Classnotes(models.Model):
   date_due = models.DateTimeField(editable=False)
   date_submitted = models.DateTimeField(blank=True, null=True)
 
-  event = models.ForeignKey(Event, blank=True, null=True)
+  event = models.ForeignKey(Event, blank=True, null=True, on_delete=models.SET_NULL)
 
   # minWord Count
   minimum_words = models.PositiveSmallIntegerField(default=250)
@@ -42,10 +63,15 @@ class Classnotes(models.Model):
 
   status = models.CharField(max_length=1, choices=CN_STATUS, default='U')
   type = models.CharField(max_length=1, choices=CN_TYPE, default='R')
-  trainee = models.ForeignKey(Trainee, related_name='%(class)ss')
+  trainee = models.ForeignKey(Trainee, related_name='%(class)ss', on_delete=models.SET_NULL, null=True)
 
   def add_comments(self, comments):
     self.comments = comments
+    self.save()
+    return self
+
+  def set_hard_copy(self, hard_copy):
+    self.submitting_paper_copy = hard_copy
     self.save()
     return self
 
@@ -63,6 +89,12 @@ class Classnotes(models.Model):
 
   def approve(self):
     self.status = 'A'
+    self.save()
+    return self
+
+  def hard_copy_approve(self):
+    self.status = 'A'
+    self.set_hard_copy(True)
     self.save()
     return self
 
@@ -95,7 +127,7 @@ class Classnotes(models.Model):
 
   def clean(self, *args, **kwargs):
     """Custom validator for word count"""
-    wc_list = self.content.split()
+    # wc_list = self.content.split()
     # if len(wc_list) < self.minimum_words and self.submitting_paper_copy is False:
     #     raise ValidationError("Your word count is less than {count}".format(count=self.minimum_words))
     super(Classnotes, self).clean(*args, **kwargs)
@@ -116,13 +148,13 @@ class Classnotes(models.Model):
   def prev(self):
     return Classnotes.objects.filter(date_submitted__lt=self.date_submitted, trainee=self.trainee).order_by('-date_submitted').first()
 
-  class Meta:
-    ordering = ['-date_assigned']
-
   def __unicode__(self):
-    return "{name}'s class note for {classname} assigned on {date_assigned} Status: {status}".format(
-        name=self.trainee.full_name,
-        classname=self.event.name,
-        date_assigned=timezone('US/Pacific').localize(self.date_assigned),
-        status=self.status,
-    )
+    try:
+      return "{name}'s class note for {classname} assigned on {date_assigned} Status: {status}".format(
+          name=self.trainee.full_name,
+          classname=self.event.name,
+          date_assigned=timezone('US/Pacific').localize(self.date_assigned),
+          status=self.status,
+      )
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)

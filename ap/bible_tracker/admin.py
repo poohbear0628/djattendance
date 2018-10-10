@@ -12,6 +12,7 @@ class BibleReadingAdmin(admin.ModelAdmin):
 
 
   list_display = ('trainee', weekly_reading_count, books_read_count)
+  search_fields = ['trainee__firstname', 'trainee__lastname']  # to search up trainees
 
 
 admin.site.register(BibleReading, BibleReadingAdmin)

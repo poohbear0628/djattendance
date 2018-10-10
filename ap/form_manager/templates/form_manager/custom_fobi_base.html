@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{# template is from "fobi/generic/_base.html" #}
+{% load common_tags %}
+{% load i18n static %}
+
+{% block references %}
+  {% block stylesheets %}{% endblock stylesheets %}
+  {% block extra-stylesheets %}{% endblock extra-stylesheets %}
+{% endblock %}
+
+{% block scripts %}
+  {% block head-javascripts %}{% endblock head-javascripts %}
+  {% block extra-head-javascripts %}{% endblock extra-head-javascripts %}
+  {% block extrahead %}{% endblock extrahead %}
+  {% block javascripts %}{% endblock javascripts %}
+{% endblock %}
+
+{% block content %}
+  {% block before-main-wrapper %}{% endblock %}
+
+  {% block main-wrapper %}
+    {% block main-content-wrapper %}
+      {% block messages-wrapper %}
+          {% include fobi_theme.messages_snippet_template_name %}
+      {% endblock messages-wrapper %}
+      {% block main-content %}
+        {% block content-wrapper %}
+          <!-- Content goes here -->
+        {% endblock content-wrapper %}
+      {% endblock main-content %}
+    {% endblock main-content-wrapper %}
+  {% endblock main-wrapper %}
+{% endblock %}

@@ -4,9 +4,10 @@ import { union, intersection, difference, complement, equals } from 'set-manipul
 import { CHANGE_DATE, SUBMIT_ROLL, UPDATE_ATTENDANCE, UPDATE_EVENTS, UPDATE_TRAINEE_VIEW, TOGGLE_EVENT,
           DESELECT_EVENT, DESELECT_ALL_EVENTS, DESTROY_LEAVESLIP, SUBMIT_LEAVESLIP, SUBMIT_GROUPSLIP, DESTROY_GROUPSLIP,
           CHANGE_TRAINEE_VIEW, CHANGE_LEAVESLIP_FORM, CHANGE_GROUPSLIP_FORM, SHOW_CALENDAR, CHANGE_ROLL_FORM, RESET_ROLL_FORM,
-          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM, TOGGLE_LEGEND, EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP
+          RESET_LEAVESLIP_FORM, RESET_GROUPSLIP_FORM, TOGGLE_LEGEND, TOGGLE_PERIOD_SELECT, EDIT_LEAVESLIP, EDIT_GROUP_LEAVESLIP,
+          FINALIZE_WEEKS
           } from '../actions';
-import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED } from '../constants'
+import { SLIP_TYPE_LOOKUP, TA_IS_INFORMED, TA_EMPTY } from '../constants'
 import initialState from '../initialstate'
 import { combineReducers } from 'redux'
 import { addDays } from 'date-fns'
@@ -64,7 +65,7 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA
+            id: slip.TA_informed
           },
           ta_informed: {
             id: informed
@@ -82,7 +83,7 @@ function form(state=initialState.form, action) {
             name: SLIP_TYPE_LOOKUP[slip.type]
           },
           ta: {
-            id: slip.TA
+            id: slip.TA_informed
           },
           ta_informed: {
             id: informed
@@ -92,7 +93,15 @@ function form(state=initialState.form, action) {
       })
     case UPDATE_TRAINEE_VIEW:
       return Object.assign({}, state, {
-        traineeView: action.traineeView
+        traineeView: action.traineeView,
+        leaveSlip: {
+          ...state.leaveSlip,
+          ta: action.TA,
+        },
+        groupSlip: {
+          ...state.groupSlip,
+          ta: action.TA,
+        },
       })
     case CHANGE_ROLL_FORM:
       return Object.assign({}, state, {
@@ -111,8 +120,8 @@ function form(state=initialState.form, action) {
           leaveSlip: {
             comment: "",
             slipType: {},
-            ta: {},
-            ta_informed: TA_IS_INFORMED,
+            ta: TA_EMPTY,
+            ta_informed: TA_EMPTY,
             location: "",
             hostPhone: "",
             hostName: "",
@@ -128,8 +137,8 @@ function form(state=initialState.form, action) {
         groupSlip: {
           comment: "",
           slipType: {},
-          ta: {},
-          ta_informed: TA_IS_INFORMED,
+          ta: TA_EMPTY,
+          ta_informed: TA_EMPTY,
           trainees: []
         }
       })
@@ -226,6 +235,24 @@ function showLegend(state=initialState.showLegend, action) {
   }
 }
 
+function disablePeriodSelect(state=initialState.disablePeriodSelect, action) {
+  switch(action.type) {
+    case TOGGLE_PERIOD_SELECT:
+      return !state
+    default:
+      return state
+  }
+}
+
+function finalizedweeks(state=initialState.finalizedweeks, action){
+  switch(action.type) {
+    case FINALIZE_WEEKS:
+      return action.weeks
+    default:
+      return state
+  }
+}
+
 const reducers = {
   //static variables that will never mutate
   groupevents: (state = {}) => state,
@@ -236,9 +263,11 @@ const reducers = {
   //these will mutate...
   submitting: (state = {}) => state,
   formSuccess: (state = {}) => state,
+  //finalizedweeks: (state = {}) => state,
 
   // variables that will mutate
   showLegend,
+  disablePeriodSelect,
   events,
   form,
   date,
@@ -247,6 +276,7 @@ const reducers = {
   rolls,
   leaveslips,
   groupslips,
+  finalizedweeks
 }
 
 const combined = combineReducers(reducers);

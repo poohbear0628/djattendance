@@ -1,9 +1,11 @@
 from django.db import models
 from django.db.models import Q, Sum
-
-from django.contrib.auth.models import Group
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import Group, Permission
 from accounts.models import Trainee
 from services.models import Worker, WeekSchedule
+from services.models import Qualification
 import services
 import json
 
@@ -84,13 +86,13 @@ class WorkerGroup(models.Model):
 
   # Algorithm will assign higher priority first
   assign_priority = models.PositiveSmallIntegerField(default=1)
-
+  permission_groups = models.ManyToManyField(Group, related_name='service_group', blank=True)
   last_modified = models.DateTimeField(auto_now=True)
 
   @cached_property
   def get_workers(self):
     if not self.active:
-      return []
+      return Worker.objects.none()
     if not self.query_filters:
       # then it's a manual list of workers
       workers = self.workers
@@ -102,15 +104,23 @@ class WorkerGroup(models.Model):
       # Return filtered result
       # return workers
     # Only return workers with nozero service cap
-    cws = WeekSchedule.latest_week_schedule
     return workers.filter(services_cap__gt=0).select_related('trainee')\
         .prefetch_related(Prefetch('assignments', queryset=services.models.Assignment.objects.order_by('week_schedule__start')),
                           'assignments__service', 'assignments__service_slot')
 
   def get_workers_prefetch_assignments(self, cws):
-    return self.get_workers.prefetch_related(
-        Prefetch('assignments', queryset=services.models.Assignment.objects.filter(week_schedule=cws, pin=True), to_attr='pinned_assignments')
-        )
+    pinned = services.models.Assignment.objects.filter(week_schedule=cws, pin=True)
+    pinnedPrefetch = Prefetch(
+        'assignments',
+        queryset=pinned,
+        to_attr='pinned_assignments'
+    )
+    return self.get_workers.prefetch_related(pinnedPrefetch)\
+        .prefetch_related('assignments')\
+        .prefetch_related(
+            'assignments__service',
+            'assignments__week_schedule'
+    )
 
   def get_worker_ids(self):
     if not self.active:
@@ -130,8 +140,6 @@ class WorkerGroup(models.Model):
     return workers.filter(services_cap__gt=0).values('id')
 
 
-
-
   @cached_property
   def get_workers_set(self):
     if not hasattr(self, '_worker_set'):
@@ -143,6 +151,14 @@ class WorkerGroup(models.Model):
     workers = self.get_workers
     return ', '.join([w.trainee.full_name for w in workers])
 
-
   def __unicode__(self):
-    return "%s (%s)" % (self.name, self.description)
+    try:
+      return "%s (%s)" % (self.name, self.description)
+    except AttributeError as e:
+      return str(self.id) + ": " + str(e)
+
+
+# method for updating
+@receiver(post_save, sender=Qualification)
+def add_query_filter(sender, instance, **kwargs):
+  QueryFilterService.addQ(instance.name, worker__qualifications__name=instance.name)

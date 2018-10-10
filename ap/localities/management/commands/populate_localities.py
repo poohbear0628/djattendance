@@ -3,6 +3,7 @@ from localities.models import Locality
 from aputils.models import City
 from django_countries.fields import CountryField
 
+
 class Command(BaseCommand):
   # to use: python ap/manage.py populate_teams --settings=ap.settings.dev
 
@@ -12,7 +13,6 @@ class Command(BaseCommand):
     for city in cities:
       obj, created = City.objects.update_or_create(name=city, state="CA")
       Locality.objects.update_or_create(city=obj)
-  	
 
   def handle(self, *args, **options):
     print("* Populating localities and corresponding cities...")

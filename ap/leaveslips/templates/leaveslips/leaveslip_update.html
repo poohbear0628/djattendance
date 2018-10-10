@@ -2,132 +2,106 @@
 
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load render_bundle from webpack_loader %}
+{% block title %}Update Leave Slip{% endblock %}
 
-{% block title %}Update Leaveslip{% endblock %}
-{% block content %}
-  <h2>Comment on {{leaveslip.classname|title}} Leave Slip</h2>
-  <form action="{{leaveslip.get_ta_update_url}}" method="post">
-    {% csrf_token %}
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        {% bootstrap_form form %}
-      </div>
-      <div class="col-md-6 col-xs-12">
-        <div id="calendar"></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-          <button type="submit" class="btn btn-primary btn-save">Save</button>
-      </div>
-    </div>
-  </form>
+{% block scripts %}
+  {{ block.super }}
+  {% include 'attendance/_attendance_data.html' %}
+  <script type="text/javascript">
+    $(document).ready(() => {
+      $("#id_TA").val(null);
+      $('.hidden-input').hide();
 
-  <script>
-    var start_date = "{{start_date|date:'Y-m-d'}}";
-    var end_date = "{{end_date|date:'Y-m-d'}}";
-    var today = start_date;
-    var leaveslip_type = "{{type}}";
-    var calendar_color = {
-      'T': "#F69D74", //Tardy
-      'A': "#E85328", //Absent
-      'E': "#A6C5D1", //Excused
-      'D': "#F6F1E8", //Default
-      'L': "#FFFF55" //Leaveslip
-    };
-    var Events = [
-      {% for event in events %}
-        {
-          'id' : "{{event.id}}",
-          'title' : "{{event.name|safe}}",
-          'start' : "{{event.start_datetime|date:'c'}}",
-          'end' : "{{event.end_datetime|date:'c'}}",
-          'color': calendar_color['D'],
-          'textColor': 'black',
-          'borderColor': '#ccc'
-        },
-      {% endfor %}
-    ];
-
-    var SelectedEvents = [
-      {% for selected_event in selected %}
-        {
-          'title' : "{{selected_event.name|safe}}",
-          'start' : "{{selected_event.start_datetime|date:'c'}}",
-          'color': calendar_color['{{selected_event.status}}'],
-        },
-      {% endfor %}
-    ];
-
-    for (var i=0; i < Events.length; i++){
-      for (var j=0; j< SelectedEvents.length; j++){
-        if(!Events[i].start.localeCompare(SelectedEvents[j].start)){
-          Events[i].color = calendar_color['L'];
-	      }
+      //rearrange form buttons
+      if ("{{ sister }}" == "True") {
+        $("#id_TA").val("{{ default_transfer_ta.id }}");
+        var transferField = document.getElementById("id_TA").parentNode;
+        var form = transferField.parentNode;
+        if (document.getElementById("approve-ls")) {form.insertBefore(document.getElementById("approve-ls"), transferField);}
+        if (document.getElementById("deny-ls")) {form.insertBefore(document.getElementById("deny-ls"), transferField);}
+        if (document.getElementById("fellowship-ls")) {form.insertBefore(document.getElementById("fellowship-ls"), transferField);}
+        if (document.getElementById("unfellowship-ls")) {form.insertBefore(document.getElementById("unfellowship-ls"), transferField);}
+        if (document.getElementById("delete-ls")) {form.insertBefore(document.getElementById("delete-ls"), transferField);}
+        if (document.getElementById("save-ls")) {form.insertBefore(document.getElementById("save-ls"), transferField);}
       }
-    }
 
-    $(document).ready(function() {
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next',
-          center: 'title',
-          right: 'listWeek,agendaWeek,agendaDay'
-        },
-        firstDay: 1,  // Set first day to Monday
-        height: 'auto',
-        minTime: "06:00:00",
-        maxTime: "23:45:00",
-        allDaySlot: false,
-        defaultView: 'agendaWeek',
-        editable: false,
-        droppable: false, // this allows things to be dropped onto the calendar
-        eventLimit: true, // allow "more" link when too many events
-        selectable: false,
-        selectConstraint: {
-          start: start_date,
-          end: end_date
-        },
-        selectHelper: true,
-        eventSources: [
-        {
-          events: Events
-        }],
-        /*
-         * Disable past week
-         * From https://gist.github.com/juanbrujo/c4a0a8d36fc64860f487
-         */
-        viewRender: function(currentView){
-          var minDate = start_date;
-          var maxDate = end_date;
-          // Past
-          if (currentView.start.isSameOrBefore(minDate, 'day') && currentView.end.isSameOrAfter(minDate, 'day')) {
-            $(".fc-prev-button").prop('disabled', true);
-            $(".fc-prev-button").addClass('fc-state-disabled');
-          }
-          else {
-            $(".fc-prev-button").removeClass('fc-state-disabled');
-            $(".fc-prev-button").prop('disabled', false);
-          }
-          // Future
-          if (currentView.start.isSameOrBefore(maxDate, 'day') && currentView.end.isSameOrAfter(maxDate, 'day')) {
-            $(".fc-next-button").prop('disabled', true);
-            $(".fc-next-button").addClass('fc-state-disabled');
-          } else {
-            $(".fc-next-button").removeClass('fc-state-disabled');
-            $(".fc-next-button").prop('disabled', false);
-          }
+      let redirect = $('#ajax-redirect').attr('href');
+      $(".delete-slip").click(function (e) {
+        var check = confirm("Are you sure you want to delete this leaveslip?");
+        if (check) {
+          $.ajax({
+            type: "DELETE",
+            url: "/api/{{ leaveslip.classname }}slips/{{ leaveslip.id }}",
+            success: function(data, status, jqXHR) {
+              new Notification(Notification.SUCCESS, "Leave slip deleted!").show();
+              window.location.href = redirect;
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.log("Slip delete error!");
+              console.log(jqXHR, textStatus, errorThrown);
+            }
+          });
         }
       });
 
-      $("#id_TA option:not(:selected)").prop("disabled", true);
-      $("#id_type option:not(:selected)").prop("disabled", true);
-      $("#id_type").css("background-color", '#eee');
-      $("#id_TA").css("background-color", '#eee');
+      $("#save-ls").click(function (e) {
+        {% block onsubmit %}{% endblock %}
+        var postData = $("#leaveslip-form").serialize();
+        if ("{{ sister }}" == "True" || !$("#id_TA").val()) {
+          var i = postData.indexOf('TA=');
+          for (i; i < postData.length; i++) {
+            if (postData[i] == '&') {break;}
+          }
+          var postData = postData.substring(0, postData.indexOf('TA=')) + postData.substring(i)
+        }
+        $.ajax({
+          type: "POST",
+          url: "/leaveslips/{{ leaveslip.classname }}/update/{{ leaveslip.id }}",
+          data: postData,
+          success: function(data, status, jqXHR) {
+            new Notification(Notification.SUCCESS, "Saved!").show();
+            window.location.href = redirect;
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            console.log("Error saving leaveslip!");
+            console.log(jqXHR, textStatus, errorThrown);
+          }
+        });
+      });
     });
   </script>
+  <style>
+    .btn-lg {
+      margin-bottom: 15px;
+    }
+  </style>
+{% endblock %}
+
+{% block references %}
+  {% render_bundle 'attendance' 'css' %}
+{% endblock %}
+
+{% block content %}
+    <h2>TA {{leaveslip.classname|title}} Slip View</h2>
+    <div class="col-md-5 col-xs-12">
+      <p>Leaveslip ID: <a id="ajax-redirect" {% block ls_link %}{% endblock %}>{{leaveslip.id}}</a></p>
+      {% include "leaveslips/_ta_labels.html" %}
+      <form id="leaveslip-form" action="{{leaveslip.get_ta_update_url}}" method="post">
+        {% csrf_token %}
+        {% block trainee_display %}{% endblock %}
+        {% bootstrap_form form %}
+        {% include 'leaveslips/_ta_actions.html' with trainee=leaveslip.trainee %}
+        <button type="button" id="save-ls" class="btn-lg btn-primary btn-save">Save</button>
+      </form>
+    </div>
+    <div class="col-md-7 col-xs-12">
+      <div id="react-calendar-root"></div>
+    </div>
+
 
   {% block leaveslip_script %}
   {% endblock %}
+  {% render_bundle 'attendance' 'js' %}
 
 {% endblock %}

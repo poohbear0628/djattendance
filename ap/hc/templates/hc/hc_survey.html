@@ -18,6 +18,14 @@
   }
 </style>
 
+<script>
+  $(document).ready(() => {
+    {% if read_only %}
+      $('#id_hc_survey_form *').attr("disabled", true);
+    {% endif %}
+  });
+</script>
+
 {% endblock %}
 
 {% block content %}
@@ -51,10 +59,13 @@
   </p>
 
   <b>House:</b> {{house}} <br>
-  <b>House Coordinator:</b> {{hc}} <br>
-  <b>For Period:</b> {{period}}
-
-  <form action="" method="post">
+  <b>House Coordinator:</b> {{hc.get_full_name}} <br>
+  <b>Survey </b> {{period}} <br>
+  {% if due %}
+  <b>Due Date:</b> {{due}}
+  {% endif  %}
+  
+  <form id="id_hc_survey_form" action="" method="post">
     {% csrf_token %}
     <br><br>
 

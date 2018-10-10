@@ -1,25 +1,37 @@
 from django.contrib import admin
 from django.conf.urls import url
 from django.contrib.admin import SimpleListFilter
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django import forms
 
-from services.models import *
+from services.models import (
+    Worker,
+    Category,
+    Service,
+    SeasonalServiceSchedule,
+    WeekSchedule,
+    Qualification,
+    WorkerGroup,
+    Assignment,
+    Trainee,
+    ServiceSlot,
+    ServiceException,
+)
+
+from .forms import (
+  SeasonalServiceScheduleForm,
+  AssignmentAdminForm,
+  WorkGroupAdminForm,
+  ExceptionAdminForm,
+  QualificationForm
+)
 
 from aputils.admin_utils import FilteredSelectMixin
 from aputils.widgets import MultipleSelectFullCalendar
 from aputils.queryfilter import QueryFilterService
-from aputils.custom_fields import CSIMultipleChoiceField
 
-
-# This is written to improve query performance on admin backend
-class WorkerPrejoinMixin(forms.ModelForm):
-  workers = forms.ModelMultipleChoiceField(
-    label='Workers',
-    queryset=Worker.objects.select_related('trainee').all(),
-    required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      'workers', is_stacked=False))
-
+NONSERVICE_GROUPS = ['training_assistant', 'regular_training_assistant', 'saturday_training_assistant', 'grad_committee', 'HC', 'team_monitors', 'ypc_monitors', 'designated_service', 'PSRP_facilitator']
 
 class ReadonlyException(object):
   def name(self, instance):
@@ -42,7 +54,7 @@ class ReadonlyException(object):
 
 
 class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
-  model = Exception.workers.through
+  model = ServiceException.workers.through
   # fields = ['exception__name']
   readonly_fields = ['name', 'start', 'end', 'active', 'workers']
   extra = 1
@@ -52,7 +64,7 @@ class WorkerExceptionInline(ReadonlyException, admin.TabularInline):
 
 class WorkerAdmin(admin.ModelAdmin):
   inlines = [
-    WorkerExceptionInline,
+      WorkerExceptionInline,
   ]
   list_display = ('trainee', 'health', 'services_cap')
   # list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
@@ -65,15 +77,15 @@ class WorkerAdmin(admin.ModelAdmin):
   # save_as = True
 
   fieldsets = (
-    (None, {
-      'classes': ('suit-tab', 'suit-tab-worker',),
-      'fields': ('trainee', 'health', 'services_cap', 'qualifications', 'designated', 'services_eligible')
-    }),
+      (None, {
+          'classes': ('suit-tab', 'suit-tab-worker',),
+          'fields': ('trainee', 'health', 'services_cap', 'qualifications', 'designated', 'services_eligible')
+      }),
   )
 
   suit_form_tabs = (
-    ('worker', 'General'),
-    ('exception', 'Exceptions'),
+      ('worker', 'General'),
+      ('exception', 'Service Exceptions'),
   )
 
   def get_urls(self):
@@ -100,24 +112,6 @@ class WorkerAdmin(admin.ModelAdmin):
   class Meta:
     model = Worker
     fields = '__all__'
-
-
-class SeasonalServiceScheduleForm(forms.ModelForm):
-  services = forms.ModelMultipleChoiceField(
-    label='Services',
-    queryset=Service.objects.all(),
-    required=False,
-    widget=admin.widgets.FilteredSelectMultiple(
-      'services', is_stacked=False))
-
-  class Meta:
-    model = SeasonalServiceSchedule
-    exclude = []
-    widgets = {
-      'services': admin.widgets.FilteredSelectMultiple(
-        'services', is_stacked=False
-      ),
-    }
 
 
 class SeasonalServiceScheduleAdmin(FilteredSelectMixin, admin.ModelAdmin):
@@ -161,7 +155,7 @@ class ServiceSlotAdmin(admin.ModelAdmin):
 
 
 class ServiceExceptionInline(ReadonlyException, admin.TabularInline):
-  model = Exception.services.through
+  model = ServiceException.services.through
   # fields = ['exception__name']
   readonly_fields = ['name', 'start', 'end', 'active', 'workers']
 
@@ -179,9 +173,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
   list_display = ('name', 'description')
   ordering = ('name',)
-  inlines = [
-    ServiceInline,
-  ]
+  inlines = [ServiceInline, ]
   # exclude= ('permissions',)
   # Allows django admin to duplicate record
   # save_as = True
@@ -192,7 +184,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class DesignatedServiceExceptionInline(ReadonlyException, admin.TabularInline):
-  model = Exception
+  model = ServiceException
   fk_name = 'service'
   extra = 1
 
@@ -205,10 +197,10 @@ class DesignatedServiceExceptionInline(ReadonlyException, admin.TabularInline):
 
 class ServiceAdmin(admin.ModelAdmin):
   inlines = [
-    WorkerGroupInline,
-    ServiceExceptionInline,
-    DesignatedServiceExceptionInline,
-    # ExceptionInline,
+      WorkerGroupInline,
+      ServiceExceptionInline,
+      DesignatedServiceExceptionInline,
+      # ExceptionInline,
   ]
 
   # def get_queryset(self, request):
@@ -217,7 +209,6 @@ class ServiceAdmin(admin.ModelAdmin):
   #   return service
 
   list_display = ('name', 'code', 'category', 'active', 'weekday', 'start', 'end', 'day')
-  ordering = ('name', 'active', 'weekday', 'day')
   exclude = ('exceptions', )
   filter_horizontal = ('schedule', )
   list_filter = ('schedule', 'category', 'active', 'designated', 'weekday')
@@ -225,34 +216,29 @@ class ServiceAdmin(admin.ModelAdmin):
   # save_as = True
 
   fieldsets = (
-    (None, {
-      'classes': ('suit-tab', 'suit-tab-service',),
-      'fields': ('name', 'code', 'category', 'schedule',
-                'active', 'designated', 'weekday', 'start',
-                'end', 'day')
-     }),
-    )
+      (None, {
+          'classes': ('suit-tab', 'suit-tab-service',),
+          'fields': ('name', 'code', 'category', 'schedule',
+                     'active', 'designated', 'weekday', 'start',
+                     'end', 'day'
+                     )
+      }),
+  )
 
   suit_form_tabs = (('service', 'General'),
                     ('workergroup', 'Worker Slots'),
                     ('exception', 'Exceptions from this service'),
                     ('serviceexception', 'Service-Related Exceptions'),
-                  )
+                    )
 
   class Meta:
     model = Service
     fields = '__all__'
 
 
-class AssignmentAdminForm(WorkerPrejoinMixin, forms.ModelForm):
-  class Meta:
-    model = Assignment
-    fields = '__all__'
-
-
 class AssignmentAdmin(admin.ModelAdmin):
   form = AssignmentAdminForm
-  list_display = ('week_schedule', 'service', 'service_slot', 'worker_list', 'workers_needed', 'pin')#, 'query_filters')
+  list_display = ('id', 'week_schedule', 'service', 'service_slot', 'worker_list', 'workers_needed', 'pin')
   ordering = ('week_schedule', 'service')
   list_filter = ('week_schedule', 'service', 'service_slot', 'pin')
   save_as = True
@@ -267,17 +253,9 @@ class AssignmentAdmin(admin.ModelAdmin):
     fields = '__all__'
 
 
-class WorkGroupAdminForm(WorkerPrejoinMixin, forms.ModelForm):
-  query_filters = CSIMultipleChoiceField(choices=QueryFilterService.get_choices(), required=False, label='Filters')
-
-  class Meta:
-    model = WorkerGroup
-    fields = '__all__'
-
-
 class WorkerGroupAdmin(admin.ModelAdmin):
   form = WorkGroupAdminForm
-  list_display = ('name', 'description', 'active', 'worker_count')#, 'query_filters')
+  list_display = ('name', 'description', 'active', 'worker_count')
   ordering = ('active', 'name')
   exclude = ('permissions',)
   readonly_fields = ['worker_count', 'get_worker_list']
@@ -287,21 +265,25 @@ class WorkerGroupAdmin(admin.ModelAdmin):
   # save_as = True
 
   fieldsets = (
-    (None, {
-      'classes': ('suit-tab', 'suit-tab-general',),
-      'fields': ('name', 'description', 'active', 'assign_priority', 'query_filters', 'workers')
-     }),
-    ('Preview', {
-      'classes': ('suit-tab', 'suit-tab-preview',),
-      'fields': ('worker_count', 'get_worker_list',)
+      (None, {
+          'classes': ('suit-tab', 'suit-tab-general',),
+          'fields': ('name', 'description', 'active', 'assign_priority', 'workers') #, 'permission_groups')
       }),
-    )
+      ('Preview', {
+          'classes': ('suit-tab', 'suit-tab-preview',),
+          'fields': ('worker_count', 'get_worker_list',)
+      }),
+  )
 
   suit_form_tabs = (('general', 'General'),
                     ('preview', 'Filter Preview'),)
 
   def worker_count(self, obj):
-    return obj.get_workers.count()
+    worker_count = obj.get_workers
+    if worker_count == []:
+      return 0
+    else:
+      return worker_count.count()
 
   def get_worker_list(self, obj):
     return obj.get_worker_list()
@@ -311,16 +293,26 @@ class WorkerGroupAdmin(admin.ModelAdmin):
     model = WorkerGroup
     fields = '__all__'
 
+  # saves the ManyToMany relation of permission groups with trainees
+  def save_related(self, request, form, formsets, change):
+    super(WorkerGroupAdmin, self).save_related(request, form, formsets, change)
+    instance = form.save(commit=False)
+    # permission_groups = instance.permission_groups.all()
+    workers = instance.workers.all()
+    trainees = Trainee.objects.filter(worker__in=workers)
+    # for g in permission_groups:
+    #   if g.name not in NONSERVICE_GROUPS:
+    #     g.user_set.clear()
+    #   for t in trainees:
+    #     # adds trainee to the permission group
+    #     g.user_set.add(t)
+    #   g.save()
 
-class ExceptionAdminForm(WorkerPrejoinMixin, forms.ModelForm):
 
-  class Meta:
-    model = Exception
-    fields = '__all__'
-    widgets = {
-      'services': MultipleSelectFullCalendar(
-        Service.objects.all(), 'services'),
-    }
+# method for updating
+@receiver(post_save, sender=Qualification)
+def add_query_filter(sender, instance, **kwargs):
+  QueryFilterService.addQ(instance.name, worker__qualifications__name=instance.name)
 
 
 class ExceptionAdmin(admin.ModelAdmin):
@@ -329,7 +321,7 @@ class ExceptionAdmin(admin.ModelAdmin):
   ordering = ('active', 'name')
 
   # filter_horizontal = ('workers', 'services')
-  search_fields = ('name', 'desc',)
+  search_fields = ('name', 'desc', 'workers__trainee__firstname', 'workers__trainee__lastname',)
   list_filter = ('active', 'tag', 'start', 'end')
   # inlines = [
   #   ServiceInline,
@@ -338,19 +330,8 @@ class ExceptionAdmin(admin.ModelAdmin):
   # exclude = ('services',)
 
   class Meta:
-    model = Exception
+    model = ServiceException
     fields = '__all__'
-
-
-class QualificationForm(WorkerPrejoinMixin, forms.ModelForm):
-
-  class Meta:
-    model = Qualification
-    exclude = []
-    widgets = {
-    'workers': admin.widgets.FilteredSelectMultiple(
-      'workers', is_stacked=False),
-    }
 
 
 class QualificationAdmin(FilteredSelectMixin, admin.ModelAdmin):
@@ -428,20 +409,16 @@ class WeekScheduleAdmin(admin.ModelAdmin):
 # from assignment import *
 # from week_schedule import *
 
-admin.site.register(SeasonalServiceSchedule, SeasonalServiceScheduleAdmin)
 
+admin.site.register(SeasonalServiceSchedule, SeasonalServiceScheduleAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(ServiceSlot, ServiceSlotAdmin)
-
 admin.site.register(Qualification, QualificationAdmin)
 admin.site.register(Worker, WorkerAdmin)
-
 # admin.site.register(Worker, WorkerAdmin2)
 
 admin.site.register(WorkerGroup, WorkerGroupAdmin)
-
-admin.site.register(Exception, ExceptionAdmin)
-
+admin.site.register(ServiceException, ExceptionAdmin)
 admin.site.register(Assignment, AssignmentAdmin)
 admin.site.register(WeekSchedule, WeekScheduleAdmin)

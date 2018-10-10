@@ -1,7 +1,9 @@
-from django.db import models
-from terms.models import Term
-from schedules.models import Event
+import os
 
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils.deconstruct import deconstructible
+from schedules.models import Event
 
 """" CLASSES models.py
 
@@ -15,14 +17,58 @@ Each instance of a Class object represents a class *for a given term*
 
 Data Models:
     - Class: a class in the FTTA
+    - ClassFile: a file (i.e pdf, doc, etc.) for a class (i.e Greek, Character, etc.)
 
 """
+
+
+CLASS_CHOICES = (
+    ('Greek', 'Greek'),
+    ('German', 'German'),
+    ('Character', 'Character'),
+    ('PSRP', 'PSRP'),
+    ('Graduation', 'Graduation'),
+)
+
+# everyone has permissions for these
+CLASS_CHOICES_ALL = (
+    ('Presentations', 'Presentations'),
+)
+CLASS_CHOICES_ALL_ITEMS = [c[0] for c in CLASS_CHOICES_ALL]
+
+CLASS_CHOICES += CLASS_CHOICES_ALL
+
+ELECTIVES = r''
+for x, y, in CLASS_CHOICES:
+  ELECTIVES += x + '|'
+
+
+@deconstructible
+class CustomPath(object):
+
+    def __init__(self, sub_path):
+        self.path = sub_path
+
+    def __call__(self, instance, filename):
+        sub_path = '{0}/{1}'.format(instance.for_class, filename)
+        print os.path.join(self.path, sub_path)
+        return os.path.join(self.path, sub_path)
+
+
+custom_path = CustomPath("class_files")
 
 
 class ClassManager(models.Manager):
 
   def get_queryset(self):
     return super(ClassManager, self).get_queryset().filter(type='C')
+
+
+class RegularClassesManager(models.Manager):
+
+  def get_queryset(self):
+    return Class.objects.filter(schedules__weeks__regex='.{5,}').exclude(schedules__trainee_select='GP').filter(type='C', monitor='AM').exclude(class_type="AFTN").distinct().order_by('weekday', 'start')
+
 
 
 class Class(Event):
@@ -36,3 +82,26 @@ class Class(Event):
     super(Class, self).save(*args, **kwargs)
 
   objects = ClassManager()
+  regularclasses = RegularClassesManager()
+
+
+class ClassFile(models.Model):
+
+  label = models.CharField(max_length=50, null=True)
+
+  for_class = models.CharField(max_length=30, choices=CLASS_CHOICES, null=True)
+
+  def upload_path(fileObject, filename):
+    # i.e 'class_files/Greek/vocab.pdf'
+    return 'class_files/{0}/{1}'.format(fileObject.for_class, filename)
+
+  file = models.FileField(upload_to=custom_path, max_length=250)
+
+  def get_delete_url(self):
+    return reverse('classes:delete-file', kwargs={'pk': self.id})
+
+  def delete(self, *args, **kwargs):
+    if os.path.isfile(self.file.path):
+      os.remove(self.file.path)
+
+    super(ClassFile, self).delete(*args, **kwargs)

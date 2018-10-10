@@ -202,6 +202,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
   # first_name and email are attributes to search for in the FK model
   related_search_fields = {
     'TA': ('firstname', 'lastname', 'email'),
+    'TA_secondary': ('firstname', 'lastname', 'email'),
     'mentor': ('firstname', 'lastname', 'email'),
   }
 
@@ -210,7 +211,7 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
 
   # TODO(useropt): removed bunk, married, and spouse
   list_display = ('full_name', 'current_term', 'email', 'team', 'house',)
-  list_filter = (CurrentTermListFilter, FirstTermMentorListFilter,)
+  list_filter = (CurrentTermListFilter, FirstTermMentorListFilter, 'gender',)
 
   ordering = ('firstname', 'lastname',)
   filter_horizontal = ("groups", "user_permissions")
@@ -237,8 +238,8 @@ class TraineeAdmin(ForeignKeyAutocompleteAdmin, UserAdmin):
       'fields': ('email', 'firstname', 'middlename', 'lastname', 'gender',
                  'date_of_birth', 'type', 'locality', 'terms_attended', 'current_term',
                  ('date_begin', 'date_end',),
-                 'TA', 'mentor', 'team', ('house',),
-                 'self_attendance')
+                 'TA', 'TA_secondary', 'team', ('house',),
+                 'self_attendance', 'badge')
       }
     ),
     ('Permissions', {
