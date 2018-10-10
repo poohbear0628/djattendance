@@ -70,7 +70,6 @@ class RegularClassesManager(models.Manager):
     return Class.objects.filter(schedules__weeks__regex='.{5,}').exclude(schedules__trainee_select='GP').filter(type='C', monitor='AM').exclude(class_type="AFTN").distinct().order_by('weekday', 'start')
 
 
-
 class Class(Event):
   class Meta:
     proxy = True
