@@ -151,8 +151,8 @@ function loadWeather() {
 }
 function updateWeather(weather) {
   oldWeather = weather;
-  var condition = weather.query.results.channel.item.condition;
-  var forecasts = weather.query.results.channel.item.forecast;
+  var condition = weather.condition;
+  var forecasts = weather.forecast;
   $("#today-temp").html(condition.temp + "&deg;");
   var conditions = [$("#today-condition"), $("#tomorrow-condition"), $("#daft-condition")];
   var lows = [$("#today-low"), $("#tomorrow-low"), $("#daft-low")];
