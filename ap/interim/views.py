@@ -157,12 +157,31 @@ class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
     ctx = super(InterimIntentionsCalendarView, self).get_context_data(**kwargs)
     term = Term.current_term()
 
+    def merge_names(d, key1, key2, newkey):
+      try:
+        d[newkey] = unicode(d[key1]) + unicode(' ') + unicode(d[key2])
+        del d[key1]
+        del d[key2]
+        return 1
+      except KeyError:
+        return 0
+
     interim_start = term.end + timedelta(days=1)
-    interim_length = (InterimIntentionsAdmin.objects.get(term=term).term_begin_date - interim_start).days
+    if InterimIntentionsAdmin.objects.get(term=term).term_begin_date is None:
+      interim_end = interim_start + timedelta(days=1)
+      ctx['subtitle'] = "Please enter the starting date for next term."
+    else:
+      interim_end = InterimIntentionsAdmin.objects.get(term=term).term_begin_date
 
-    ctx['date_list'] = [interim_start + timedelta(days=x) for x in range(0, interim_length+1)]
-    print ctx['date_list']
+    ctx['interim_length'] = (interim_end - interim_start).days
+    ctx['date_list'] = [interim_start + timedelta(days=x) for x in range(0, ctx['interim_length']+1)]
 
-    ctx['intentions'] = InterimIntentions.objects.filter(admin__term=term)
+    ctx['trainees'] = Trainee.objects.values('firstname', 'lastname', 'id')
+
+    for t in ctx['trainees']:
+      t['name'] = unicode(t['firstname'] + ' ' + t['lastname'])
+      print t['name']
+      t['intention'] = InterimIntentions.objects.filter(trainee__id=t['id'], admin__term=term).first()
+
     ctx['page_title'] = 'Interim Calendar Report'
     return ctx
