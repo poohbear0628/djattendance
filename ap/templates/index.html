@@ -1,282 +1,310 @@
 {% extends "base.html" %} {% load staticfiles %} {% load bootstrap3 %} {% load panels %} {% load smart_cards %} {% load common_tags
-%} {% block title %}Home{% endblock %} {% block scripts %}
-<script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
-{% if isTrainee %}
-<script type="text/javascript" src="{% static 'bible_tracker/js/bible_reading.js' %}"></script>
-<script type="text/javascript">
-
-  var isTrainee = "{{isTrainee}}";
-  var currentWeek = "{{current_week}}";
-  var finalized = "{{finalized}}";
-  var bibleReadingStatus = "{{weekly_status}}";
-  var weekdayCodes = {{ weekday_codes| safe}};
-  var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
-  var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
-  var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
-  var service = "{{service}}";
-  var service_day = "{{service_day}}";
-  var designated = "{{designated_list}}";
-
-  var regex = /(?<=\:\s)(.*?)(?=\&)/g;
-  var service_list = service.match(regex);
-  console.log(service_list);
-  var designated_list = designated.match(regex);
-  console.log(designated_list);
-
-  $(document).ready(function () {
-    $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
-
-    changetoFinalize();
-    getWeeklyStatus();
-
-    $("#week_select").on('change', changeHomepageWeek);
-
-    $("#bibleTrackerButton").click(function (e) {
-      e.preventDefault();
-      if ($('#bibleTrackerButton').val() == "Finalize") {
-        finalizeStatusFromHomepage();
-      }
-      else {
-        updateStatusFromHomepage
-          (finalized);
-      }
-    });
-
-    $(".bible-selector").on('change', changetoFinalize);
-
-    // for service week row
-    var colCount = 1;
-    $('tr:nth-child(1) td').each(function () {
-        if ($(this).attr('colspan')) {
-            colCount += +$(this).attr('colspan');
-        } else {
-            colCount++;
+  %} {% block title %}Home{% endblock %} {% block scripts %}
+  <script type="text/javascript" src="{% static 'js/bootstrap-tab-history.js' %}"></script>
+  {% if isTrainee %}
+  <script type="text/javascript" src="{% static 'bible_tracker/js/bible_reading.js' %}"></script>
+  <script type="text/javascript">
+  
+    var isTrainee = "{{isTrainee}}";
+    var currentWeek = "{{current_week}}";
+    var finalized = "{{finalized}}";
+    var bibleReadingStatus = "{{weekly_status}}";
+    var weekdayCodes = {{ weekday_codes| safe}};
+    var changeWeekUrl = "{% url 'bible_tracker:changeWeek' %}";
+    var updateStatusUrl = "{% url 'bible_tracker:updateStatus' %}";
+    var finalizeStatusUrl = "{% url 'bible_tracker:finalizeStatus' %}";
+    var designatedHoursUrl = "{% url 'services:designated_service_hours' %}";
+    var service = "{{service}}";
+    var serviceDays = "{{service_day}}";
+    var designated = "{{designated_list}}";
+  
+    // regex string data for display
+    var regex = /(?<=\:\s)(.*?)(?=\&)/g;
+    var service_list = service.match(regex);
+    // console.log(service_list);
+    var designated_list = designated.match(regex);
+    // console.log(designated_list);
+    regex = /(\d+)/g;
+    var serviceDay_list = serviceDays.match(regex);
+    console.log(serviceDay_list, serviceDay_list.length);
+  
+    $(document).ready(function () {
+      $("#week_select option[value='{{current_week}}']").attr("selected", "selected");
+  
+      changetoFinalize();
+      getWeeklyStatus();
+  
+      $("#week_select").on('change', changeHomepageWeek);
+  
+      $("#bibleTrackerButton").click(function (e) {
+        e.preventDefault();
+        if ($('#bibleTrackerButton').val() == "Finalize") {
+          finalizeStatusFromHomepage();
         }
-    });
-    console.log(colCount);
+        else {
+          updateStatusFromHomepage(finalized);
+        }
+      });
+  
+      $(".bible-selector").on('change', changetoFinalize);
+  
+      // for service week row
+      var colCount = 1;
+      // $('tr:nth-child(1) td').each(function () {
+      //   if ($(this).attr('colspan')) {
+      //       colCount += +$(this).attr('colspan');
+      //   } else {
+      //       colCount++;
+      //   }
+      // });
 
-    if (colCount < 9){
+      // var numCols = document.getElementById('serviceRow').row.length;
+      var numCols = $("#serviceRow").find('tr')[0].cells.length;
+      console.log(numCols);
+
       var row = document.getElementById("serviceRow");
       var cell;
-      while(colCount < 9){
-        cell = row.insertCell(colCount);
-        cell.innerHTML = "";
-        colCount++;
+      var urlInsert = "<a href=\"{% url 'services:designated_service_hours' %}\">Input Hours</a>";
+      var htmlInsert = "<span class=\"glyphicon glyphicon-ok\"></span>";
+      // var index = serviceDay_list.length;
+      var index = 0;
+
+      if (colCount < 8){
+        while(colCount < 8){
+          cell = row.insertCell(colCount);
+          console.log("index:", index, "content:", serviceDay_list[index]);
+
+          if(index < serviceDay_list.length){
+            if(serviceDay_list[index]){
+              console.log(colCount, index, serviceDay_list[index]);
+              cell.innerHTML = htmlInsert;
+            }
+
+            index++;
+          }
+  
+          // if((serviceDay_list[index] !== null ) && (serviceDay_list[index] === colCount)){
+          //   cell.innerHTML = "htmlInsert";
+          // }
+          // else{
+          //   cell.innerHTML = htmlInsert;
+          // }
+          colCount++;
+        }
       }
+      
+      // redirect to designated hours if the trainee has designated service
+      cell = row.insertCell(colCount++);
+      (designated_list !== null) ? cell.innerHTML = urlInsert : cell.innerHTML = "";
+  
+    });
+  </script>
+  {% endif %}
+  {% endblock %} {% block references %}
+  
+  <!-- Disable scaling to remove click delay on mobile for this page -->
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  
+  <!-- This css is specific for the index page for the progress bar -->
+  <style type="text/css">
+    .percent {
+      padding: 0px;
+      padding-left: 7px;
+      width: 30px;
+      line-height: 1;
     }
-
-    $('#serviceRow:last-child').innerHTML = "{{designated}}";
-
-  });
-</script>
-{% endif %}
-{% endblock %} {% block references %}
-
-<!-- Disable scaling to remove click delay on mobile for this page -->
-<meta name="viewport" content="width=device-width, user-scalable=no">
-
-<!-- This css is specific for the index page for the progress bar -->
-<style type="text/css">
-  .percent {
-    padding: 0px;
-    padding-left: 7px;
-    width: 30px;
-    line-height: 1;
-  }
-
-  .progress-style {
-    padding-right: 0px;
-  }
- 
-</style>
-{% endblock %} {% block content %}
-
-<div class="container">
-  <div class="row">
-    <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
-  </div>
-
-  {% if user.type == 'T' %}
-  <!-- Trainee Search Box for TAs -->
-  <!--
-  <div class="row">
-    <div class="col-md-4">
-      <div class="btn-group-vertical">
-        <div class="btn btn-panel trainee-search-container">
-          <input class="btn-txt trainee-search-input" type="text" placeholder="TRAINEE SEARCH"></input>
-          <span class="trainee-search-box"></span>
+  
+    .progress-style {
+      padding-right: 0px;
+    }
+   
+  </style>
+  {% endblock %} {% block content %}
+  
+  <div class="container">
+    <div class="row">
+      <h1 class="col-md-12"> Welcome, {{ user.firstname }}! </h1>
+    </div>
+  
+    {% if user.type == 'T' %}
+    <!-- Trainee Search Box for TAs -->
+    <!--
+    <div class="row">
+      <div class="col-md-4">
+        <div class="btn-group-vertical">
+          <div class="btn btn-panel trainee-search-container">
+            <input class="btn-txt trainee-search-input" type="text" placeholder="TRAINEE SEARCH"></input>
+            <span class="trainee-search-box"></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  -->
-
-  {% elif user.type == 'R' or user.type == 'C' %}
-
-  <div class="row">
-    <!-- Panels -->
-    <div class="col-md-4">
-      <div id="panelsDiv" class="btn-group-vertical">
-        {% generate_panels as panels %} {% for panel in panels %}
-        <a class="btn btn-panel" href="{{ panel.url }}">
-          {# moved number first to fix firefox rendering issue #} {% if panel.num is not None %} {% if panel.num == 0 %}
-          <span class="btn-num-nought"> {{ panel.num }}</span>
-          {% else %}
-          <span class="btn-num"> {{ panel.num }}</span>
-          {% endif %} {% endif %}
-          <span class="btn-txt"> {{ panel.name }} </span>
-        </a>
-        {% endfor %}
+    -->
+  
+    {% elif user.type == 'R' or user.type == 'C' %}
+  
+    <div class="row">
+      <!-- Panels -->
+      <div class="col-md-4">
+        <div id="panelsDiv" class="btn-group-vertical">
+          {% generate_panels as panels %} {% for panel in panels %}
+          <a class="btn btn-panel" href="{{ panel.url }}">
+            {# moved number first to fix firefox rendering issue #} {% if panel.num is not None %} {% if panel.num == 0 %}
+            <span class="btn-num-nought"> {{ panel.num }}</span>
+            {% else %}
+            <span class="btn-num"> {{ panel.num }}</span>
+            {% endif %} {% endif %}
+            <span class="btn-txt"> {{ panel.name }} </span>
+          </a>
+          {% endfor %}
+        </div>
       </div>
-    </div>
-
-    <!-- Weekly Summary -->
-    <div class="col-md-8 ml-auto">
-      <div class="row">
-        <form>
-          <div class="col-sm-1">
-            Week:
-          </div>
-          <div class="col-sm-4">
-            <!-- Pick a week of a term -->
-            <select id="week_select" class="form-control" name="week" size="0">
-              {% for i, week in weeks %}
-              <option value="{{i}}" {% if i > current_week %} disabled {% endif %}>{{week}}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </form>
-      </div>
-      <br />
-
-      <table class="table table-bordered-wkly-sum" id="frontTable">
-        <thead>
-          <tr>
-            <th scope="col" class="col-md-1"></th>
-            {% for day in 0|get_weekday_codes %}
-            <th scope="col" class="col-md-1">{{day}}</th>
-            {% endfor %}
-            <th scope="col" class="col-md-1"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr id="serviceRow">
-            <th>SERVICE</th>
-              {% for d in service_day %}
-                <td>
-                  <span class="glyphicon glyphicon-ok"> {{d}}</span>
-                </td>
-              {% endfor %}
-            </tr>
-          <!-- COMMENT OUT: GOSPEL STATS ROW --
-          <tr>
-            <th>GOSPEL STATISTICS</th>
-            {% for i in "xxxxxxx" %}
-            <td></td>
-            {% endfor %}
-            <td><a href="#">Input Stats</a></td>
-          </tr>
-          -->
-          <tr>
-            <form class="form-group bibleDropDown" id="bibleDropDown" method="post">
-              <th rowspan="3">BIBLE READING PROGRESS</th>
+  
+      <!-- Weekly Summary -->
+      <div class="col-md-8 ml-auto">
+        <div class="row">
+          <form>
+            <div class="col-sm-1">
+              Week:
+            </div>
+            <div class="col-sm-4">
+              <!-- Pick a week of a term -->
+              <select id="week_select" class="form-control" name="week" size="0">
+                {% for i, week in weeks %}
+                <option value="{{i}}" {% if i > current_week %} disabled {% endif %}>{{week}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </form>
+        </div>
+        <br />
+  
+        <table class="table table-bordered-wkly-sum" id="frontTable">
+          <thead>
+            <tr>
+              <th scope="col" class="col-md-1"></th>
               {% for day in 0|get_weekday_codes %}
-              <td class="bibleReadingRow">
-                <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
-                  <option value="_"></option>
-                  <br />
-                  <option value="C">C</option>
-                  <br />
-                  <option value="M">M</option>
-                  <br />
-                  <option value="N">N</option>
-                  <br />
-                </select>
-              </td>
+              <th scope="col" class="col-md-1">{{day}}</th>
               {% endfor %}
-              <td>
-                <input class="bibleTrackerButton" type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
-              </td>
-            </form>
-          </tr>
-          <tr>
-            <td class="td-remove-indent" colspan="7">
-              <div class="row">
-                <div class="col-10 col-sm-6 col-md-10 progress-style">
-                  <div class="homepage-progress">
-                    <a href="{% url 'bible_tracker:index' %}">
-                      <div class="homepage-progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100"
-                        style="width: {{bible_reading_progress}}%">
-                      </div>
-                    </a>
+              <th scope="col" class="col-md-1"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="serviceRow">
+              <th>SERVICE</th>
+                {% for d in serviceDay_list %}
+                  <td colspan="1"></td>
+                {% endfor %}
+              </tr>
+            <!-- COMMENT OUT: GOSPEL STATS ROW --
+            <tr>
+              <th>GOSPEL STATISTICS</th>
+              {% for i in "xxxxxxx" %}
+              <td></td>
+              {% endfor %}
+              <td><a href="#">Input Stats</a></td>
+            </tr>
+            -->
+            <tr>
+              <form class="form-group bibleDropDown" id="bibleDropDown" method="post">
+                <th rowspan="3">BIBLE READING PROGRESS</th>
+                {% for day in 0|get_weekday_codes %}
+                <td class="bibleReadingRow">
+                  <select class="bible-selector" id="bibleDropDown_{{day}}" data-day="{{day}}">
+                    <option value="_"></option>
+                    <br />
+                    <option value="C">C</option>
+                    <br />
+                    <option value="M">M</option>
+                    <br />
+                    <option value="N">N</option>
+                    <br />
+                  </select>
+                </td>
+                {% endfor %}
+                <td>
+                  <input class="bibleTrackerButton" type="submit" name="save" Value="Save" id='bibleTrackerButton'></input>
+                </td>
+              </form>
+            </tr>
+            <tr>
+              <td class="td-remove-indent" colspan="7">
+                <div class="row">
+                  <div class="col-10 col-sm-6 col-md-10 progress-style">
+                    <div class="homepage-progress">
+                      <a href="{% url 'bible_tracker:index' %}">
+                        <div class="homepage-progress-bar" role="progressbar" aria-valuenow="{{bible_reading_progress}}" aria-valuemin="0" aria-valuemax="100"
+                          style="width: {{bible_reading_progress}}%">
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-2 col-md-2 percent">
+                    {{bible_reading_progress}}%
                   </div>
                 </div>
-                <div class="col-2 col-md-2 percent">
-                  {{bible_reading_progress}}%
-                </div>
-              </div>
-            </td>
-            <td>
-              <a class="bibleTrackerUpdate" href="{% if user.current_term == 1 or user.current_term == 2%}
-              {% url 'bible_tracker:index' %}#first-year-bible-reading
-              {% elif user.current_term == 3 or user.current_term == 4 %}
-              {% url 'bible_tracker:index' %}#second-year-bible-reading {% endif %}">Update</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- Cards -->
-  {% spaceless %}
-  <div class="row">
-    <div class="row-md-12">
-      <div class="card_container">
-        {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
-        <div class="card">
-          <span class="card-header h3"> {{ card.header_title }} </span>
-          <span class=card-content>
-            {% for card_link in card.card_links %}
-            <span class="card-item">
-              <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
-              {% if card_link.number is not None %}
-                {% if card_link.ta_number is None %}
-                  {% if card_link.number == 0 %}
-                    <div class="card-num">0</div>
-                  {% else %}
-                    <div class="card-num-alert">{{ card_link.number }}</div>
-                  {% endif %}
-                {% else %}
-                  {% if card_link.ta_number == 0 %}
-                    <div class="card-num">0 ({{ card_link.number }})</div>
-                  {% else %}
-                    <div class="card-num-alert">{{ card_link.ta_number }} ({{ card_link.number }})</div>
-                  {% endif %}
-                {% endif %}
-              {% endif %}
-            </span>
-            {% endfor %}
-          </span>
-        </div>
-        {% endif %} {% endfor %}
+              </td>
+              <td>
+                <a class="bibleTrackerUpdate" href="{% if user.current_term == 1 or user.current_term == 2%}
+                {% url 'bible_tracker:index' %}#first-year-bible-reading
+                {% elif user.current_term == 3 or user.current_term == 4 %}
+                {% url 'bible_tracker:index' %}#second-year-bible-reading {% endif %}">Update</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
-  {% endspaceless %} {% if schedule %}
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h5 class="panel-title">Today's Schedule</h5>
+    {% endif %}
+  
+    <!-- Cards -->
+    {% spaceless %}
+    <div class="row">
+      <div class="row-md-12">
+        <div class="card_container">
+          {% generate_cards as cards %} {% for card in cards %} {% if card.condition %}
+          <div class="card">
+            <span class="card-header h3"> {{ card.header_title }} </span>
+            <span class=card-content>
+              {% for card_link in card.card_links %}
+              <span class="card-item">
+                <a href="{{ card_link.url }}" class="card-list">{{ card_link.title }}</a>
+                {% if card_link.number is not None %}
+                  {% if card_link.ta_number is None %}
+                    {% if card_link.number == 0 %}
+                      <div class="card-num">0</div>
+                    {% else %}
+                      <div class="card-num-alert">{{ card_link.number }}</div>
+                    {% endif %}
+                  {% else %}
+                    {% if card_link.ta_number == 0 %}
+                      <div class="card-num">0 ({{ card_link.number }})</div>
+                    {% else %}
+                      <div class="card-num-alert">{{ card_link.ta_number }} ({{ card_link.number }})</div>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              </span>
+              {% endfor %}
+            </span>
+          </div>
+          {% endif %} {% endfor %}
+        </div>
+      </div>
     </div>
-    <div class="panel-body">
-      <ul>
-        {% for event in schedule.todays_events %}
-        <li>{{ event.name }} @ {{ event.start }}</li>
-        {% endfor %}
-      </ul>
+    {% endspaceless %} {% if schedule %}
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h5 class="panel-title">Today's Schedule</h5>
+      </div>
+      <div class="panel-body">
+        <ul>
+          {% for event in schedule.todays_events %}
+          <li>{{ event.name }} @ {{ event.start }}</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
+    {% endif %}
   </div>
-  {% endif %}
-</div>
-{% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
+  {% endblock %} {% block post_container %} {% include 'popups/announcement_popup.html' %} {% endblock %}
