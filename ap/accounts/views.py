@@ -73,12 +73,11 @@ class AllTrainees(GroupRequiredMixin, ListView):
   model = Trainee
   template_name = 'accounts/trainees_table.html'
   group_required = [u'attendance_monitors', u'training_assistant', u'service_schedulers']
+  queryset = Trainee.objects.filter(is_active=True).select_related('team', 'locality', 'house')
+  context_object_name = 'list_of_trainees'
 
   def post(self, request, *args, **kwargs):
-    return self.get(request, *args, **kwargs)
-
-  def get_context_data(self, **kwargs):
-    if self.request.method == 'POST' and self.request.user.has_group(['attendance_monitors']):
+    if self.request.user.has_group([u'attendance_monitors', u'training_assistant']):
       val = self.request.POST.get('change')
       email = self.request.POST.get('pk')
       f = self.request.POST.get('f')
@@ -98,11 +97,7 @@ class AllTrainees(GroupRequiredMixin, ListView):
         else:
           t.self_attendance = True
         t.save()
-
-    context = super(AllTrainees, self).get_context_data(**kwargs)
-    context['list_of_trainees'] = Trainee.objects.filter(is_active=True).select_related('team', 'locality', 'house')
-    return context
-
+    return self.get(request, *args, **kwargs)
 
 """ API Views """
 
