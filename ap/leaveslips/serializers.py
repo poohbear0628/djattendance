@@ -64,7 +64,9 @@ class IndividualSlipSerializer(BulkSerializerMixin, ModelSerializer):
         TA_id = validated_data.get('TA', instance).id
       instance.TA = TrainingAssistant.objects.get(id=TA_id)
 
-      if isinstance(validated_data.get('TA_informed'), basestring):
+      if validated_data.get('TA_informed') is None:
+        TA_informed_id = None
+      elif isinstance(validated_data.get('TA_informed'), basestring):
         TA_informed_id = validated_data.get('TA_informed')
       else:
         TA_informed_id = validated_data.get('TA_informed', instance).id
