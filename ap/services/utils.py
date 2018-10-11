@@ -1,5 +1,6 @@
 from collections import Counter, OrderedDict
 import datetime
+from datetime import date, timedelta
 from itertools import combinations
 
 from accounts.models import User
@@ -426,23 +427,6 @@ SERVICE_CHECKS = [
     ServiceCheck(assignment_prep, MAX_PREPS_PER_WEEK, '> {0} prep/week'.format(MAX_PREPS_PER_WEEK)),
 ]
 
-def unfinalized_service(user):
-  # return list of service_id and week
-  try:
-    if is_trainee(user):
-      current_term = Term.current_term()
-      current_week = Term.reverse_date(current_term, datetime.date.today())[0]
-      worker = trainee_from_user(user).worker
-      designated_services = worker.designated.all()
-      for service in designated_services:
-        for week in range(0, current_week-1):
-          if (not ServiceAttendance.objects.filter(designated_service=service).filter(worker=worker).filter(term=current_term).filter(week=week) or
-            ServiceAttendance.objects.get(designated_service=service,worker=worker,term=current_term,week=week).get_service_hours() == 0):
-            return [service.id,week]
-  except AttributeError:
-    pass
-  return None
-
 def has_designated_service(user):
   if is_trainee(user):
     worker = trainee_from_user(user).worker
@@ -451,3 +435,25 @@ def has_designated_service(user):
       return True
 
   return None
+
+def unfinalized_service(user):
+  # return list of service_id and week
+  try:
+    if has_designated_service(user):
+      current_term = Term.current_term()
+      # current week = up to week we want to access + 1
+      current_week = Term.reverse_date(current_term, datetime.date.today())[0]
+      worker = trainee_from_user(user).worker
+      designated_services = worker.designated.all()
+      if date.today() <= current_term.startdate_of_week(current_week) + timedelta(1):
+        # Cannot access past week's because today is less than Wednesday
+        current_week = current_week - 1
+      for service in designated_services:
+        for week in range(0, current_week):          
+          if (not ServiceAttendance.objects.filter(designated_service=service).filter(worker=worker).filter(term=current_term).filter(week=week) or
+            ServiceAttendance.objects.get(designated_service=service,worker=worker,term=current_term,week=week).get_service_hours() == 0):
+            return [service.id,week]
+  except AttributeError:
+    pass
+  return None
+
