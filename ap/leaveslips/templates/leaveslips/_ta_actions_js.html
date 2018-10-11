@@ -36,7 +36,7 @@ $(document).ready(() => {
       statusData = ACTION_DATA[statusAction];
       slipData += statusData;
     }
-    if (statusAction == "fellowship" || statusAction == "unfellowship") {
+    if (statusAction == "fellowship" || statusAction == "unfellowship" || ($("#id_TA").length && !$("#id_TA").val())) {
       var i = slipData.indexOf('TA=')
       if (i !== -1) {
         for (i; i < slipData.length; i++) {
