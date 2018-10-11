@@ -113,7 +113,6 @@ class GroupSlipUpdate(LeaveSlipUpdate):
     if request.POST.get('ta_sister_approved'):
       update['ta_sister_approved'] = bool(request.POST.get('ta_sister_approved'))
     GroupSlipSerializer().update(self.get_object(), update)
-    super(GroupSlipUpdate, self).post(request, **kwargs)
     return HttpResponse('ok')
 
 
