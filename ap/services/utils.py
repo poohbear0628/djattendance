@@ -449,7 +449,7 @@ def unfinalized_service(user):
         # Cannot access past week's because today is less than Wednesday
         current_week = current_week - 1
       for service in designated_services:
-        for week in range(0, current_week):          
+        for week in range(0, current_week):
           if (not ServiceAttendance.objects.filter(designated_service=service).filter(worker=worker).filter(term=current_term).filter(week=week) or
             ServiceAttendance.objects.get(designated_service=service,worker=worker,term=current_term,week=week).get_service_hours() == 0):
             return [service.id,week]
