@@ -42,6 +42,9 @@ class GospelStatisticsView(TemplateView):
     context['week'] = get_week()
     return context
 
+
+
+#Delete this
 def GospelStatisticsSave(request):
   current_user = request.user
   context = {
@@ -51,22 +54,6 @@ def GospelStatisticsSave(request):
     'cols' : attributes,
     'week' : get_week(),
   }
-
-  '''
-  currentStat = GospelStat(team=current_user.team,week=context['week'],tracts_distributed=1)
-  currentStat.save()
-  for trainee in Trainee.objects.filter(firstname=current_user.firstname,lastname=current_user.lastname):
-    print trainee
-    currentStat.trainees.add(trainee)
-
-  stats = GospelStat.objects.filter(team=current_user.team)
-  ctx = {'Tracts_Distributed': 0}
-  for i in stats:
-    ctx['Tracts_Distributed']+=i.tracts_distributed
-  for i in ctx:
-    context[i]=ctx[i]
-  '''
-
   return render(request, 'gospel_statistics/gospel_statistics.html', context=context)
 
 def new_pair(request):
@@ -86,7 +73,7 @@ def weekly_statistics(request):
     print stat.trainees
   return HttpResponse(json.dumps(weekly_stats))
 
-#In Progress
+#In Progress (change to class)
 def TAGospelStatisticsView(request):
   context = {
     'page_title': 'TA Gospel Statistics',
