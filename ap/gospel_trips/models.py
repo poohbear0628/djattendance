@@ -125,6 +125,7 @@ class Answer(models.Model):
 
   class Meta:
     order_with_respect_to = 'question'
+    unique_together = ('trainee', 'gospel_trip', 'question')
 
 
 class AnswerChoice(models.Model):
