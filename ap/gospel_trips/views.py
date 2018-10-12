@@ -34,7 +34,7 @@ class GospelTripView(GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripView, self).get_context_data(**kwargs)
-    ctx['gospel_trips'] = GospelTrip.objects.all()
+    ctx['gospel_trips'] = GospelTrip.objects.order_by('-open_time')
     ctx['page_title'] = 'Gospel Trip Admin'
     return ctx
 
