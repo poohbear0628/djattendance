@@ -21,10 +21,10 @@ class GospelTrip(models.Model):
     return reverse('gospel_trips:admin-update', kwargs={'pk': self.id})
 
   def get_trainee_url(self):
-    return reverse('gospel_trips:gospel-trips', kwargs={'pk': self.id})
+    return reverse('gospel_trips:gospel-trip', kwargs={'pk': self.id})
 
   def get_report_url(self):
-    return reverse('gospel_trips:response-report', kwargs={'pk', self.id})
+    return reverse('gospel_trips:report', kwargs={'pk', self.id})
 
   @property
   def is_open(self):
@@ -125,6 +125,7 @@ class Answer(models.Model):
 
   class Meta:
     order_with_respect_to = 'question'
+    unique_together = ('trainee', 'gospel_trip', 'question')
 
 
 class AnswerChoice(models.Model):
