@@ -17,14 +17,20 @@ class GospelTrip(models.Model):
 
   close_time = models.DateTimeField(blank=True)
 
+  keep_open = models.BooleanField(default=False)
+
   def get_absolute_url(self):
     return reverse('gospel_trips:admin-update', kwargs={'pk': self.id})
 
   def get_trainee_url(self):
-    return reverse('gospel_trips:gospel-trips', kwargs={'pk': self.id})
+    return reverse('gospel_trips:gospel-trip', kwargs={'pk': self.id})
 
   def get_report_url(self):
-    return reverse('gospel_trips:response-report', kwargs={'pk', self.id})
+    return reverse('gospel_trips:report', kwargs={'pk', self.id})
+
+  def get_submitted_trainees(self):
+    # gets a list of trainees with responses to required questions
+    return self.answer_set.filter(question__answer_required=True, response__isnull=False).values_list('trainee', flat=True).distinct()
 
   @property
   def is_open(self):

@@ -34,7 +34,7 @@ class GospelTripView(GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripView, self).get_context_data(**kwargs)
-    ctx['gospel_trips'] = GospelTrip.objects.all()
+    ctx['gospel_trips'] = GospelTrip.objects.order_by('-open_time')
     ctx['page_title'] = 'Gospel Trip Admin'
     return ctx
 
@@ -90,11 +90,13 @@ def gospel_trip_base(request):
 def gospel_trip_trainee(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   context = {'page_title': gt.name}
+
   if is_trainee(request.user):
     trainee = trainee_from_user(request.user)
   else:
-    trainee = Trainee.objects.first()
-    context['preview'] = trainee.full_name
+    context['preview_trainees'] = Trainee.objects.all()
+    trainee = Trainee.objects.get(id=request.GET.get('trainee', Trainee.objects.first().id))
+    context['selected_trainee'] = trainee
 
   section_qs = Section.objects.filter(Q(gospel_trip=gt) & ~Q(show='HIDE'))
   question_qs = Question.objects.filter(Q(section__in=section_qs) & ~Q(answer_type="None"))
