@@ -44,7 +44,7 @@
 
     requiredFields.each(function(){
      if(!$(this).val()){
-       badFields.push($(this).parent().parent().parent().attr('id'));
+       badFields.push($(this).parent().parent().children().first().text());
        goodForm = false;
       }
     });
@@ -56,7 +56,7 @@
       let msg = "There are required fields in: ";
       badFields = [...new Set(badFields)];  // removes duplicates
       badFields.forEach((f) => {
-        msg += f.replace("_", " ") + " ";
+        msg += f + ", ";
       });
       alert(msg);
     }
