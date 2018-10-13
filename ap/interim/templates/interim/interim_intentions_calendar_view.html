@@ -9,14 +9,22 @@
 
 <style type="text/css">
 	#special-table {
-	  overflow-x: scroll;
-	  margin-left: 15%;
+		overflow-x: scroll;
+	  margin-left: 200px;
+	  margin-top: 40px;
 	}
 
 	.headcol {
 	  position: absolute;
-	  width: 15%;
-	  left: 0;
+	  width: 190px;
+	  left: 15px;
+	  text-align: center;
+	  background-color: inherit;
+
+	}
+
+	.headrow {
+		/*position: fixed;*/
 	}
 
 	td {
@@ -32,18 +40,20 @@
 	<h4>{{ subtitle }}</h4>
 
 {% else %}
+
+	<ul class="nav-tabs"></ul>
 	<div id="special-table">
-		<table id="id_interim_calendar_table" class="table table-striped table-bordered">
-				<tr>
+		<table class="table table-striped table-bordered">
+				<tr class="headrow">
 					<th class="headcol">Trainee</th>
 					{% for date in date_list %}
-						<td>{{date}}</th>
+						<td>{{date}}</td>
 					{% endfor %}
 				</tr>
 
 			  {% for trainee in trainees %}
 			    <tr>
-			      <th class="headcol">{{trainee.name}}</td>
+			      <td class="headcol">{{trainee.name}}</td>
 		      	{% if trainee.intention.interimitinerary_set.all %}
 		      		{% for itin in trainee.intention.interimitinerary_set.all %}
 		      			<td colspan="{{ itin.start|itinerary_length_in_days:itin.end }}">{{itin.comments}}</td>

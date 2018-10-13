@@ -174,13 +174,12 @@ class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
       interim_end = InterimIntentionsAdmin.objects.get(term=term).term_begin_date
 
     ctx['interim_length'] = (interim_end - interim_start).days
-    ctx['date_list'] = [interim_start + timedelta(days=x) for x in range(0, ctx['interim_length']+1)]
+    ctx['date_list'] = [interim_start + timedelta(days=x) for x in range(0, ctx['interim_length'])]
 
     ctx['trainees'] = Trainee.objects.values('firstname', 'lastname', 'id')
 
     for t in ctx['trainees']:
       t['name'] = unicode(t['firstname'] + ' ' + t['lastname'])
-      print t['name']
       t['intention'] = InterimIntentions.objects.filter(trainee__id=t['id'], admin__term=term).first()
 
     ctx['page_title'] = 'Interim Calendar Report'
