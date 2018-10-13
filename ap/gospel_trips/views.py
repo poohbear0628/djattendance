@@ -217,13 +217,14 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   group_required = ['training_assistant']
 
   @staticmethod
-  def get_trainee_dict(destination_qs, question_qs, general_items):
+  def get_trainee_dict(gospel_trip, destination_qs, question_qs, general_items):
     data = []
     contacts = destination_qs.values_list('team_contacts', flat=True)
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
     # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
     get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))  # | Q(id__in=trainees_assigned))
+    get_these_trainees = get_these_trainees.filter(id__in=gospel_trip.get_submitted_trainees())
     for t in get_these_trainees:
       entry = {
           'name': t.full_name,
@@ -268,7 +269,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     ctx['chosen'] = questions_qs.values_list('id', flat=True)
     ctx['chosen_general'] = general
     ctx['sections'] = sections_to_show
-    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs, general)
+    ctx['trainees'] = self.get_trainee_dict(gt, all_destinations, questions_qs, general)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
 
