@@ -496,3 +496,12 @@ def upload_image(request):
     return JsonResponse({'location': f.file.url}, status=200)
   errors = {f: e.get_json_data() for f, e in form.errors.items()}
   return JsonResponse({'success': 'False', 'errors': errors}, status=500)
+
+
+def clear_application(request, pk, trainee):
+  gt = get_object_or_404(GospelTrip, pk=pk)
+  tr = get_object_or_404(Trainee, pk=trainee)
+  if request.is_ajax() and request.method == "POST":
+    Answer.objects.filter(gospel_trip=gt, trainee=tr).update(response=None)
+    return JsonResponse({'success': True})
+  return JsonResponse({'success': False})
