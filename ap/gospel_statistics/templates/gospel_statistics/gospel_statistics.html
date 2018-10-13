@@ -8,7 +8,6 @@
 <script>
 
 const WEEKLY_STATISTICS = "{% url 'gospel_statistics:weekly-statistics' %}";
-const SAVE_STATISTICS = "{% url 'gospel_statistics:gospel-statistics-save' %}";
 
 $(document).ready(function() {
   //Week 0-20 selector
@@ -99,7 +98,7 @@ $(document).ready(function() {
       <button class="btn btn-primary" title="Add a new gospel pair">Add new pair</button>
     </a>
   </p>
-  <a href="{% url 'gospel_statistics:gospel-statistics-save' %}">
+  <a>
     <button class="btn btn-primary" title="Save current statistics">Save</button>
   </a>
 </div>

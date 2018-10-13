@@ -35,32 +35,23 @@ class GospelStatisticsView(TemplateView):
   def get_context_data(self, **kwargs):
     current_user = self.request.user
     context = super(GospelStatisticsView, self).get_context_data(**kwargs)
-    context['team'] = current_user.team
     context['page_title'] = 'Team Statistics'
+    context['team'] = current_user.team
+    #delete
     context['gospel_pairs'] = current_user.firstname+' '+current_user.lastname
     context['cols'] = attributes
     context['week'] = get_week()
     return context
 
+class NewGospelPairView(TemplateView):
+  template_name = "gospel_statistics/new_pair.html"
 
-
-#Delete this
-def GospelStatisticsSave(request):
-  current_user = request.user
-  context = {
-    'team' : current_user.team,
-    'page_title' : 'Team Statistics',
-    'gospel_partners' : current_user.firstname+' '+current_user.lastname,
-    'cols' : attributes,
-    'week' : get_week(),
-  }
-  return render(request, 'gospel_statistics/gospel_statistics.html', context=context)
-
-def new_pair(request):
-  context =  {
-    'page_title': 'New Gospel Pair'
-  }
-  return render(request, 'gospel_statistics/new_pair.html',context=context)
+  def get_context_data(self, **kwargs):
+    current_user = self.request.user
+    context = super(NewGospelPairView, self).get_context_data(**kwargs)
+    context['page_title'] = 'New Gospel Pair'
+    context['team'] = current_user.team
+    return context
 
 def weekly_statistics(request):
   current_week = get_week()
