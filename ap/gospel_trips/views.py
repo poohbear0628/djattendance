@@ -34,7 +34,7 @@ class GospelTripView(GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripView, self).get_context_data(**kwargs)
-    ctx['gospel_trips'] = GospelTrip.objects.all()
+    ctx['gospel_trips'] = GospelTrip.objects.order_by('-open_time')
     ctx['page_title'] = 'Gospel Trip Admin'
     return ctx
 
@@ -84,17 +84,25 @@ def gospel_trip_admin_duplicate(request, pk):
 
 def gospel_trip_base(request):
   admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.is_open), 0)
-  return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
+  if admin_pk:  # is_open is True
+    return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
+  else:
+    admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.keep_open), 0)
+    if admin_pk:  # keep_open is True
+      return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
+  return HttpResponseRedirect("/")
 
 
 def gospel_trip_trainee(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   context = {'page_title': gt.name}
+
   if is_trainee(request.user):
     trainee = trainee_from_user(request.user)
   else:
-    trainee = Trainee.objects.first()
-    context['preview'] = trainee.full_name
+    context['preview_trainees'] = Trainee.objects.all()
+    trainee = Trainee.objects.get(id=request.GET.get('trainee', Trainee.objects.first().id))
+    context['selected_trainee'] = trainee
 
   section_qs = Section.objects.filter(Q(gospel_trip=gt) & ~Q(show='HIDE'))
   question_qs = Question.objects.filter(Q(section__in=section_qs) & ~Q(answer_type="None"))
@@ -215,13 +223,14 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   group_required = ['training_assistant']
 
   @staticmethod
-  def get_trainee_dict(destination_qs, question_qs, general_items):
+  def get_trainee_dict(gospel_trip, destination_qs, question_qs, general_items):
     data = []
     contacts = destination_qs.values_list('team_contacts', flat=True)
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
     # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
     get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))  # | Q(id__in=trainees_assigned))
+    get_these_trainees = get_these_trainees.filter(id__in=gospel_trip.get_submitted_trainees())
     for t in get_these_trainees:
       entry = {
           'name': t.full_name,
@@ -266,7 +275,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     ctx['chosen'] = questions_qs.values_list('id', flat=True)
     ctx['chosen_general'] = general
     ctx['sections'] = sections_to_show
-    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs, general)
+    ctx['trainees'] = self.get_trainee_dict(gt, all_destinations, questions_qs, general)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
 
@@ -493,3 +502,12 @@ def upload_image(request):
     return JsonResponse({'location': f.file.url}, status=200)
   errors = {f: e.get_json_data() for f, e in form.errors.items()}
   return JsonResponse({'success': 'False', 'errors': errors}, status=500)
+
+
+def clear_application(request, pk, trainee):
+  gt = get_object_or_404(GospelTrip, pk=pk)
+  tr = get_object_or_404(Trainee, pk=trainee)
+  if request.is_ajax() and request.method == "POST":
+    Answer.objects.filter(gospel_trip=gt, trainee=tr).update(response=None)
+    return JsonResponse({'success': True})
+  return JsonResponse({'success': False})

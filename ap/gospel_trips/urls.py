@@ -7,6 +7,7 @@ urlpatterns = [
   url(r'^upload/$', views.upload_image, name='upload-image'),
   url(r'^admin/(?P<pk>\d+)/delete$', views.gospel_trip_admin_delete, name='admin-delete'),
   url(r'^admin/(?P<pk>\d+)/duplicate$', views.gospel_trip_admin_duplicate, name='admin-duplicate'),
+  url(r'^admin/(?P<pk>\d+)/(?P<trainee>\d+)$', views.clear_application, name='admin-clear-app'),
   url(r'^trip/$', views.gospel_trip_base, name='trip-base'),
   url(r'^trip/(?P<pk>\d+)$', views.gospel_trip_trainee, name='gospel-trip'),
   url(r'^trip/(?P<pk>\d+)/nontrainee$', views.NonTraineeView.as_view(), name='nontrainee'),
