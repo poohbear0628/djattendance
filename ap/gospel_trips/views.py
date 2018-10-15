@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import collections
 import json
+import re
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
@@ -301,7 +302,7 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
     data = []
     dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'team_contacts')
     contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('team_contacts', flat=True)
-    qs = Trainee.objects.select_related('locality__city').prefetch_related('team_contacts', 'destination')
+    qs = Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()).select_related('locality__city').prefetch_related('team_contacts', 'destination')
     all_answers = gospel_trip.answer_set.filter(question__label__startswith='Destination Preference').values('response', 'question__label')
     for t in qs:
       answer_set = all_answers.filter(trainee=t)
@@ -317,7 +318,7 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
       if dest.exists():
         data[-1]['destination'] = dest.first()['id']
       for a in answer_set:
-        if a['question__label'].startswith('Destination Preference'):
+        if re.match(r'^Destination Preference \d+$', a['question__label']):  # returns None if no match
           if a['response']:
             key = "preference_" + a['question__label'].split(" ")[-1]
             data[-1][key] = dest_dict.get(id=a['response'])['name']
@@ -466,10 +467,9 @@ def assign_destination(request, pk):
       new_dest.trainees.add(tr)
       new_dest.save()
       new_dest.set_team_contact(tr, is_contact=is_contact)
-      JsonResponse({'success': True})
+      return JsonResponse({'success': True})
     except ObjectDoesNotExist:
-      JsonResponse({'success': False})
-    return JsonResponse({'success': False})
+      return JsonResponse({'success': False})
   return JsonResponse({'success': False})
 
 
