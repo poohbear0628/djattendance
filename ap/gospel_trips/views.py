@@ -241,7 +241,10 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
       responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
       for r in responses:
         if r['answer_type'] == 'destinations' and r['answer__response']:
-          r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
+          try:
+            r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
+          except ObjectDoesNotExist:
+            r['answer__response'] = "Destination Does Not Exist"
       entry['responses'] = responses
       if general_items:
         if 'term' in general_items:
@@ -320,7 +323,11 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
         if re.match(r'^Destination Preference \d+$', a['question__label']):  # returns None if no match
           if a['response']:
             key = "preference_" + a['question__label'].split(" ")[-1]
-            data[-1][key] = dest_dict.get(id=a['response'])['name']
+            try:
+              data[-1][key] = dest_dict.get(id=a['response'])['name']
+            except ObjectDoesNotExist:
+              data[-1][key] = "Destination Does Not Exist"
+
     return data
 
   def get_context_data(self, **kwargs):
