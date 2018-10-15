@@ -203,7 +203,6 @@ class NonTraineeReportView(GroupRequiredMixin, TemplateView):
     decoder = json.JSONDecoder(object_pairs_hook=collections.OrderedDict)
     for ntr in nontrainees:
       data = ntr.application_data
-      print data
       app_data = eval(data.get('application', '{}'))
       d = decoder.decode(json.dumps(app_data))
       for k, v in d.items():
@@ -362,7 +361,7 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
       dest = Destination.objects.get(id=destination)
       to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
       context['chosen'] = dest.trainees.values_list('id', flat=True)
-      context['choose_from'] = Trainee.objects.exclude(id__in=to_exclude.values_list('trainees__id'))
+      context['choose_from'] = Trainee.objects.filter(id__in=gt.get_submitted_trainees()).exclude(id__in=to_exclude.values_list('trainees__id'))
       if 'destinit' not in context:
         context['destinit'] = dest.id
       context['all_destinations'] = all_destinations
@@ -378,10 +377,10 @@ class RostersAllTeamsView(TemplateView):
   template_name = 'gospel_trips/rosters_all_teams.html'
 
   @staticmethod
-  def get_trainee_dict(destination_qs):
+  def get_trainee_dict(gospel_trip, destination_qs):
     data = []
     contacts = destination_qs.values_list('team_contacts', flat=True)
-    for t in Trainee.objects.all():
+    for t in Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()):
       data.append({
         'name': t.full_name,
         'id': t.id,
@@ -397,7 +396,7 @@ class RostersAllTeamsView(TemplateView):
     if is_trainee(self.request.user) and all_destinations.filter(trainees=self.request.user).exists():
       context['destination'] = all_destinations.get(trainees=self.request.user)
     if self.request.user.has_group(['training_assistant']):
-      context['trainees'] = self.get_trainee_dict(all_destinations)
+      context['trainees'] = self.get_trainee_dict(gt, all_destinations)
     context['page_title'] = "Rosters: All Teams"
     return context
 
