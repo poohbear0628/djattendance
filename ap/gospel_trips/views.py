@@ -362,6 +362,7 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
       to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
       context['chosen'] = dest.trainees.values_list('id', flat=True)
       context['choose_from'] = Trainee.objects.filter(id__in=gt.get_submitted_trainees()).exclude(id__in=to_exclude.values_list('trainees__id'))
+      context['unassigned'] = Trainee.objects.filter(id__in=gt.get_submitted_trainees()).exclude(id__in=all_destinations.values_list('trainees', flat=True))
       if 'destinit' not in context:
         context['destinit'] = dest.id
       context['all_destinations'] = all_destinations
