@@ -74,6 +74,9 @@ class Destination(models.Model):
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
+  class Meta:
+    ordering = ("name", )
+
 
 class Section(models.Model):
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)

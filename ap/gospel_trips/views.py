@@ -288,7 +288,7 @@ class DestinationEditorView(GroupRequiredMixin, TemplateView):
     context = super(DestinationEditorView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     context['page_title'] = 'Destination Editor'
-    context['destinations'] = Destination.objects.filter(gospel_trip=gt).order_by('name')
+    context['destinations'] = Destination.objects.filter(gospel_trip=gt)
     return context
 
 
