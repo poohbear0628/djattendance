@@ -25,8 +25,6 @@ $(document).ready(() => {
     return "";
   }
 
-  // csrfmiddlewaretoken=5yajJjJPdIh7ipPbh7DMhQtPnZzyvxLUPFMWoCkRCfcVohiU3eGGV7FwgjjtHZ3C&trainees=6705&trainees=6424&type=OTHER&description=We%20had%20dinner%20(meal%20out)%20with%20full%20time%20sister%20from%20Austin.&start=09%2F29%2F2018%2006%3A45%20PM&end=09%2F29%2F2018%2009%3A14%20PM&TA_informed=5563&comments=&private_TA_comments=&&status=F
-
   $(".ls-action").on("click", function(e) {
     {% if individual %}populate_events();{% endif %}
 
