@@ -7,8 +7,35 @@
 
 {% block scripts %}
 <script type="text/javascript">
+
   $(document).ready(() => {
     $(".select-fk").select2({width:"100%"});
+    $("#trainee_table").DataTable({
+      info: true,
+      paging: false,
+      autoWidth: true,
+      dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
+      '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
+      '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+      fixedHeader: {
+        header: true
+      },
+    });
+    $(".btn-danger").click(function() {
+      if (confirm('Are you sure you want to delete this application?')) {
+        $.ajax({
+          type: "POST",
+          url: $(this).attr('value'),
+          success: (data) => {
+            if (data.success) {
+              $(this).parent().parent().fadeOut();
+            } else {
+              alert('Error.');
+            }
+          },
+        });
+      }
+    });
   });
 </script>
 {% endblock%}
@@ -47,6 +74,7 @@
   <table class="table table-bordered" id="trainee_table">
     <thead>
       <tr>
+        <th>Clear Application</th>
         <th>Team Contact</th>
         <th>Trainee</th>
         <th>Destination</th>
@@ -61,6 +89,7 @@
     <tbody>
       {% for trainee in trainees %}
         <tr>
+          <th><button value="{% url 'gospel_trips:admin-clear-app' request.resolver_match.kwargs.pk trainee.id %}" class="btn btn-danger" title="Clear"/><span class="glyphicon glyphicon-trash"></span></button></th>
           <td>{% if trainee.team_contact %}Contact{% endif %}</td>
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>

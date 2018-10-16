@@ -100,7 +100,7 @@ class ExamTemplateListView(ListView):
       exams = Exam.objects.all()
     else:
       exams = []
-      if user.type == 'R':
+      if user.type in ['R', 'C']:
         # Open exams
         if user.current_term == 1 or user.current_term == 2:
           for exam in Exam.objects.filter(is_open=True, is_graded_open=False):
@@ -151,7 +151,7 @@ class ExamTemplateListView(ListView):
     is_manage = 'manage' in self.kwargs
     ctx['exam_service'] = is_manage and user.is_designated_grader() or is_TA(user)
     ctx['classes'] = Class.regularclasses.all()
-    ctx['terms'] = Term.objects.all()
+    ctx['terms'] = reversed(Term.objects.all())
     return ctx
 
 
