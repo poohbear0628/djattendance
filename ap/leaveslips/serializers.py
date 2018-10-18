@@ -171,7 +171,7 @@ class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
       # ast.literal_eval is not optimal, turns a string that has a list in it into a python list
       instance.trainees = ast.literal_eval(validated_data.get('trainees')) if validated_data.get('trainees') else instance.trainees
     else:
-      instance.trainees = validated_data.get('trainees', instance.trainees)
+      instance.trainees = validated_data.get('trainees', instance.trainees.all())
 
     if isinstance(validated_data.get('start'), basestring):
       instance.start = datetime.strptime(validated_data.get('start'), "%m/%d/%Y %I:%M %p") if validated_data.get('start') else instance.start
