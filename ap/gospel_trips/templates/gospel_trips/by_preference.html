@@ -43,6 +43,12 @@
           'trainee_id': trainee_id,
           'is_contact': is_contact,
         },
+        success: function(data){
+          console.log(data);
+          if (data.success){
+            new Notification(Notification.SUCCESS, 'Saved.').show();
+          }
+        }
       });
     });
 

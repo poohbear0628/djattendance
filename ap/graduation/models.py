@@ -133,10 +133,10 @@ class Survey(models.Model):
 
 class Testimony(Survey):
 
-  top_experience = models.TextField(null=True, blank=True)
-  encouragement = models.TextField(null=True, blank=True)
-  overarching_burden = models.TextField(null=True, blank=True)
-  highlights = models.TextField(null=True, blank=True)
+  top_experience = models.TextField(null=True)
+  encouragement = models.TextField(null=True)
+  overarching_burden = models.TextField(null=True)
+  highlights = models.TextField(null=True)
 
   @property
   def responded(self):
