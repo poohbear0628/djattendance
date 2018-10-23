@@ -17,9 +17,10 @@
       dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-      fixedHeader: {
-        header: true
-      },
+      fixedHeader: true,
+      scrollY: '60vh',
+      scrollX: true,
+      scrollCollapse: true
     });
     $(".btn-danger").click(function() {
       if (confirm('Are you sure you want to delete this application?')) {
