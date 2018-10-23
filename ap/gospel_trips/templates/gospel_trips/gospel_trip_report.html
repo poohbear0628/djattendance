@@ -17,9 +17,10 @@
       dom: '<"row"<"col-sm-6"Bl><"col-sm-6"f>>' +
       '<"row"<"col-sm-12"<"table-responsive"tr>>>' +
       '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-      fixedHeader: {
-        header: true
-      },
+      fixedHeader: true,
+      scrollY: '80vh',
+      scrollX: true,
+      scrollCollapse: true
     });
     $(".btn-danger").click(function() {
       if (confirm('Are you sure you want to delete this application?')) {
@@ -94,7 +95,11 @@
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
           {% for response in trainee.responses %}
-          <td>{{response.answer__response}}</td>
+            {% if response.answer__response %}
+              <td>{{response.answer__response}}</td>
+            {% else %}
+              <td></td>
+            {% endif %}
           {% endfor %}
           {% for g in chosen_general %}
           <td>{{ trainee|get_item:g }}</td>
