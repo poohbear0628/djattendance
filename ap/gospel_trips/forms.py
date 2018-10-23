@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 from aputils.widgets import DatePicker, DatetimePicker
 from django import forms
-from django.conf import settings
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 
 from .constants import SHOW_CHOICES
@@ -111,7 +110,7 @@ class AnswerForm(forms.ModelForm):
         self.fields['response'] = forms.ChoiceField(choices=choices, required=req)
 
       elif answer_type == 'date':
-        self.fields['response'] = forms.DateField(widget=DatePicker(), input_formats=settings.DATE_INPUT_FORMATS.extend(['Y-m-d']))
+        self.fields['response'] = forms.DateField(widget=DatePicker())
 
       elif answer_type == 'datetime':
         self.fields['response'] = forms.DateField(widget=DatetimePicker())
