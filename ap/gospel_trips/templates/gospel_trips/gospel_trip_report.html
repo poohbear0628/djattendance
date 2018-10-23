@@ -94,7 +94,11 @@
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
           {% for response in trainee.responses %}
-          <td>{{response.answer__response}}</td>
+            {% if response.answer__response %}
+              <td>{{response.answer__response}}</td>
+            {% else %}
+              <td></td>
+            {% endif %}
           {% endfor %}
           {% for g in chosen_general %}
           <td>{{ trainee|get_item:g }}</td>
