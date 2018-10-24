@@ -19,6 +19,8 @@ class GospelTrip(models.Model):
 
   keep_open = models.BooleanField(default=False)
 
+  show_teams = models.BooleanField(default=False)
+
   def get_absolute_url(self):
     return reverse('gospel_trips:admin-update', kwargs={'pk': self.id})
 
