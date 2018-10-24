@@ -238,8 +238,9 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
           'team_contact': t.id in contacts,
           'destination': destination_qs.filter(trainees=t).first(),
           'responses': []}
-      responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
-      for r in responses:
+      responses = question_qs.filter(answer__trainee=t).values('id', 'answer_type', 'answer__response')
+      sorted_responses = sorted(responses, key=lambda x: question_qs.order.index(str(x['id'])))
+      for r in sorted_responses:
         if r['answer_type'] == 'destinations' and r['answer__response']:
           try:
             r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
@@ -270,7 +271,8 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
     all_destinations = Destination.objects.filter(gospel_trip=gt)
 
     questions = self.request.GET.getlist('questions', [0])
-    questions_qs = questions_qs.filter(id__in=questions).order_by('section')
+    questions_qs = questions_qs.filter(id__in=questions)
+    questions_qs.order = questions  # used in get_trainee_dict
 
     general = self.request.GET.getlist('general', [])
 
