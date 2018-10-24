@@ -27,7 +27,7 @@ def gospel_trips_available(request):
 def teams_available(request):
   user = request.user
   if not hasattr(user, 'type') or not is_trainee(user):
-    return {'gospel_trips_available': False}
+    return {'teams_available': False}
   try:
     admin = next((gt for gt in GospelTrip.objects.order_by('-open_time') if gt.show_teams), None)
     if admin and Destination.objects.filter(gospel_trip=admin, trainees=user).exists():

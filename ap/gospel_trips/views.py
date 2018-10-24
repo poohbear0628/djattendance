@@ -435,6 +435,7 @@ class RostersIndividualTeamView(GroupRequiredMixin, TemplateView):
     return context
 
 
+@group_required(['training_assistant'])
 def destination_add(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
@@ -444,6 +445,7 @@ def destination_add(request, pk):
   return redirect('gospel_trips:destination-editor', pk=pk)
 
 
+@group_required(['training_assistant'])
 def destination_remove(request, pk):
   get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
@@ -454,6 +456,7 @@ def destination_remove(request, pk):
   return redirect('gospel_trips:destination-editor', pk=pk)
 
 
+@group_required(['training_assistant'])
 def destination_edit(request, pk):
   get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
@@ -466,6 +469,7 @@ def destination_edit(request, pk):
   return redirect('gospel_trips:destination-editor', pk=pk)
 
 
+@group_required(['training_assistant'])
 def assign_destination(request, pk):
   if request.is_ajax() and request.method == "POST":
     dest_id = request.POST.get('destination_id', 0)
@@ -489,6 +493,7 @@ def assign_destination(request, pk):
   return JsonResponse({'success': False})
 
 
+@group_required(['training_assistant'])
 def assign_team_contact(request, pk):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
@@ -520,6 +525,7 @@ def upload_image(request):
   return JsonResponse({'success': 'False', 'errors': errors}, status=500)
 
 
+@group_required(['training_assistant'])
 def clear_application(request, pk, trainee):
   gt = get_object_or_404(GospelTrip, pk=pk)
   tr = get_object_or_404(Trainee, pk=trainee)

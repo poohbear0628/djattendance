@@ -102,10 +102,10 @@
             {% endif %}
           {% endfor %}
           {% for g in chosen_general %}
-          <td>{{ trainee|get_item:g }}</td>
+            <td>{{ trainee|get_item:g }}</td>
           {% endfor %}
         </tr>
-        {% endfor %}
+      {% endfor %}
     </tbody>
   </table>
 </div>
