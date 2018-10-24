@@ -91,7 +91,7 @@
       {% for trainee in trainees %}
         <tr>
           <th><button value="{% url 'gospel_trips:admin-clear-app' request.resolver_match.kwargs.pk trainee.id %}" class="btn btn-danger" title="Clear"/><span class="glyphicon glyphicon-trash"></span></button></th>
-          <td>{% if trainee.team_contact %}Contact{% endif %}</td>
+          <td>{% if trainee.team_contact %} <i class="glyphicon glyphicon-check"></i> {% endif %}</td>
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
           {% for response in trainee.responses %}

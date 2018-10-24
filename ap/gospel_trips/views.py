@@ -94,6 +94,13 @@ def gospel_trip_base(request):
   return HttpResponseRedirect("/")
 
 
+def rosters_base(request):
+  admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.show_teams), 0)
+  if admin_pk:  # is_open is True
+    return HttpResponseRedirect(reverse('gospel_trips:rosters-all', kwargs={'pk': admin_pk}))
+  return HttpResponseRedirect("/")
+
+
 def gospel_trip_trainee(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   context = {'page_title': gt.name}
@@ -404,9 +411,10 @@ class RostersAllTeamsView(TemplateView):
     all_destinations = Destination.objects.filter(gospel_trip=gt)
     if is_trainee(self.request.user) and all_destinations.filter(trainees=self.request.user).exists():
       context['destination'] = all_destinations.get(trainees=self.request.user)
+      context['page_title'] = context['destination'].name
     if self.request.user.has_group(['training_assistant']):
       context['trainees'] = self.get_trainee_dict(gt, all_destinations)
-    context['page_title'] = "Rosters: All Teams"
+      context['page_title'] = "Rosters: All Teams"
     return context
 
 
