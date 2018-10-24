@@ -11,7 +11,7 @@ from aputils.trainee_utils import is_trainee, trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, Case, When
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -265,20 +265,21 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripReportView, self).get_context_data(**kwargs)
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
-    questions_qs = Question.objects.filter(section__gospel_trip=gt).exclude(answer_type="None")
-    sections_to_show = Section.objects.filter(id__in=questions_qs.values_list('section'))
+    question_qs = Question.objects.filter(section__gospel_trip=gt).exclude(answer_type="None")
+    sections_to_show = Section.objects.filter(id__in=question_qs.values_list('section'))
     all_destinations = Destination.objects.filter(gospel_trip=gt)
 
     questions = self.request.GET.getlist('questions', [0])
-    questions_qs = questions_qs.filter(id__in=questions).order_by('section')
+    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(questions)])
+    question_qs = question_qs.filter(id__in=questions).order_by(preserved)
 
     general = self.request.GET.getlist('general', [])
 
-    ctx['questions'] = questions_qs
-    ctx['chosen'] = questions_qs.values_list('id', flat=True)
+    ctx['questions'] = question_qs
+    ctx['chosen'] = question_qs.values_list('id', flat=True)
     ctx['chosen_general'] = general
     ctx['sections'] = sections_to_show
-    ctx['trainees'] = self.get_trainee_dict(gt, all_destinations, questions_qs, general)
+    ctx['trainees'] = self.get_trainee_dict(gt, all_destinations, question_qs, general)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
 
