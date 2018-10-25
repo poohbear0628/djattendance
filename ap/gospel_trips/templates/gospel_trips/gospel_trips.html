@@ -64,7 +64,7 @@
     $("[required]").parent().children("label").append(" *").css("color", "red");
 
     $(".datepicker").each(function(index) {
-      if (moment($(this).val()) != "Invalid date") {
+      if ($(this).val()) {
         $(this).val(moment($(this).val()).format("MM/DD/YYYY"));
       }
     });
