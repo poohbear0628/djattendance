@@ -126,7 +126,6 @@ class NewGospelPairView(TemplateView):
     context['members'] = Trainee.objects.filter(team=current_user.team)
     return context
 
-#Delete
 def weekly_statistics(request):
   current_week = get_week()
   current_team = request.user.team
