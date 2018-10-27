@@ -10,7 +10,7 @@
 
   $(document).ready(() => {
     $(".select-fk").select2({width:"100%"});
-    $('#trainee_table thead th').each(function (){
+    $('#trainee_table tfoot th').each(function (){
       let title = $(this).text();
       $(this).html( '<input type="text" placeholder="'+title+'" />' );
     });
@@ -28,7 +28,7 @@
     });
     table.columns().every(function () {
       let that = this;
-      $('input', this.header() ).on('keyup change', function () {
+      $('input', this.footer() ).on('keyup change', function () {
         if(that.search() !== this.value) {
           that
             .search(this.value)
@@ -121,6 +121,20 @@
         </tr>
       {% endfor %}
     </tbody>
+    <tfoot>
+      <tr>
+        <th>Clear Application</th>
+        <th>Team Contact</th>
+        <th>Trainee</th>
+        <th>Destination</th>
+        {% for q in questions %}
+        <th>{{q.label}}</th>
+        {% endfor %}
+        {% for g in chosen_general %}
+        <th>{{g}}</th>
+        {% endfor %}
+      </tr>
+    </tfoot>
   </table>
 </div>
 
