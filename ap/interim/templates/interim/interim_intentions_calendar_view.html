@@ -8,32 +8,33 @@
 {% block references %}
 
 <style type="text/css">
-	#special-table {
-		/*overflow-x: scroll;*/
-	  /*margin-left: 200px;*/
-	  /*margin-top: 40px;*/
-	}
 
 	.headcol {
+		width: 200px;
 		position: -webkit-sticky;
 	  position: sticky;
-	  /*width: 201px;*/
-	  left: 15px;
+	  left: 0px;
 	  text-align: center;
-	  background-color: inherit;
+	  background-color: #095F80;
+	  color: white;
 	  z-index: 2;
+	}
+
+	.othercol {
+		width: 100px;
 	}
 
 	.headrow {
 		z-index: 1;
 		position: -webkit-sticky;
 		position: sticky;
-		top: 45px;
-		/*margin-left: 200px;*/
+		top: 40px;
+		border: black solid 1px;
 	}
 
 	td {
 		text-align: left;
+		width: 100px;
 	}
 
 </style>
@@ -49,29 +50,28 @@
 
 	<ul class="nav-tabs"></ul>
 
-	<div id="special-table">
-		<table class="table table-striped table-bordered">
-				<tr class="headrow">
-					<td class="headcol">Trainee</td>
-					{% for date in date_list %}
-						<td>{{date}}</td>
-					{% endfor %}
-				</tr>
+	<table class="table table-striped table-bordered" style="table-layout: fixed">
+		<tr class="headrow">
+			<th class="headcol" style="color:#095F80">Trainee</th>
+			{% for date in date_list %}
+				<th class="othercol">{{date}}</th>
+			{% endfor %}
+		</tr>
 
-			  {% for trainee in trainees %}
-			    <tr>
-			      <td class="headcol">{{trainee.name}}</td>
-		      	{% if trainee.intention.interimitinerary_set.all %}
-		      		{% for itin in trainee.intention.interimitinerary_set.all %}
-		      			<td colspan="{{ itin.start|itinerary_length_in_days:itin.end }}">{{itin.comments}}</td>
-		      		{% endfor %}
-	      		{% else %}
-	      			<td colspan="{{interim_length}}"><i>No itinerary specified</i></td>
-		      	{% endif %}
-		 			</tr>
-			  {% endfor %}
-		</table>
-	</div>
+	  {% for trainee in trainees %}
+	    <tr>
+	      <th class="headcol">{{trainee.name}}</th>
+      	{% if trainee.intention.interimitinerary_set.all %}
+      		{% for itin in trainee.intention.interimitinerary_set.all %}
+      			<td colspan="{{ itin.start|itinerary_length_in_days:itin.end }}">{{itin.comments}}</td>
+      		{% endfor %}
+    		{% else %}
+    			<td colspan="{{interim_length}}"><i>No itinerary specified</i></td>
+      	{% endif %}
+ 			</tr>
+	  {% endfor %}
+	</table>
+
 {% endif %}
 
 {% endblock %}
