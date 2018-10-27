@@ -15,19 +15,19 @@ $(document).ready(function() {
     var each=$('<option></option>', {'value': week_num});
     each.text('Week '+week_num);
     if (week_num == {{week}}){
-      console.log(week_num);
-      console.log({{week}});
+      //console.log(week_num);
+      //console.log({{week}});
       each.selected = true;
     };
     $('#gospelWeek').append(each);
   };
 
-  console.log('first');
+  //console.log('first');
   $.getJSON(WEEKLY_STATISTICS,
   (partners) => {
     for(var each=0; each < partners.length; each++)
     {
-      console.log(partners[each]);
+      //console.log(partners[each]);
     }
   });
 });
@@ -55,6 +55,8 @@ $(document).ready(function() {
 {% include "gospel_statistics/gospel_statistics_table.html" %}
 
 <!--Current week stats-->
+<form action="" method="post">
+{% csrf_token %}
 <div>
 <table class="table table-bordered-wkly-sum">
   <thead>
@@ -67,9 +69,13 @@ $(document).ready(function() {
   </thead>
 
   <tbody>
+    {% for each in current %}
     <tr>
       <th>
-      {{gospel_partners}}
+        <input style="display:none" name="pairs" value={{each.gospel_pair.id}}>
+        {% for every in each.gospel_pair.trainees.all %}
+          {{every}},
+        {% endfor %}
         <div>
           <a href="">
             <button class="btn btn-primary" title="Edit gospel pair">
@@ -83,12 +89,47 @@ $(document).ready(function() {
           </a>
         </div>
       </th>
-      {% for day in cols %}
       <td>
-        <input type="text" size="4">
+        <input type="text" name="inputs" size="4" value={{each.tracts_distributed}}>
       </td>
-      {% endfor %}
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.bibles_distributed}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.contacted_30_sec}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.led_to_pray}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.baptized}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.2nd_appointment}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.regular_appointment}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.minutes_on_the_gospel}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.minutes_in_appointment}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.bible_study}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.small_groups}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.district_meeting_new_student}}>
+      </td>
+      <td>
+        <input type="text" name="inputs" size="4" value={{each.conference}}>
+      </td>
     </tr>
+    {% endfor %}
   </tbody>
 </table>
 </div>
@@ -98,8 +139,7 @@ $(document).ready(function() {
       <button class="btn btn-primary" title="Add a new gospel pair">Add new pair</button>
     </a>
   </p>
-  <a>
-    <button class="btn btn-primary" title="Save current statistics">Save</button>
-  </a>
+  <button type="submit" class="btn btn-primary" title="Save current statistics">Save</button>
 </div>
+</form>
 {% endblock %}

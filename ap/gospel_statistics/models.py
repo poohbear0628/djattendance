@@ -10,13 +10,14 @@ from terms.models import Term
 #Gospel Pair
 class GospelPair(models.Model):
   #Which trainees composing this gospel pair
-  team = models.ForeignKey(Team, blank=True, null= True, on_delete=models.SET_NULL)
-  term = models.ForeignKey(Term, blank=True, null= True, on_delete=models.SET_NULL)
+  team = models.ForeignKey(Team, blank=True, null=True, on_delete=models.SET_NULL)
+  term = models.ForeignKey(Term, blank=True, null=True, on_delete=models.SET_NULL)
   trainees = models.ManyToManyField(Trainee, related_name="gospel_statistics")
 
 #Gospel Statistics
 class GospelStat(models.Model):
-  gospelpair = models.ForeignKey(GospelPair)
+  #Might want to change SET_NULL to CASCADE
+  gospelpair = models.ForeignKey(GospelPair, blank=True, null=True, on_delete=models.SET_NULL)
   week = models.PositiveSmallIntegerField(default=0)
   tracts_distributed = models.PositiveSmallIntegerField(default=0)
   bibles_distributed = models.PositiveSmallIntegerField(default=0)
@@ -26,11 +27,9 @@ class GospelStat(models.Model):
   second_appointment = models.PositiveSmallIntegerField(default=0)
   regular_appointment = models.PositiveSmallIntegerField(default=0)
   minutes_on_gospel = models.PositiveSmallIntegerField(default=0)
-  miniutes_in_appointment = models.PositiveSmallIntegerField(default=0)
+  minutes_in_appointment = models.PositiveSmallIntegerField(default=0)
   bible_study = models.PositiveSmallIntegerField(default=0)
   small_group = models.PositiveSmallIntegerField(default=0)
-
   #New students present at the district meeting
   district_meeting = models.PositiveSmallIntegerField(default=0)
   conference = models.PositiveSmallIntegerField(default=0)
-
