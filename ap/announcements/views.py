@@ -97,6 +97,8 @@ class AnnouncementList(GroupRequiredMixin, generic.ListView):
 
   def get_queryset(self):
     announcements = Announcement.objects.filter(type='CLASS', status='A', announcement_date=self.date)
+    # Includes 'On TV Page' announcements for the day
+    announcements |= Announcement.objects.filter(type='TV', status='A', announcement_date__lte=self.date, announcement_end_date__gte=self.date)
     return announcements
 
 

@@ -133,10 +133,10 @@ class Survey(models.Model):
 
 class Testimony(Survey):
 
-  top_experience = models.TextField(null=True, blank=True)
-  encouragement = models.TextField(null=True, blank=True)
-  overarching_burden = models.TextField(null=True, blank=True)
-  highlights = models.TextField(null=True, blank=True)
+  top_experience = models.TextField(null=True)
+  encouragement = models.TextField(null=True)
+  overarching_burden = models.TextField(null=True)
+  highlights = models.TextField(null=True)
 
   @property
   def responded(self):
@@ -168,7 +168,7 @@ class Consideration(Survey):
 
   consideration_plan = models.TextField(null=True, max_length=250)
 
-  comments = models.TextField(null=True, max_length=150)
+  comments = models.TextField(blank=True, null=True, max_length=150)
 
   @property
   def responded(self):
@@ -244,7 +244,7 @@ class Misc(Survey):
 
   @property
   def responded(self):
-    return self.grad_invitations or self.grad_dvd
+    return self.grad_invitations is not None or self.grad_dvd is not None
 
   def menu_title(self):
     return "Invites & DVDs"

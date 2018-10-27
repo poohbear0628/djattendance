@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from terms.models import Term
 
 ROLL_STATUS = (
@@ -13,6 +14,13 @@ LOCATIONS = (
     ('TC', 'Training Center'),
     ('MCC', 'Ministry Conference Center'),
     ('Other', 'Other')
+)
+
+REQUEST_STATUS = (
+    ('P', 'Pending'),
+    ('A', 'Accepted'),
+    ('D', 'Denied'),
+    ('F', 'Fellowship'),
 )
 
 
@@ -30,11 +38,14 @@ def attendance_stats(semi):
   return d
 
 
-def location_form_available():
+def semi_form_available():
   week = Term.current_term().term_week_of_date(datetime.now())
   return week >= 17 and week <= 19
 
 
-def attendance_form_available():
-  week = Term.current_term().term_week_of_date(datetime.now())
-  return week >= 18 and week <= 19
+def semi_annual_training():
+  ct = Term.current_term()
+  if ct.season == 'Spring':
+    return 'Summer ' + str(ct.year)
+  else:
+    return 'Winter ' + str(ct.year)
