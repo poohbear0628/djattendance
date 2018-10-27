@@ -147,6 +147,7 @@
               <th> Due Date </th>
               <th> Unapproved</th>
               <th> Approved</th>
+              <th> Note</th>
             </tr>
           </thead>
           <tbody>
@@ -187,6 +188,7 @@
                     {% endif %}
                   {% endfor %}
                 </td>
+                <td> {{discipline.note}}</td>
               </tr>
 
           {% endfor %}

@@ -107,13 +107,14 @@ class GroupSlipUpdate(LeaveSlipUpdate):
     return ctx
 
   def post(self, request, **kwargs):
-    update = {}
-    if request.POST.get('status'):
-      update['status'] = request.POST.get('status')
+    update = request.POST.dict()
+    # 'on' is the POSTed value for checked checkboxes, 'off' for unchecked
     if request.POST.get('ta_sister_approved'):
-      update['ta_sister_approved'] = bool(request.POST.get('ta_sister_approved'))
+      update['ta_sister_approved'] = True if request.POST.get('ta_sister_approved') == 'on' else False
+    if request.POST.get('texted'):
+      update['texted'] = True if request.POST.get('texted') == 'on' else False
+
     GroupSlipSerializer().update(self.get_object(), update)
-    super(GroupSlipUpdate, self).post(request, **kwargs)
     return HttpResponse('ok')
 
 
