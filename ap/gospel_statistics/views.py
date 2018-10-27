@@ -19,7 +19,7 @@ from braces.views import GroupRequiredMixin
 
 #ctx[cols] = attributes
 attributes = ['Tracts Distributed','Bibles Distributed','Contacted (30 sec)','Led to Pray','Baptized','2nd Appointment','Regular Appointment','Minutes on the Gospel','Minutes in Appointment','Bible Study','Small Groups','District Meeting (New Student)','Conference']
-_attributes = ['tracts_distributed','bibles_distributed','contacted_30_sec','led_to_pray','baptized','2nd_appointment','regular_appointment','minutes_on_the_gospel','minutes_in_appointment', 'bible_study','small_groups','district_meeting_new_student','conference']
+_attributes = ['tracts_distributed','bibles_distributed','contacted_30_sec','led_to_pray','baptized','second_appointment','regular_appointment','minutes_on_gospel','minutes_in_appointment', 'bible_study','small_group','district_meeting','conference']
 ctx = dict()
 for i in _attributes:
   ctx[i]=0
@@ -42,9 +42,9 @@ class GospelStatisticsView(TemplateView):
     for p in gospel_pairs:
       entry = dict()
       entry['gospel_pair'] = p
-      stat = gospel_statistics.filter(gospelpair=p, week=get_week())
+      stat = gospel_statistics.filter(gospelpair=p, week=get_week())[0]
       for i in range(len(_attributes)):
-        entry[_attributes[i]]=num
+        entry[_attributes[i]]=eval('stat.'+_attributes[i])
       data.append(entry)
     return data
 
@@ -57,7 +57,7 @@ class GospelStatisticsView(TemplateView):
     current_week = get_week()
     for i in range(len(list_of_pairs)):
       index = i*13
-      pair = GospelPair.objects.filter(id=list_of_pairs[index])
+      pair = GospelPair.objects.filter(id=list_of_pairs[i])
       stat = GospelStat.objects.filter(gospelpair=pair, week=current_week)[0]
       stat.tracts_distributed = list_of_stats[index]
       stat.bibles_distributed = list_of_stats[index+1]
@@ -126,6 +126,7 @@ class NewGospelPairView(TemplateView):
     context['members'] = Trainee.objects.filter(team=current_user.team)
     return context
 
+#Delete
 def weekly_statistics(request):
   current_week = get_week()
   current_team = request.user.team
