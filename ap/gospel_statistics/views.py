@@ -18,7 +18,7 @@ from datetime import *
 from braces.views import GroupRequiredMixin
 
 #ctx[cols] = attributes
-attributes = ['Tracts Distributed','Bibles Distributed','Contacted (30 sec)','Led to Pray','Baptized','2nd Appointment','Regular Appointment','Minutes on the Gospel','Minutes in Appointment','Bible Study','Small Groups','District Meeting (New Student)','Conference']
+attributes = ['Tracts Distributed','Bibles Distributed','Contacted (> 30 sec)','Led to Pray','Baptized','2nd Appointment','Regular Appointment','Minutes on the Gospel','Minutes in Appointment','Bible Study','Small Groups','District Meeting (New Student)','Conference']
 _attributes = ['tracts_distributed','bibles_distributed','contacted_30_sec','led_to_pray','baptized','second_appointment','regular_appointment','minutes_on_gospel','minutes_in_appointment', 'bible_study','small_group','district_meeting','conference']
 ctx = dict()
 for i in _attributes:
@@ -35,16 +35,41 @@ class GospelStatisticsView(TemplateView):
   template_name = "gospel_statistics/gospel_statistics.html"
 
   @staticmethod
-  def get_stats_dict(gospel_pairs, gospel_statistics):
+  def get_stats_list(gospel_pairs, gospel_statistics):
     data = []
-    entry = dict()
-    num = 0
     for p in gospel_pairs:
       entry = dict()
       entry['gospel_pair'] = p
       stat = gospel_statistics.filter(gospelpair=p, week=get_week())[0]
       for i in range(len(_attributes)):
         entry[_attributes[i]]=eval('stat.'+_attributes[i])
+      data.append(entry)
+    return data
+
+  @staticmethod
+  def get_all_stats_list(gospel_pairs, gospel_statistics):
+    data = []
+    for p in gospel_pairs:
+      entry = dict()
+      entry['gospel_pair'] = p
+      for i in _attributes:
+        entry[i] = 0
+      stats = gospel_statistics.filter(gospelpair=p)
+      #Aggregate all the stats from all the different weeks
+      for stat in stats:
+        entry[_attributes[0]] += stat.tracts_distributed
+        entry[_attributes[1]] += stat.bibles_distributed
+        entry[_attributes[2]] += stat.contacted_30_sec
+        entry[_attributes[3]] += stat.led_to_pray
+        entry[_attributes[4]] += stat.baptized
+        entry[_attributes[5]] += stat.second_appointment
+        entry[_attributes[6]] += stat.regular_appointment
+        entry[_attributes[7]] += stat.minutes_on_gospel
+        entry[_attributes[8]] += stat.minutes_in_appointment
+        entry[_attributes[9]] += stat.bible_study
+        entry[_attributes[10]] += stat.small_group
+        entry[_attributes[11]] += stat.district_meeting
+        entry[_attributes[12]] += stat.conference
       data.append(entry)
     return data
 
@@ -59,6 +84,9 @@ class GospelStatisticsView(TemplateView):
       index = i*13
       pair = GospelPair.objects.filter(id=list_of_pairs[i])
       stat = GospelStat.objects.filter(gospelpair=pair, week=current_week)[0]
+      ##Why doesn't this work?
+      #for i in range(13):
+      #  eval('stat.'+_attributes[i]+' = list_of_stats['+str(index+i)+']')
       stat.tracts_distributed = list_of_stats[index]
       stat.bibles_distributed = list_of_stats[index+1]
       stat.contacted_30_sec = list_of_stats[index+2]
@@ -87,7 +115,9 @@ class GospelStatisticsView(TemplateView):
     context['current'] = []
     context['atts'] = _attributes
     #Current week stat
-    context['current'] = self.get_stats_dict(context['gospel_pairs'],GospelStat.objects.filter(gospelpair__in=context['gospel_pairs']))
+    context['current'] = self.get_stats_list(context['gospel_pairs'],GospelStat.objects.filter(gospelpair__in=context['gospel_pairs']))
+    #All 20 week stat
+    context['all_stat'] = self.get_all_stats_list(context['gospel_pairs'],GospelStat.objects.filter(gospelpair__in=context['gospel_pairs']))
     return context
 
 class NewGospelPairView(TemplateView):
@@ -126,17 +156,9 @@ class NewGospelPairView(TemplateView):
     context['members'] = Trainee.objects.filter(team=current_user.team)
     return context
 
-#Delete
-def weekly_statistics(request):
-  current_week = get_week()
-  current_team = request.user.team
-  stats = GospelStat.objects.filter(week=current_week)
-  weekly_stats = []
-  gps = []
-  #Get all existing gospel pairs
-  return HttpResponse(json.dumps(weekly_stats))
+##Create a delete function for the delete button for the gospel pairs
 
-#In Progress (change to class)
+##In Progress (change to class)
 def TAGospelStatisticsView(request):
   context = {
     'page_title': 'TA Gospel Statistics',

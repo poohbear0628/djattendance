@@ -6,9 +6,6 @@
 {% block title %}Gospel Statistics{% endblock %}
 {% block references %}
 <script>
-
-const WEEKLY_STATISTICS = "{% url 'gospel_statistics:weekly-statistics' %}";
-
 $(document).ready(function() {
   //Week 0-20 selector
   for (var week_num = 0; week_num < 21; week_num++){
@@ -21,16 +18,10 @@ $(document).ready(function() {
     };
     $('#gospelWeek').append(each);
   };
-
-  //console.log('first');
-  $.getJSON(WEEKLY_STATISTICS,
-  (partners) => {
-    for(var each=0; each < partners.length; each++)
-    {
-      //console.log(partners[each]);
-    }
-  });
 });
+function switchStats() {
+  location.reload();
+};
 </script>
 {% endblock %}
 
@@ -46,7 +37,7 @@ $(document).ready(function() {
     </td>
     <td>
       <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Week Of:</b>
-      <select id="gospelWeek"/>
+      <select id="gospelWeek" onchange="switchStats()"/>
     </td>
   </table>
 </div>
@@ -76,52 +67,45 @@ $(document).ready(function() {
         {% for every in each.gospel_pair.trainees.all %}
           {{every}},
         {% endfor %}
-        <div>
-          <a>
-            <button class="btn btn-primary" title="Delete gospel pair">
-              <span class="glyphicon glyphicon-trash"></span>
-            </button>
-          </a>
-        </div>
       </th>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.tracts_distributed}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.tracts_distributed}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.bibles_distributed}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.bibles_distributed}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.contacted_30_sec}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.contacted_30_sec}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.led_to_pray}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.led_to_pray}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.baptized}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.baptized}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.second_appointment}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.second_appointment}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.regular_appointment}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.regular_appointment}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.minutes_on_gospel}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.minutes_on_gospel}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.minutes_in_appointment}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.minutes_in_appointment}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.bible_study}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.bible_study}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.small_group}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.small_group}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.district_meeting}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.district_meeting}}>
       </td>
       <td>
-        <input type="text" name="inputs" size="4" value={{each.conference}}>
+        <input type="text" name="inputs" size="4" maxlength="4" value={{each.conference}}>
       </td>
     </tr>
     {% endfor %}

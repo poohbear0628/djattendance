@@ -7,5 +7,4 @@ urlpatterns = [
   url(r'^new_pair/$', views.NewGospelPairView.as_view(), name='new-pair'),
   #Change following urls
   url(r'^ta$', views.TAGospelStatisticsView, name='ta-gospel-statistics-view'),
-  url(r'^weekly_statistics$', views.weekly_statistics, name='weekly-statistics'),
 ]
