@@ -17,7 +17,7 @@ from .models import (HCRecommendation, HCRecommendationAdmin, HCSurvey,
                      HCSurveyAdmin, HCTraineeComment, House)
 
 
-class HCSurveyAdminCreate(GroupRequiredMixin, CreateView):
+class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
   model = HCSurveyAdmin
   template_name = 'hc_admin/hc_admin.html'
   form_class = HCSurveyAdminForm
@@ -26,12 +26,11 @@ class HCSurveyAdminCreate(GroupRequiredMixin, CreateView):
   success_url = reverse_lazy('hc:hc-admin')
 
   def post(self, request, *args, **kwargs):
-
     # determine which form is being submitted
     # uses the name of the form's submit button
-
     if 'hcsa_form' in request.POST:
       form = self.form_class(request.POST)
+      form_name = 'hcsa_form'
       if form.is_valid():
         return self.form_valid(form)
       else:
@@ -40,6 +39,7 @@ class HCSurveyAdminCreate(GroupRequiredMixin, CreateView):
     else:
       # get the secondary form
       form = self.second_form_class(request.POST)
+      form_name = 'hcra_form'
       if form.is_valid():
         hcra = HCRecommendationAdmin.objects.get_or_create(term=Term.current_term())[0]
         for house in House.objects.all():
@@ -53,7 +53,7 @@ class HCSurveyAdminCreate(GroupRequiredMixin, CreateView):
         hcra.save()
         return HttpResponseRedirect(self.success_url)
       else:
-        return self.form_invalid(form)
+        return self.form_invalid(**{form_name: form})
 
   def form_valid(self, form):
     term = Term.current_term()
@@ -64,13 +64,18 @@ class HCSurveyAdminCreate(GroupRequiredMixin, CreateView):
     hcsa.save()
     return super(HCSurveyAdminCreate, self).form_valid(form)
 
+  def form_invalid(self, **kwargs):
+    return self.render_to_response(self.get_context_data(**kwargs))
+
   def get_context_data(self, **kwargs):
     ctx = super(HCSurveyAdminCreate, self).get_context_data(**kwargs)
     term = Term.current_term()
+    if 'hcsa_form' not in ctx:
+      ctx['hcsa_form'] = self.form_class(instance=HCRecommendationAdmin.objects.get_or_create(term=term)[0])
+    if 'hcra_form' not in ctx:
+      ctx['hcra_form'] = self.second_form_class()
 
     ctx['hc_admins'] = HCSurveyAdmin.objects.filter(term=term).order_by('-index')
-    ctx['hcra_form'] = HCRecommendationAdminForm()
-    ctx['hcsa_form'] = ctx['form']
     init_open_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].open_time
     init_close_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].close_time
 
