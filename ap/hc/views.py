@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import DeleteView, UpdateView
 from terms.models import Term
 
 from .forms import (HCRecommendationAdminForm, HCRecommendationForm,
