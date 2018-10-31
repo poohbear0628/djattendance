@@ -15,10 +15,9 @@ def assign_classnotes(week=None):
   end = term.end
   if week is not None:
     end = term.enddate_of_week(week)
-  #for trainee in Trainee.objects.all().iterator():
-  trainee = Trainee.objects.filter(firstname="David", lastname="Choi").first()
-  update_classnotes_list(trainee)
-  assign_individual_classnotes(trainee, start, end)
+  for trainee in Trainee.objects.all().iterator():
+    update_classnotes_list(trainee)
+    assign_individual_classnotes(trainee, start, end)
 
 
 def assign_individual_classnotes(trainee, start, end):
@@ -47,12 +46,8 @@ def assign_individual_classnotes(trainee, start, end):
   for roll in rolls.iterator():
     classname = roll.event.name
     leavesliplist = list(get_leaveslip(trainee, roll))
-    leavesliplist_length = len(leavesliplist)
-    print roll
-    print leavesliplist_length
-    if leavesliplist_length > 0:
+    if len(leavesliplist) > 0:
       for leaveslip in leavesliplist:
-        print leaveslip
         # Special: Wedding, Graduation, Funeral, Interview.
         if leaveslip.type in ['INTVW', 'GRAD', 'WED', 'FUNRL']:
           generate_classnotes(trainee, roll, 'S')
@@ -63,7 +58,6 @@ def assign_individual_classnotes(trainee, start, end):
             regular_absence_counts[classname] += 1
             if (regular_absence_counts[classname]) > 2:
               generate_classnotes(trainee, roll, 'R')
-              print "Regular Classnote assigned under leaveslip"
           else:
             regular_absence_counts[classname] = 1
         # Missed classes with conference or service leave slips results in no class notes
@@ -73,7 +67,6 @@ def assign_individual_classnotes(trainee, start, end):
         regular_absence_counts[classname] += 1
         if (regular_absence_counts[classname]) > 2:
           generate_classnotes(trainee, roll, 'R')
-          print "Regular Classnote assigned under unexcused"
       else:
         regular_absence_counts[classname] = 1
 
@@ -105,8 +98,6 @@ def get_leaveslip(trainee, roll):
   roll_start_datetime = datetime.combine(roll.date, roll.event.start)
   roll_end_datetime = datetime.combine(roll.date, roll.event.end)
   groupslips = GroupSlip.objects.filter(trainees=trainee, status='A', start__lte=roll_start_datetime, end__gte=roll_start_datetime)
-  print individualslips
-  print groupslips
   return chain(individualslips, groupslips)
 
 
