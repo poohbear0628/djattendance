@@ -71,9 +71,9 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
     ctx = super(HCSurveyAdminCreate, self).get_context_data(**kwargs)
     term = Term.current_term()
     if 'hcsa_form' not in ctx:
-      ctx['hcsa_form'] = self.form_class(instance=HCRecommendationAdmin.objects.get_or_create(term=term)[0])
+      ctx['hcsa_form'] = self.form_class(auto_id="hcsa_%s")
     if 'hcra_form' not in ctx:
-      ctx['hcra_form'] = self.second_form_class()
+      ctx['hcra_form'] = self.second_form_class(instance=HCRecommendationAdmin.objects.get_or_create(term=term)[0], auto_id="hcra_%s")
 
     ctx['hc_admins'] = HCSurveyAdmin.objects.filter(term=term).order_by('-index')
     init_open_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].open_time
