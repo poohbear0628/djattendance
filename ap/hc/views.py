@@ -16,6 +16,9 @@ from .forms import (HCRecommendationAdminForm, HCRecommendationForm,
 from .models import (HCRecommendation, HCRecommendationAdmin, HCSurvey,
                      HCSurveyAdmin, HCTraineeComment, House)
 
+HCSA_FORM = 'hcsa_form'
+HCRA_FORM = 'hcra_form'
+
 
 class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
   model = HCSurveyAdmin
@@ -28,9 +31,9 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
   def post(self, request, *args, **kwargs):
     # determine which form is being submitted
     # uses the name of the form's submit button
-    if 'hcsa_form' in request.POST:
+    if HCSA_FORM in request.POST:
       form = self.form_class(request.POST)
-      form_name = 'hcsa_form'
+      form_name = HCSA_FORM
       if form.is_valid():
         return self.form_valid(form)
       else:
@@ -39,7 +42,7 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
     else:
       # get the secondary form
       form = self.second_form_class(request.POST)
-      form_name = 'hcra_form'
+      form_name = HCRA_FORM
       if form.is_valid():
         hcra = HCRecommendationAdmin.objects.get_or_create(term=Term.current_term())[0]
         for house in House.objects.all():
@@ -70,10 +73,11 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(HCSurveyAdminCreate, self).get_context_data(**kwargs)
     term = Term.current_term()
-    if 'hcsa_form' not in ctx:
-      ctx['hcsa_form'] = self.form_class(auto_id="hcsa_%s")
-    if 'hcra_form' not in ctx:
-      ctx['hcra_form'] = self.second_form_class(instance=HCRecommendationAdmin.objects.get_or_create(term=term)[0], auto_id="hcra_%s")
+    if HCSA_FORM not in ctx:
+      ctx[HCSA_FORM] = self.
+      form_class(auto_id="hcsa_%s")
+    if HCRA_FORM not in ctx:
+      ctx[HCRA_FORM] = self.second_form_class(instance=HCRecommendationAdmin.objects.get_or_create(term=term)[0], auto_id="hcra_%s")
 
     ctx['hc_admins'] = HCSurveyAdmin.objects.filter(term=term).order_by('-index')
     init_open_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].open_time
