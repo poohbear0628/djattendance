@@ -73,14 +73,15 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(HCSurveyAdminCreate, self).get_context_data(**kwargs)
     term = Term.current_term()
+    hcra = HCRecommendationAdmin.objects.get_or_create(term=term)[0]
     if HCSA_FORM not in ctx:
       ctx[HCSA_FORM] = self.form_class(auto_id="hcsa_%s")
     if HCRA_FORM not in ctx:
-      ctx[HCRA_FORM] = self.second_form_class(instance=HCRecommendationAdmin.objects.get_or_create(term=term)[0], auto_id="hcra_%s")
+      ctx[HCRA_FORM] = self.second_form_class(instance=hcra, auto_id="hcra_%s")
 
     ctx['hc_admins'] = HCSurveyAdmin.objects.filter(term=term).order_by('-index')
-    init_open_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].open_time
-    init_close_datetime = HCRecommendationAdmin.objects.get_or_create(term=term)[0].close_time
+    init_open_datetime = hcra.open_time
+    init_close_datetime = hcra.close_time
 
     if init_open_datetime is None or init_close_datetime is None:
       ctx['button_label2'] = 'Create Recommendation'
