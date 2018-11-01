@@ -1,10 +1,12 @@
 from accounts.models import TrainingAssistant
 from attendance.models import Roll
+from accounts.models import User
 
 from django.core.management.base import BaseCommand
 
 TAS = list(TrainingAssistant.objects.all())
 AMS = list(User.objects.filter(groups__name="attendance_monitors").exclude(groups__name="training_assistant").exclude(groups__name="dev"))
+
 
 class Command(BaseCommand):
   # to use: python ap/manage.py change_to_single_roll_system
@@ -32,7 +34,6 @@ class Command(BaseCommand):
             print dup.id, dup.submitted_by, dup.trainee
 
       rolls.pop()
-
 
   def handle(self, *args, **options):
     print '* Let it begin *'
