@@ -28,6 +28,18 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
   group_required = ['training_assistant']
   success_url = reverse_lazy('hc:hc-admin')
 
+  def form_valid(self, form):
+    term = Term.current_term()
+    index = len(HCSurveyAdmin.objects.filter(term=term)) + 1
+    hcsa = form.save(commit=False)
+    hcsa.term = term
+    hcsa.index = index
+    hcsa.save()
+    return HttpResponseRedirect(self.success_url)
+
+  def form_invalid(self, **kwargs):
+    return self.render_to_response(self.get_context_data(**kwargs))
+
   def post(self, request, *args, **kwargs):
     # determine which form is being submitted
     # uses the name of the form's submit button
@@ -57,18 +69,6 @@ class HCSurveyAdminCreate(GroupRequiredMixin, TemplateView):
         return HttpResponseRedirect(self.success_url)
       else:
         return self.form_invalid(**{form_name: form})
-
-  def form_valid(self, form):
-    term = Term.current_term()
-    index = len(HCSurveyAdmin.objects.filter(term=term)) + 1
-    hcsa = form.save(commit=False)
-    hcsa.term = term
-    hcsa.index = index
-    hcsa.save()
-    return super(HCSurveyAdminCreate, self).form_valid(form)
-
-  def form_invalid(self, **kwargs):
-    return self.render_to_response(self.get_context_data(**kwargs))
 
   def get_context_data(self, **kwargs):
     ctx = super(HCSurveyAdminCreate, self).get_context_data(**kwargs)
