@@ -13,13 +13,10 @@ from bible_tracker.models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_
 from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
 from terms.models import Term
 from house_requests.models import MaintenanceRequest
-<<<<<<< HEAD
 from django.core.urlresolvers import reverse_lazy
 from services.models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
                      Service, ServiceAttendance, ServiceException, ServiceRoll,
                      ServiceSlot, WeekSchedule, Worker)
-=======
->>>>>>> 74fac68921ed90ef1278940c41d04cb120346895
 import json
 
 from aputils.utils import WEEKDAY_CODES
@@ -95,14 +92,11 @@ def home(request):
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
-<<<<<<< HEAD
       'weekday_codes':json.dumps(WEEKDAY_CODES),
       'service': list(service_db),
       'service_day': list(service_db.values()),
-      'designated_list': designated_list
-=======
+      'designated_list': designated_list,
       'weekday_codes': json.dumps(WEEKDAY_CODES)
->>>>>>> 74fac68921ed90ef1278940c41d04cb120346895
   }
 
   notifications = get_announcements(request)
@@ -160,13 +154,9 @@ def custom503errorview(request):
   }
   return render(request, 'error.html', context=ctx)
 
-<<<<<<< HEAD
-=======
-
 def custom504errorview(request):
   ctx = {
     'image_path': 'img/504error.png',
     'page_title': 'Gateway Timeout'
   }
   return render(request, 'error.html', context=ctx)
->>>>>>> 74fac68921ed90ef1278940c41d04cb120346895
