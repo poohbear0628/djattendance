@@ -321,14 +321,11 @@ class AttendanceAssign(ListView):
       t = timeit_inline("summary calculation")
       t.start()
       for trainee in Trainee.objects.all():
-        if trainee.firstname == "Emily" and trainee.lastname == "Harris":
-          # print trainee
-          # num_summary += trainee.calculate_summary(period
-          num_summary = 0
-          num_summary += trainee.calculate_summary(period)
-          if num_summary > 0:
-            print trainee, num_summary
-            context['outstanding_trainees'].append((trainee, num_summary))
+        num_summary = 0
+        num_summary += trainee.calculate_summary(period)
+        if num_summary > 0:
+          print trainee, num_summary
+          context['outstanding_trainees'].append((trainee, num_summary))
 
       t.end()
 

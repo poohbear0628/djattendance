@@ -98,12 +98,6 @@ class Discipline(models.Model):
     self.save()
     return self.summary_set.all()
 
-  def hard_copy_approve_all_summary(self):
-    for summary in self.summary_set.all():
-      summary.hard_copy_approve()
-    self.save()
-    return self.summary_set.all()
-
   def get_num_summary_due(self):
     """get the number of summary that still needs to be submitted"""
     return self.quantity - len(self.summary_set.filter(approved=True).all())
@@ -260,22 +254,10 @@ class Summary(models.Model):
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
 
-  def set_hard_copy(self, hard_copy):
-    self.submitting_paper_copy = hard_copy
-    self.save()
-    return self
-
   # remove fellowship mark if approved
   def approve(self):
     self.approved = True
     self.fellowship = False
-    self.save()
-    return self
-
-  def hard_copy_approve(self):
-    self.approved = True
-    self.fellowship = False
-    self.set_hard_copy(True)
     self.save()
     return self
 

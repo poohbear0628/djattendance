@@ -450,12 +450,8 @@ class Trainee(User):
     for event in att_rcd:
       if event['attendance'] == 'A':
         num_A += 1
-        print event
-        print num_A
       elif event['attendance'] == 'T':
         num_T += 1
-        print event
-        print num_A
     if num_A >= 2:
       num_summary += max(num_A, 0)
     if num_T >= 5:
