@@ -157,6 +157,13 @@ class NewGospelPairView(TemplateView):
     return context
 
 ##Create a delete function for the delete button for the gospel pairs
+def delete_pair(request):
+  #Get the current pair
+  current_id = request.POST['pair_id']
+  pair = GospelPair(id=current_id)
+  #Delete the pair
+  pair.delete()
+  return redirect(reverse('gospel_statistics:gospel-statistics-view'))
 
 ##In Progress (change to class)
 def TAGospelStatisticsView(request):

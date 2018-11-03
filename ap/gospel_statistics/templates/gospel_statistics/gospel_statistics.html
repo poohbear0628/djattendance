@@ -19,8 +19,17 @@ $(document).ready(function() {
     $('#gospelWeek').append(each);
   };
 });
-function switchStats() {
-  location.reload();
+function switchStats(week) {
+};
+function deletePair(pair_id) {
+  $.ajax({
+    type: "POST",
+    url: "{% url 'gospel_statistics:delete-pair' %}",
+    data: {
+      "pair_id": pair_id,
+    },
+    success: location.reload(),
+  });
 };
 </script>
 {% endblock %}
@@ -37,7 +46,7 @@ function switchStats() {
     </td>
     <td>
       <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Week Of:</b>
-      <select id="gospelWeek" onchange="switchStats()"/>
+      <select id="gospelWeek" onchange="switchStats(this.value)"/>
     </td>
   </table>
 </div>

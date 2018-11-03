@@ -17,7 +17,7 @@
       {% endfor %}
         <div>
           <a>
-            <button class="btn btn-primary" title="Delete gospel pair">
+            <button class="btn btn-primary" onclick="deletePair({{each.gospel_pair.id}});" title="Delete gospel pair">
               <span class="glyphicon glyphicon-trash"></span>
             </button>
           </a>
