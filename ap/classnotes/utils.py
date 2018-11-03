@@ -97,7 +97,7 @@ def get_leaveslip(trainee, roll):
   individualslips = IndividualSlip.objects.filter(trainee=trainee, status='A', rolls__in=[roll])
   roll_start_datetime = datetime.combine(roll.date, roll.event.start)
   roll_end_datetime = datetime.combine(roll.date, roll.event.end)
-  groupslips = GroupSlip.objects.filter(trainees=trainee, status='A', start__lte=roll_start_datetime, end__gte=roll_start_datetime)
+  groupslips = GroupSlip.objects.filter(trainees=trainee, status='A', start__lte=roll_end_datetime, end__gte=roll_start_datetime)
   return chain(individualslips, groupslips)
 
 
