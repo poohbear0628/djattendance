@@ -2,7 +2,6 @@ from datetime import *
 
 import django_filters
 from accounts.models import Trainee
-from django.db.models import Q
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import (GroupSlipSerializer,
                                     IndividualSlipSerializer)
@@ -29,7 +28,6 @@ class RollSerializer(BulkSerializerMixin, ModelSerializer):
     trainee = validated_data['trainee']
     event = validated_data['event']
     date = validated_data['date']
-    submitted_by = trainee
     status = validated_data['status']
 
     # checks if roll exists for given trainee, event, and date
