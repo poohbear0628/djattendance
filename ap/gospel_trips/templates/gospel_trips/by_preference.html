@@ -43,7 +43,23 @@
           'trainee_id': trainee_id,
           'is_contact': is_contact,
         },
+        success: function(data){
+          console.log(data);
+          if (data.success){
+            new Notification(Notification.SUCCESS, 'Saved.').show();
+          }
+        }
       });
+    });
+
+    $("#responses_table").DataTable({
+      info: true,
+      paging: false,
+      autoWidth: true,
+      fixedHeader: true,
+      scrollY: '80vh',
+      scrollX: true,
+      scrollCollapse: true
     });
 
   });
