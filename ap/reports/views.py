@@ -237,8 +237,6 @@ def attendance_report_trainee(request):
     date_to = ct.end
 
   rolls = Roll.objects.filter(trainee=trainee, date__gte=date_from, date__lte=date_to).exclude(status='P').exclude(event__monitor=None)
-  if trainee.self_attendance:
-    rolls = rolls.filter(submitted_by=trainee)
 
   start_datetime = datetime.combine(date_from, datetime.min.time())
   end_datetime = datetime.combine(date_to, datetime.max.time())
