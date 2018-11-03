@@ -50,17 +50,18 @@
   
       // for service week row
       var colCount = 1;
-      // $('tr:nth-child(1) td').each(function () {
-      //   if ($(this).attr('colspan')) {
-      //       colCount += +$(this).attr('colspan');
-      //   } else {
-      //       colCount++;
-      //   }
-      // });
+      $('tr:nth-child(1) td').each(function () {
+          if ($(this).attr('colspan')) {
+              colCount += +$(this).attr('colspan');
+          } else {
+              colCount++;
+          }
+      });
+      console.log(colCount);
 
-      // var numCols = document.getElementById('serviceRow').row.length;
-      var numCols = $("#serviceRow").find('tr')[0].cells.length;
-      console.log(numCols);
+      // var numCols = document.getElementById('serviceRow');
+      // var numCols = $("#serviceRow").find('tr')[0].cells.length;
+      // console.log(numCols);
 
       var row = document.getElementById("serviceRow");
       var cell;
@@ -72,11 +73,11 @@
       if (colCount < 8){
         while(colCount < 8){
           cell = row.insertCell(colCount);
-          console.log("index:", index, "content:", serviceDay_list[index]);
+          // console.log("index:", index, "content:", serviceDay_list[index]);
 
           if(index < serviceDay_list.length){
             if(serviceDay_list[index]){
-              console.log(colCount, index, serviceDay_list[index]);
+              // console.log(colCount, index, serviceDay_list[index]);
               cell.innerHTML = htmlInsert;
             }
 
