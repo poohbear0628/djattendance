@@ -392,7 +392,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     monitor = kwargs['monitor']
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, monitor, [current_week, ], event_type)
 
-    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).exclude(status='P').select_related('trainee', 'event')
+    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
 
     roll_dict = OrderedDict()
 
