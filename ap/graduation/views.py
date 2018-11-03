@@ -172,6 +172,27 @@ class ConsiderationReport(ReportView):
   model = Consideration
   template_name = 'graduation/consideration_report.html'
 
+  def get_context_data(self, **kwargs):
+    context = super(ConsiderationReport, self).get_context_data(**kwargs)
+
+    xb_choices = ['YES', 'OPEN', 'NO', 'OTHER', None]
+    xb_count = [0, 0, 0, 0, 0]
+    fellowshipped_choices = ['YES', 'NO', 'OTHER', None]
+    fellowshipped_count = [0, 0, 0, 0]
+
+    for c in context['data']:
+      xb_count[xb_choices.index(c.attend_XB)] += 1
+      fellowshipped_count[fellowshipped_choices.index(c.fellowshipped)] += 1
+
+    fourth_termers_count = len(context['data'])
+    xb_percent = [100 * x / float(fourth_termers_count) for x in xb_count]
+    fellowshipped_percent = [100 * x / float(fourth_termers_count) for x in fellowshipped_count]
+
+    context['xb_display'] = "Attend Boston?\tYes: %0.2f%% (%d/%d)\tOpen: %0.2f%% (%d/%d)\tNo: %0.2f%% (%d/%d)\tOther: %0.2f%% (%d/%d)\tNo Response: %0.2f%% (%d/%d)" % (xb_percent[0], xb_count[0], fourth_termers_count, xb_percent[1], xb_count[1], fourth_termers_count, xb_percent[2], xb_count[2], fourth_termers_count, xb_percent[3], xb_count[3], fourth_termers_count, xb_percent[4], xb_count[4], fourth_termers_count)
+    context['fellowshipped_display'] = "Fellowshipped?\tYes: %0.2f%% (%d/%d)\t\t\t\tNo: %0.2f%% (%d/%d)\tScheduled: %0.2f%% (%d/%d)\tNo Response: %0.2f%% (%d/%d)" % (fellowshipped_percent[0], fellowshipped_count[0], fourth_termers_count, fellowshipped_percent[1], fellowshipped_count[1], fourth_termers_count, fellowshipped_percent[2], fellowshipped_count[2], fourth_termers_count, fellowshipped_percent[3], fellowshipped_count[3], fourth_termers_count,)
+
+    return context
+
 
 class WebsiteReport(ReportView):
   model = Website
@@ -189,7 +210,7 @@ class SpeakingReport(ReportView):
 
   def get_context_data(self, **kwargs):
     context = super(SpeakingReport, self).get_context_data(**kwargs)
-    speaking_trainees = GradAdmin.objects.get(term=Term.current_term()).speaking_trainees.all()
+    speaking_trainees = GradAdmin.objects.get(term=term).speaking_trainees.all()
     context['data'] = Outline.objects.filter(trainee__in=speaking_trainees)
     context['title'] = 'Speaking Report'
 

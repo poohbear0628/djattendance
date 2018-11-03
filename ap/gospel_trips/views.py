@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import collections
 import json
+import re
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
@@ -10,7 +11,7 @@ from aputils.trainee_utils import is_trainee, trainee_from_user
 from braces.views import GroupRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, Case, When
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -34,7 +35,7 @@ class GospelTripView(GroupRequiredMixin, CreateView):
 
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripView, self).get_context_data(**kwargs)
-    ctx['gospel_trips'] = GospelTrip.objects.all()
+    ctx['gospel_trips'] = GospelTrip.objects.order_by('-open_time')
     ctx['page_title'] = 'Gospel Trip Admin'
     return ctx
 
@@ -84,17 +85,32 @@ def gospel_trip_admin_duplicate(request, pk):
 
 def gospel_trip_base(request):
   admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.is_open), 0)
-  return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
+  if admin_pk:  # is_open is True
+    return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
+  else:
+    admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.keep_open), 0)
+    if admin_pk:  # keep_open is True
+      return HttpResponseRedirect(reverse('gospel_trips:gospel-trip', kwargs={'pk': admin_pk}))
+  return HttpResponseRedirect("/")
+
+
+def rosters_base(request):
+  admin_pk = next((gt.pk for gt in GospelTrip.objects.order_by('-open_time') if gt.show_teams), 0)
+  if admin_pk:  # is_open is True
+    return HttpResponseRedirect(reverse('gospel_trips:rosters-all', kwargs={'pk': admin_pk}))
+  return HttpResponseRedirect("/")
 
 
 def gospel_trip_trainee(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   context = {'page_title': gt.name}
+
   if is_trainee(request.user):
     trainee = trainee_from_user(request.user)
   else:
-    trainee = Trainee.objects.first()
-    context['preview'] = trainee.full_name
+    context['preview_trainees'] = Trainee.objects.all()
+    trainee = Trainee.objects.get(id=request.GET.get('trainee', Trainee.objects.first().id))
+    context['selected_trainee'] = trainee
 
   section_qs = Section.objects.filter(Q(gospel_trip=gt) & ~Q(show='HIDE'))
   question_qs = Question.objects.filter(Q(section__in=section_qs) & ~Q(answer_type="None"))
@@ -194,7 +210,6 @@ class NonTraineeReportView(GroupRequiredMixin, TemplateView):
     decoder = json.JSONDecoder(object_pairs_hook=collections.OrderedDict)
     for ntr in nontrainees:
       data = ntr.application_data
-      print data
       app_data = eval(data.get('application', '{}'))
       d = decoder.decode(json.dumps(app_data))
       for k, v in d.items():
@@ -215,13 +230,14 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   group_required = ['training_assistant']
 
   @staticmethod
-  def get_trainee_dict(destination_qs, question_qs, general_items):
+  def get_trainee_dict(gospel_trip, destination_qs, question_qs, general_items):
     data = []
     contacts = destination_qs.values_list('team_contacts', flat=True)
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
     # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
     get_these_trainees = Trainee.objects.filter(Q(id__in=trainees_with_responses))  # | Q(id__in=trainees_assigned))
+    get_these_trainees = get_these_trainees.filter(id__in=gospel_trip.get_submitted_trainees())
     for t in get_these_trainees:
       entry = {
           'name': t.full_name,
@@ -232,7 +248,10 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
       responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
       for r in responses:
         if r['answer_type'] == 'destinations' and r['answer__response']:
-          r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
+          try:
+            r['answer__response'] = destination_names.get(id=r['answer__response'])['name']
+          except ObjectDoesNotExist:
+            r['answer__response'] = "Destination Does Not Exist"
       entry['responses'] = responses
       if general_items:
         if 'term' in general_items:
@@ -253,20 +272,21 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     ctx = super(GospelTripReportView, self).get_context_data(**kwargs)
     gt = GospelTrip.objects.get(pk=self.kwargs['pk'])
-    questions_qs = Question.objects.filter(section__gospel_trip=gt).exclude(answer_type="None")
-    sections_to_show = Section.objects.filter(id__in=questions_qs.values_list('section'))
+    question_qs = Question.objects.filter(section__gospel_trip=gt).exclude(answer_type="None")
+    sections_to_show = Section.objects.filter(id__in=question_qs.values_list('section'))
     all_destinations = Destination.objects.filter(gospel_trip=gt)
 
     questions = self.request.GET.getlist('questions', [0])
-    questions_qs = questions_qs.filter(id__in=questions).order_by('section')
+    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(questions)])
+    question_qs = question_qs.filter(id__in=questions).order_by(preserved)
 
     general = self.request.GET.getlist('general', [])
 
-    ctx['questions'] = questions_qs
-    ctx['chosen'] = questions_qs.values_list('id', flat=True)
+    ctx['questions'] = question_qs
+    ctx['chosen'] = question_qs.values_list('id', flat=True)
     ctx['chosen_general'] = general
     ctx['sections'] = sections_to_show
-    ctx['trainees'] = self.get_trainee_dict(all_destinations, questions_qs, general)
+    ctx['trainees'] = self.get_trainee_dict(gt, all_destinations, question_qs, general)
     ctx['page_title'] = 'Gospel Trip Response Report'
     return ctx
 
@@ -279,7 +299,7 @@ class DestinationEditorView(GroupRequiredMixin, TemplateView):
     context = super(DestinationEditorView, self).get_context_data(**kwargs)
     gt = get_object_or_404(GospelTrip, pk=self.kwargs['pk'])
     context['page_title'] = 'Destination Editor'
-    context['destinations'] = Destination.objects.filter(gospel_trip=gt).order_by('name')
+    context['destinations'] = Destination.objects.filter(gospel_trip=gt)
     return context
 
 
@@ -292,7 +312,7 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
     data = []
     dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'team_contacts')
     contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('team_contacts', flat=True)
-    qs = Trainee.objects.select_related('locality__city').prefetch_related('team_contacts', 'destination')
+    qs = Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()).select_related('locality__city').prefetch_related('team_contacts', 'destination')
     all_answers = gospel_trip.answer_set.filter(question__label__startswith='Destination Preference').values('response', 'question__label')
     for t in qs:
       answer_set = all_answers.filter(trainee=t)
@@ -308,10 +328,14 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
       if dest.exists():
         data[-1]['destination'] = dest.first()['id']
       for a in answer_set:
-        if a['question__label'].startswith('Destination Preference'):
+        if re.match(r'^Destination Preference \d+$', a['question__label']):  # returns None if no match
           if a['response']:
             key = "preference_" + a['question__label'].split(" ")[-1]
-            data[-1][key] = dest_dict.get(id=a['response'])['name']
+            try:
+              data[-1][key] = dest_dict.get(id=a['response'])['name']
+            except ObjectDoesNotExist:
+              data[-1][key] = "Destination Does Not Exist"
+
     return data
 
   def get_context_data(self, **kwargs):
@@ -352,7 +376,8 @@ class DestinationByGroupView(GroupRequiredMixin, TemplateView):
       dest = Destination.objects.get(id=destination)
       to_exclude = all_destinations.filter(~Q(trainees=None), ~Q(id=dest.id))
       context['chosen'] = dest.trainees.values_list('id', flat=True)
-      context['choose_from'] = Trainee.objects.exclude(id__in=to_exclude.values_list('trainees__id'))
+      context['choose_from'] = Trainee.objects.filter(id__in=gt.get_submitted_trainees()).exclude(id__in=to_exclude.values_list('trainees__id'))
+      context['unassigned'] = Trainee.objects.filter(id__in=gt.get_submitted_trainees()).filter(Q(destination=None))
       if 'destinit' not in context:
         context['destinit'] = dest.id
       context['all_destinations'] = all_destinations
@@ -368,10 +393,10 @@ class RostersAllTeamsView(TemplateView):
   template_name = 'gospel_trips/rosters_all_teams.html'
 
   @staticmethod
-  def get_trainee_dict(destination_qs):
+  def get_trainee_dict(gospel_trip, destination_qs):
     data = []
     contacts = destination_qs.values_list('team_contacts', flat=True)
-    for t in Trainee.objects.all():
+    for t in Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()):
       data.append({
         'name': t.full_name,
         'id': t.id,
@@ -386,9 +411,10 @@ class RostersAllTeamsView(TemplateView):
     all_destinations = Destination.objects.filter(gospel_trip=gt)
     if is_trainee(self.request.user) and all_destinations.filter(trainees=self.request.user).exists():
       context['destination'] = all_destinations.get(trainees=self.request.user)
+      context['page_title'] = context['destination'].name
     if self.request.user.has_group(['training_assistant']):
-      context['trainees'] = self.get_trainee_dict(all_destinations)
-    context['page_title'] = "Rosters: All Teams"
+      context['trainees'] = self.get_trainee_dict(gt, all_destinations)
+      context['page_title'] = "Rosters: All Teams"
     return context
 
 
@@ -409,6 +435,7 @@ class RostersIndividualTeamView(GroupRequiredMixin, TemplateView):
     return context
 
 
+@group_required(['training_assistant'])
 def destination_add(request, pk):
   gt = get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
@@ -418,6 +445,7 @@ def destination_add(request, pk):
   return redirect('gospel_trips:destination-editor', pk=pk)
 
 
+@group_required(['training_assistant'])
 def destination_remove(request, pk):
   get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
@@ -428,6 +456,7 @@ def destination_remove(request, pk):
   return redirect('gospel_trips:destination-editor', pk=pk)
 
 
+@group_required(['training_assistant'])
 def destination_edit(request, pk):
   get_object_or_404(GospelTrip, pk=pk)
   if request.method == "POST":
@@ -440,6 +469,7 @@ def destination_edit(request, pk):
   return redirect('gospel_trips:destination-editor', pk=pk)
 
 
+@group_required(['training_assistant'])
 def assign_destination(request, pk):
   if request.is_ajax() and request.method == "POST":
     dest_id = request.POST.get('destination_id', 0)
@@ -457,13 +487,13 @@ def assign_destination(request, pk):
       new_dest.trainees.add(tr)
       new_dest.save()
       new_dest.set_team_contact(tr, is_contact=is_contact)
-      JsonResponse({'success': True})
+      return JsonResponse({'success': True})
     except ObjectDoesNotExist:
-      JsonResponse({'success': False})
-    return JsonResponse({'success': False})
+      return JsonResponse({'success': False})
   return JsonResponse({'success': False})
 
 
+@group_required(['training_assistant'])
 def assign_team_contact(request, pk):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
@@ -493,3 +523,13 @@ def upload_image(request):
     return JsonResponse({'location': f.file.url}, status=200)
   errors = {f: e.get_json_data() for f, e in form.errors.items()}
   return JsonResponse({'success': 'False', 'errors': errors}, status=500)
+
+
+@group_required(['training_assistant'])
+def clear_application(request, pk, trainee):
+  gt = get_object_or_404(GospelTrip, pk=pk)
+  tr = get_object_or_404(Trainee, pk=trainee)
+  if request.is_ajax() and request.method == "POST":
+    Answer.objects.filter(gospel_trip=gt, trainee=tr).update(response=None)
+    return JsonResponse({'success': True})
+  return JsonResponse({'success': False})

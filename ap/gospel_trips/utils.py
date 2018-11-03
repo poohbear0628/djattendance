@@ -89,7 +89,7 @@ def get_airport_codes():
     full_path = os.path.join(APP_ROOT, 'airports.json')
     f = open(full_path)
     data = json.load(f)
-    return [res['iata_code'] for res in data['response']]
+    return [res['code'] for res in data['response']]
   except Exception:
     return []
 
