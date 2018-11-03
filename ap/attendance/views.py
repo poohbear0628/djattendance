@@ -392,7 +392,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
     monitor = kwargs['monitor']
     event_list, trainee_evt_list = Schedule.get_roll_table_by_type_in_weeks(trainees, monitor, [current_week, ], event_type)
 
-    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).exclude(status='P').select_related('trainee', 'event')
+    rolls = Roll.objects.filter(event__in=event_list, date__gte=start_date, date__lte=end_date).select_related('trainee', 'event')
 
     roll_dict = OrderedDict()
 
@@ -415,12 +415,7 @@ class TableRollsView(GroupRequiredMixin, AttendanceView):
             d = ev.start_datetime.date()
             # Add roll if roll exists for trainee
             if trainee in roll_dict and (ev, d) in roll_dict[trainee]:
-              # if trainee is on self attendance (trainee.self_attendance=True),
-              # only display rolls not submitted by the trainee and modify rolls that are not submitted by the trainee.
-              if trainee.self_attendance and (trainee == roll_dict[trainee][(ev, d)].submitted_by):
-                continue
-              else:
-                ev.roll = roll_dict[trainee][(ev, d)]
+              ev.roll = roll_dict[trainee][(ev, d)]
             evt_list[i] = ev
 
     ctx['event_type'] = event_type
