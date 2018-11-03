@@ -6,11 +6,43 @@
 
 {% block title %}{{page_title}}{% endblock %}
 
+{% block references %}
+<style type="text/css">
+  ul.errorlist {
+    margin: 0;
+    padding: 0;
+  }
+
+  .error-div {
+    background-color: red;
+    color: white;
+    display: block;
+    font-weight: bold;
+    margin: 0 0 3px;
+    padding: 4px 5px;
+  }
+
+  .error{
+    margin-top:4px;
+    padding-left:0;
+  }
+</style>
+
+{% endblock %}
+
 {% block scripts %}
+{% for form in answer_forms %}
+  {{form.media}}
+{% endfor %}
 <script type="text/javascript">
   var AIRPORT_CODES = {{AIRPORT_CODES|safe}};
   var AIRLINE_CODES = {{AIRLINE_CODES|safe}};
   $(document).ready(function() {
+    $(".select-fk").select2({width: '100%'})
+    .on("select2:select", (e) => {
+        $('#id_preview_form').submit();
+      });
+
     $(".airport-field").bind("input propertychange", function(){
       let check = AIRPORT_CODES.includes($(this).val());
       if (!check){
@@ -30,23 +62,62 @@
       }
     });
     $("[required]").parent().children("label").append(" *").css("color", "red");
+
+    $(".datepicker").each(function(index) {
+      if ($(this).val()) {
+        $(this).val(moment($(this).val()).format("MM/DD/YYYY"));
+      }
+    });
   });
 
+  function validateForm() {
+    let requiredFields = $("#gospel_trip_form [required]");
+    let goodForm = true;
+    let badFields = [];
+
+    requiredFields.each(function(){
+     if(!$(this).val()){
+       badFields.push($(this).parent().parent().children().first().text());
+       goodForm = false;
+      }
+    });
+
+    if (goodForm){
+      $("#gospel_trip_form").submit();
+    } else {
+      let msg = "There are required fields in: ";
+      badFields = [...new Set(badFields)];  // removes duplicates
+      badFields.forEach((f) => {
+        msg += f + ", ";
+      });
+      alert(msg);
+    }
+  }
 </script>
 {% endblock %}
 
 {% block content %}
 <h2>{{page_title}}</h2>
-{% if preview %}
-<h3>Preview for: {{preview}}</h3>
+{% if preview_trainees %}
+<h3>Preview for:</h3>
+<form action="" method="get" id="id_preview_form">
+  <select class="select-fk" name="trainee">
+    {% for trainee in preview_trainees %}
+      <option value="{{trainee.id}}" {% if selected_trainee == trainee %} selected="selected" {% endif %}>{{trainee.full_name}}</option>
+    {% endfor %}
+  </select>
+</form>
+<hr />
 {% endif %}
 <!-- Form Error Display -->
 {% for form in answer_forms %}
   {{ form.non_form_errors }}
   {% if form.errors %}
+   <div class="error-div">
     {{form.instance}}
+    {{ form.errors }}
+   </div>
   {% endif %}
-  {{ form.errors }}
 {% endfor %}
 <!-- Navigation Display -->
 <ul class="nav nav-tabs">
@@ -57,7 +128,7 @@
   {% endfor %}
 </ul>
 <!-- Navigation Display -->
-<form action="" method="post">
+<form action="" method="post" id="gospel_trip_form">
   {% csrf_token %}
   <div class="tab-content">
     {% for section in section_qs %}
@@ -70,7 +141,6 @@
         {%for form in answer_forms %}
           {% if form.prefix == question.id %}
             {% bootstrap_form form %}
-            {{form.media}}
           {% endif %}
         {% endfor %}
       {% endfor %}
@@ -80,8 +150,8 @@
   </div><!-- tab-content -->
   <div class="row">
     <div class="col-md-12">
-      <button type="submit" class="btn btn-primary btn-save">Submit</button>
-      {% if preview %}
+      <button type="button" class="btn btn-primary btn-save" onclick="validateForm()">Submit</button>
+      {% if preview_trainees %}
       <a href="{% url 'gospel_trips:admin-update' pk %}"><button type="button" class="btn btn-primary" title="Edit"><span class="glyphicon glyphicon-pencil"></span></button></a>
       <a href="{% url 'gospel_trips:admin-create' %}"><button type="button" class="btn btn-primary" title="Preview"><span class="glyphicon glyphicon-home"></span></button></a>
       {% endif %}

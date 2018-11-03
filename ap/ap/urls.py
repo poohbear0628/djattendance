@@ -32,8 +32,8 @@ from terms.views import TermViewSet
 from web_access.forms import WebAccessRequestGuestCreateForm as form
 from wiki.urls import get_pattern as get_wiki_pattern
 
-from .views import (custom404errorview, custom500errorview, custom503errorview,
-                    home)
+from .views import (custom404errorview, custom500errorview, custom502errorview,
+                    custom503errorview, custom504errorview, home)
 
 admin.autodiscover()
 
@@ -67,7 +67,7 @@ urlpatterns = [
   url(r'^house_requests/', include('house_requests.urls', namespace="house_requests")),
   url(r'^hc/', include('hc.urls', namespace="hc")),
   url(r'^room_reservations/', include('room_reservations.urls', namespace="room_reservations")),
-  url(r'^gospel-trips/', include('gospel_trips.urls', namespace="gospel_trips")),
+  url(r'^gospel_trips/', include('gospel_trips.urls', namespace="gospel_trips")),
   url(r'^graduation/', include('graduation.urls', namespace="graduation")),
   url(r'^xb/', include('xb_application.urls', namespace="xb")),
   url(r'^interim/', include('interim.urls', namespace="interim")),
@@ -87,7 +87,9 @@ urlpatterns = [
   url(r'^forms/', include('fobi.urls.edit')),
   url(r'^404/$', custom404errorview),  # for development
   url(r'^500/$', custom500errorview),  # for development
+  url(r'^502/$', custom502errorview),  # for development
   url(r'^503/$', custom503errorview),  # for development
+  url(r'^504/$', custom504errorview),  # for development
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 router = BulkRouter()
@@ -164,4 +166,6 @@ urlpatterns += [
 
 handler404 = 'ap.views.custom404errorview'  # if settings.DEBUG = FALSE
 handler500 = 'ap.views.custom500errorview'  # if settings.DEBUG = FALSE
+handler500 = 'ap.views.custom502errorview'  # if settings.DEBUG = FALSE
 handler503 = 'ap.views.custom503errorview'  # if settings.DEBUG = FALSE
+handler500 = 'ap.views.custom504errorview'  # if settings.DEBUG = FALSE
