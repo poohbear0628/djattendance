@@ -51,6 +51,16 @@ class InterimIntentionsForm(forms.ModelForm):
       return "NON"
     return post_intent
 
+
+  def clean_post_intent_comments(self):
+    intent = self.cleaned_data.get("intent")
+    comments = self.cleaned_data.get("post_intent_comments")
+
+    if intent == "R":
+      return ""
+    return comments
+
+
   def clean(self):
     post_intent = self.cleaned_data.get("post_training_intentions")
     post_comment = self.cleaned_data.get("post_intent_comments")
