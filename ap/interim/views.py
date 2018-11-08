@@ -157,15 +157,6 @@ class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
     ctx = super(InterimIntentionsCalendarView, self).get_context_data(**kwargs)
     term = Term.current_term()
 
-    def merge_names(d, key1, key2, newkey):
-      try:
-        d[newkey] = unicode(d[key1]) + unicode(' ') + unicode(d[key2])
-        del d[key1]
-        del d[key2]
-        return 1
-      except KeyError:
-        return 0
-
     interim_start = term.end + timedelta(days=1)
     if InterimIntentionsAdmin.objects.get(term=term).term_begin_date is None:
       interim_end = interim_start + timedelta(days=1)
