@@ -1,6 +1,7 @@
 from accounts.models import TrainingAssistant
 from attendance.models import Roll
 from accounts.models import User
+from terms.models import Term
 
 from django.core.management.base import BaseCommand
 
@@ -11,7 +12,12 @@ AMS = list(User.objects.filter(groups__name="attendance_monitors").exclude(group
 class Command(BaseCommand):
   # to use: python ap/manage.py change_to_single_roll_system
   def _change_to_single_roll_system(self):
-    rolls = list(Roll.objects.all())
+    rolls = Roll.objects.all()
+    if Term.current_term():
+      start_date = Term.current_term().start
+      end_date = Term.current_term().end
+      rolls = rolls.filter(date__gte=start_date, date__lte=end_date)
+    rolls = list(rolls)
     i = 0
     while rolls:
       roll = rolls[i]
