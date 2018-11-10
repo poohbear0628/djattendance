@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from rooms.models import Room
 from terms.models import Term
 
-from .forms import RoomReservationForm
+from .forms import RoomReservationForm, RoomReservationUpdateForm
 from .models import RoomReservation
 
 TIMES_AM = [
@@ -77,6 +77,8 @@ class RoomReservationSubmit(CreateView):
 
 
 class RoomReservationUpdate(RoomReservationSubmit, UpdateView):
+  form_class = RoomReservationUpdateForm
+
   def get_context_data(self, **kwargs):
     ctx = super(RoomReservationUpdate, self).get_context_data(**kwargs)
     ctx['page_title'] = 'Edit Reservation'

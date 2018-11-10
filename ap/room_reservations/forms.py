@@ -53,35 +53,80 @@ class RoomReservationForm(forms.ModelForm):
     if data_date <= todays_date and data_start < current_time:
       raise forms.ValidationError("The given reservation is being made in the past.")
 
+    # Logic with verbose error messages for checking room reservation conflicts. 
+    # ARR = ApprovedRoomReservation, NRR = NewRoomReservation
+    ApprovedRoomReservations = RoomReservation.objects.filter(status='A', room=data_room) # pull Approved Room Reservations data
+    for r in ApprovedRoomReservations:
+      if r.end > data_start and r.start < data_end and r.date.weekday() == data_date.weekday():
+        if r.frequency == 'Once':
+          # if r.date < data_data, whether NRR is 'Once' or 'Term' having r.date there will never be an overlap.
+          if r.date < data_date:
+            continue
+          # if r.date == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap.
+          elif r.date == data_date:
+            raise forms.ValidationError('Overlap with "' + r.group + '" on ' + r.date.strftime("%Y-%m-%d") + ' from ' + r.start.strftime("%I:%M%p") + ' - ' + r.end.strftime("%I:%M%p."))
+          # if r.date > data_date, raise an error if NRR is 'Term' because NRR would eventually overlap. 'Once' would be ok.
+          elif r.date > data_date:
+            if data_frequency == 'Once':
+              continue
+            raise forms.ValidationError('Given reservation will eventually overlap with "' + r.group + '" on ' + r.date.strftime("%Y-%m-%d") + ' from ' + r.start.strftime("%I:%M%p") + ' - ' + r.end.strftime("%I:%M%p."))
+        elif r.frequency == 'Term':
+          # if r.date < data_data, raise an error regardless if NRR is 'Once' or 'Term' because ARR will eventually overlap
+          if r.date < data_date:
+            raise forms.ValidationError('Overlap with "' + r.group + '" on ' + data_date.strftime("%A") + 's for the term from ' + r.start.strftime("%I:%M%p") + ' - ' + r.end.strftime("%I:%M%p."))
+          # if r.date == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap
+          elif r.date == data_date:
+            raise forms.ValidationError('Overlap with "' + r.group + '" on ' + r.date.strftime("%Y-%m-%d") + ' from ' + r.start.strftime("%I:%M%p") + ' - ' + r.end.strftime("%I:%M%p."))
+          # if r.date > data_date, raise an error if NRR is 'Term' because NRR will eventually overlap. 'Once' would be ok.
+          elif r.date > data_date:
+            if data_frequency == 'Once':
+              continue
+            raise forms.ValidationError('Given reservation will eventually overlap with "' + r.group + '" on ' + r.date.strftime("%Y-%m-%d") + ' from ' + r.start.strftime("%I:%M%p") + ' - ' + r.end.strftime("%I:%M%p."))
 
-    """
-    In order to check if an approved room reservation (ARR) overlaps with the new room reservation (NRR):
+    ## Compact logic for checking room reservation conflicts.
+    # ApprovedRoomReservations = RoomReservation.objects.filter(status='A', room=data_room) # pull Approved Room Reservations data
+    # for r in ApprovedRoomReservations:
+    #   if r.end > data_start and r.start < data_end and r.date.weekday() == data_date.weekday():
+    #     if r.frequency == 'Once' and r.date < data_date:
+    #       continue
+    #     if r.date > data_date and data_frequency == 'Once':
+    #       continue
+    #     raise forms.ValidationError('1Overlap with "' + r.group + '" on "' + r.date.strftime("%Y-%m-%d") + '" at "' + r.start.strftime("%I:%M%p") + '" "' + r.end.strftime("%I:%M%p") + '".')         
+    # return cleaned_data
 
-    If the ARR[room_id] == the NRR[room_id], and if the ARR's time overlaps with the NRR's time,
-    and if ARR.weekday() == data_date.weekday() ~note: this is needed for 'Term' checks because 'date' only gives first occurence of the RR~
-      then compare the dates of the ARR and NRR. Making note with 'frequency' being 'Once' or 'Term'
+class RoomReservationUpdateForm(RoomReservationForm):
+  # Overwrite the clean method from RoomReservationForm
+  def clean(self):
+    cleaned_data = self.cleaned_data
+    data_date = cleaned_data['date']
+    data_start = cleaned_data['start']
+    data_end = cleaned_data['end']
+    data_room = cleaned_data['room']
+    data_frequency = cleaned_data['frequency']
 
-    We can always assume that NRR is being made today or in the future because of a check above ensuring NRR is never in the past.
+    print ('hi')
 
-    Pseudo-logic for checking the Approved Room Reservations:
+    if not Term.current_term().is_date_within_term(data_date):
+      raise forms.ValidationError("Given date is not a valid date within the term.")
 
-    if ARR['frequency'] == 'Once'
-      if ARR['date'] < data_data, whether NRR is 'Once' or 'Term' having ARR['date'] there will never be an overlap.
-      if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap.
-      if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR would eventually overlap. 'Once' would be ok.
+    if data_start == data_end:
+      raise forms.ValidationError("Given start and end times should not be the same.")
 
-    if ARR['frequency'] == 'Term'
-      if ARR['date'] < data_data, raise an error regardless if NRR is 'Once' or 'Term' because ARR will eventually overlap
-      if ARR['date'] == data_date, raise an error regardless if NRR is 'Once' or 'Term' because they both overlap
-      if ARR['date'] > data_date, raise an error if NRR is 'Term' because NRR will eventually overlap. 'Once' would be ok.
-    """
+    if data_start > data_end:
+      raise forms.ValidationError("Given start time should not be after the end time.")
 
     ApprovedRoomReservations = RoomReservation.objects.filter(status='A', room=data_room) # pull Approved Room Reservations data
     for r in ApprovedRoomReservations:
+      if r == self.instance:
+        print r
+        print self.instance
+        continue
       if r.end > data_start and r.start < data_end and r.date.weekday() == data_date.weekday():
         if r.frequency == 'Once' and r.date < data_date:
           continue
         if r.date > data_date and data_frequency == 'Once':
           continue
+
+        print r.__dict__
         raise forms.ValidationError("Re-check the date of the start and end times. There is an overlap with an already approved room reservation.")
     return cleaned_data
