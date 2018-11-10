@@ -138,7 +138,7 @@ TEMPLATES = [{
             "exams.context_processors.exams_available",
             "interim.context_processors.interim_intentions_available",
             "gospel_trips.context_processors.gospel_trips_available",
-            "exams.context_processors.exams_taken",
+            "gospel_trips.context_processors.teams_available",
             "bible_tracker.context_processors.bible_tracker_forced",
             "announcements.context_processors.class_popup",
 
