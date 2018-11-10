@@ -382,7 +382,7 @@ class Trainee(User):
       start_date = p.start(period)
       end_date = p.end(period)
       startdt = datetime.combine(start_date, datetime.min.time())
-      enddt = datetime.combine(end_date, datetime.min.time())
+      enddt = datetime.combine(end_date, datetime.max.time())
       rolls = rolls.filter(date__gte=start_date, date__lte=end_date)  # rolls for current period
       ind_slips = ind_slips.filter(rolls__in=[d['id'] for d in rolls.values('id')])
       group_slips = group_slips.filter(start__lte=enddt, end__gte=startdt)
