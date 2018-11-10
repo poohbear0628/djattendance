@@ -83,9 +83,9 @@
 
 <dl class="dl-horizontal">
   <dt>Education</dt>
-  <dd><strong>College/University</strong> {{object.college1}} &emsp; <strong>Major</strong> {{object.major1}} &emsp; <strong>Degree</strong> {{object.degree1}}</dd>
+  <dd><strong>College/University:</strong> {{object.college1}} &emsp; <strong>Major:</strong> {{object.major1}} &emsp; <strong>Degree:</strong> {{object.degree1}}</dd>
   {% if object.college2 is not None and object.degree2 is not None and object.major2 is not None %}
-    <dt></dt><dd><strong>College/University</strong> {{object.college2}} &emsp; <strong>Major</strong> {{object.major2}} &emsp; <strong>Degree</strong> {{object.degree2}}</dd>
+    <dt></dt><dd><strong>College/University:</strong> {{object.college2}} &emsp; <strong>Major:</strong> {{object.major2}} &emsp; <strong>Degree:</strong> {{object.degree2}}</dd>
   {% endif %}
 </dl>
 
@@ -96,11 +96,11 @@
 
 <dl class="dl-horizontal">
   <dt>Entered Church Life</dt>
-  <dd><strong>Locality</strong> {{object.first_church}}</dd>
-  <dt></dt><dd><strong>Date</strong> {{object.first_church_date}}</dd>
+  <dd><strong>Locality:</strong> {{object.first_church}}</dd>
+  <dt></dt><dd><strong>Date:</strong> {{object.first_church_date}}</dd>
   {% if object.ftt_location is not None %}
     <dt>Previously Attended</dt>
-    <dd>{{object.ftt_location}} &emsp; <strong>Graduated</strong> {{object.grad_date}}</dd>
+    <dd>{{object.ftt_location}} &emsp; <strong>Graduated:</strong> {{object.grad_date}}</dd>
   {% endif %}
   </dd>
 </dl>
