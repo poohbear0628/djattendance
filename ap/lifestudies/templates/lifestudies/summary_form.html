@@ -32,6 +32,18 @@
         chapterSelect.val(1);
       }
     });
+
+    if ($("#id_submitting_paper_copy").val() == "on") {
+      $("#id_content").prop("disabled", true);
+    }
+
+    $("#id_submitting_paper_copy").on('click', function(ev) {
+      if ($("#id_content").prop("disabled")) {
+        $("#id_content").prop("disabled", false)
+      } else {
+        $("#id_content").prop("disabled", true)
+      }
+    });
   });
   </script>
 {% endblock %}
