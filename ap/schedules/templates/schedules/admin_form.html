@@ -32,11 +32,11 @@
       data: {'roll_ids': JSON.stringify(roll_ids)},
       success: function(response){
         message = response['message']
-        if (response['message'] == "deletion success"){
+        if (response['message'] == "Deletion success"){
           $("#message_delete_rolls").hide()
-          new Notification(Notification.SUCCESS, message + ', click on '+ $("#action").text() +' again').show();
+          new Notification(Notification.SUCCESS, message + '. Click on '+ $("#action").text() +' again.').show();
         }else{
-          new Notification(Notification.ERROR, message + ', contact AP trainees').show();
+          new Notification(Notification.ERROR, message + '. Contact AP trainees.').show();
         }
       }
     });

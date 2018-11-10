@@ -243,9 +243,9 @@ def scheduleCRUD_delete_rolls(request):
   rolls.delete()
   rolls = Roll.objects.filter(id__in=roll_ids)
   if not rolls.exists():
-    return JsonResponse({"message": "deletion success"})
+    return JsonResponse({"message": "Deletion success"})
 
-  return JsonResponse({"message": "deletion failure"})
+  return JsonResponse({"message": "Deletion failure"})
 
 @group_required(['training_assistant', 'attendance_monitors'])
 def split_schedules_view(request, pk, week):

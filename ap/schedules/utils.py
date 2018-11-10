@@ -29,7 +29,7 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
   check1 = new_sch.events.all().count() == 2
   check2 = new_sch.events.filter(class_type='AFTN', monitor='AM').count() == 2
   if not(check1 and check2):
-    return "transfer unsuccessful, problem with new schedule"
+    return "Transfer unsuccessful. Problem with new schedule."
 
   # look for possibly already created schedule for transfer
   # identifies by starting week
@@ -86,7 +86,7 @@ def afternoon_class_transfer(trainee_ids, event_id, start_week):
   rolls.filter(event__weekday=1).update(event=new_sch.events.get(weekday=1))
   rolls.filter(event__weekday=3).update(event=new_sch.events.get(weekday=3))
 
-  return "successfully moved " + all_names + " to " + str(ev.name) + " starting from week " + str(start_week)
+  return "Successfully moved " + all_names + " to " + str(ev.name) + " starting from week " + str(start_week) + "."
 
 # takes the given list of schedules along with trainee_set and weeks and uses the EventUtils method to create an OrderedDict that represents trainee's chedule
 # the same method is used for the backend feed for the personal attendance, that way we keep everything consistent

@@ -165,14 +165,14 @@ class AfternoonClassForm(forms.Form):
 
   event = forms.ChoiceField(
     required=True,
-    label='transfer to'
+    label='Transfer to'
   )
 
   week = forms.IntegerField(
     max_value=18,
     min_value=1,
     required=True,
-    label='starting from week'
+    label='Starting from week'
   )
 
   def __init__(self, *args, **kwargs):
