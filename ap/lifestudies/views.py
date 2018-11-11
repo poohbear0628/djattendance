@@ -6,6 +6,7 @@ from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit_inline
 from attendance.models import Roll
 from attendance.utils import Period
+from books.models import Book
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
@@ -47,6 +48,18 @@ class DisciplineListView(ListView):
       for value in request.POST.getlist('selection'):
         Discipline.objects.get(pk=value).approve_all_summary()
       messages.success(request, "Checked Discipline(s) Approved!")
+    if 'hard_copy_approve' in request.POST:
+      for value in request.POST.getlist('selection'):
+        discipline = Discipline.objects.get(pk=value)
+        for num in range(discipline.quantity):
+          #Create dummy summaries to enable the discipline to be approved
+          gen = Book.objects.get(pk=4)
+          summary = Summary(book=gen, chapter=1)
+          summary.submitting_paper_copy = True
+          summary.discipline = discipline
+          summary.save()
+        discipline.approve_all_summary()
+      messages.success(request, "Checked Life-study(s) Hard-copy Approved!")
     if 'delete' in request.POST:
       for value in request.POST.getlist('selection'):
         Discipline.objects.get(pk=value).delete()
@@ -308,8 +321,6 @@ class AttendanceAssign(ListView):
       t = timeit_inline("summary calculation")
       t.start()
       for trainee in Trainee.objects.all():
-        # print trainee
-        # num_summary += trainee.calculate_summary(period
         num_summary = 0
         num_summary += trainee.calculate_summary(period)
         if num_summary > 0:
