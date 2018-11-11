@@ -33,7 +33,7 @@
       }
     });
 
-    if ($("#id_submitting_paper_copy").val() == "on") {
+    if ($("#id_submitting_paper_copy").prop("checked")) {
       $("#id_content").prop("disabled", true);
     }
 

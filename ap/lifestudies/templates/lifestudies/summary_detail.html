@@ -9,7 +9,7 @@
   <script src="{% static 'lifestudies/js/summary-wordcount.js' %}"></script>
   <script>
     $(document).ready(() => {
-      if ($("#id_submitting_paper_copy").val() == "on") {
+      if ($("#id_submitting_paper_copy").prop("checked")) {
         $("#id_content").prop("disabled", true);
       }
 
