@@ -68,6 +68,7 @@ class InterimIntentionsView(UpdateView):
     ctx['itinerary_forms'] = interim_itineraries_forms
     ctx['interim_start'] = Term.current_term().end + timedelta(days=1)
     ctx['admin'] = admin
+    ctx['interim_last_day'] = admin.term_begin_date - timedelta(days=1)
 
     return ctx
 
