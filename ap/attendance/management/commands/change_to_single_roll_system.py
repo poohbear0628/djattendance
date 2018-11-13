@@ -1,13 +1,11 @@
-from accounts.models import TrainingAssistant
+from accounts.models import TrainingAssistant, User
 from attendance.models import Roll
-from accounts.models import User
 from terms.models import Term
 
 from django.core.management.base import BaseCommand
 
 TAS = list(TrainingAssistant.objects.all())
 AMS = list(User.objects.filter(groups__name="attendance_monitors").exclude(groups__name="training_assistant").exclude(groups__name="dev"))
-
 
 class Command(BaseCommand):
   # to use: python ap/manage.py change_to_single_roll_system
@@ -32,12 +30,12 @@ class Command(BaseCommand):
           dup.submitted_by = trainee
           dup.save()
       else:
-        for dup in duplicates:
-          if dup.submitted_by != dup.trainee and dup.submitted_by in AMS:
-            print "deleting", dup.id, dup.submitted_by
-            dup.delete()
-          if dup.submitted_by != dup.trainee and dup.submitted_by in TAS:
-            print dup.id, dup.submitted_by, dup.trainee
+        trainee_roll = duplicates.filter(submitted_by=trainee)
+        TA_roll = duplicates.filter(submitted_by__in=TAS)
+        AM_roll = duplicates.filter(submitted_by__in=AMS)
+
+        if trainee_roll.count() == 1 and TA_roll.count() == 1 and AM_roll.count() == 0:
+          pass
 
       rolls.pop()
 
