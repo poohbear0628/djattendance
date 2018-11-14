@@ -1,7 +1,6 @@
 from accounts.models import Trainee
 from aputils.widgets import DatetimePicker
 from django import forms
-from django.forms.models import inlineformset_factory
 from houses.models import House
 
 from .models import (HCRecommendation, HCRecommendationAdmin, HCSurvey,
@@ -75,6 +74,3 @@ class HCRecommendationForm(forms.ModelForm):
     widgets = {
       'recommendation': forms.Textarea(attrs={'rows': 3}),
     }
-
-
-HCRecommendationFormSet = inlineformset_factory(HCRecommendationAdmin, HCRecommendation, form=HCRecommendationForm, extra=1)

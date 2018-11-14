@@ -5,13 +5,14 @@ from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
+from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views.generic.edit import DeleteView, UpdateView
 from terms.models import Term
 
-from .forms import (HCRecommendationAdminForm, HCRecommendationForm, HCRecommendationFormSet,
+from .forms import (HCRecommendationAdminForm, HCRecommendationForm,
                     HCSurveyAdminForm, HCSurveyForm, HCTraineeCommentForm)
 from .models import (HCRecommendation, HCRecommendationAdmin, HCSurvey,
                      HCSurveyAdmin, HCTraineeComment, House)
@@ -203,6 +204,10 @@ def submit_hc_survey(request):
 def hc_recommendation_view(request):
   ctx = {}
   hcra = HCRecommendationAdmin.objects.get_or_create(term=Term.current_term())[0]
+  residents = request.user.house.residents.all()
+  hc_ids = [r.id for r in residents if r.has_group(['HC'])]
+  max_num = residents.exclude(id__in=hc_ids).filter(current_term__in=[2, 3]).count()
+  HCRecommendationFormSet = inlineformset_factory(HCRecommendationAdmin, HCRecommendation, form=HCRecommendationForm, extra=1, max_num=max_num, can_delete=False)
   if request.method == 'POST':
     formset = HCRecommendationFormSet(data=request.POST, instance=hcra, form_kwargs={'user': request.user}, queryset=hcra.hcrecommendation_set.filter(house=request.user.house))
     if formset.is_valid():
