@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import DeleteView, UpdateView
 from terms.models import Term
 
-from .forms import (HCRecommendationAdminForm, HCRecommendationForm,
+from .forms import (HCRecommendationAdminForm, HCRecommendationForm, HCRecommendationFormSet,
                     HCSurveyAdminForm, HCSurveyForm, HCTraineeCommentForm)
 from .models import (HCRecommendation, HCRecommendationAdmin, HCSurvey,
                      HCSurveyAdmin, HCTraineeComment, House)
@@ -199,57 +199,29 @@ def submit_hc_survey(request):
     return render(request, 'hc/hc_survey.html', context=ctx)
 
 
-class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
-  model = HCRecommendation
-  template_name = 'hc/hc_recommendation.html'
-  form_class = HCRecommendationForm
-  group_required = ['HC']
-  success_url = reverse_lazy('home')
-  admin_model = HCRecommendationAdmin
-
-  def get_object(self, queryset=None):
-    # get the existing object or created a new one
-    hcra = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
-    obj, created = self.model.objects.get_or_create(house=self.request.user.house, survey_admin=hcra)
-    return obj
-
-  def get_form_kwargs(self):
-    kwargs = super(HCRecommendationCreate, self).get_form_kwargs()
-    kwargs['user'] = self.request.user
-    return kwargs
-
-  def form_valid(self, form):
-    hc_recommendation = form.save(commit=False)
-    hc_recommendation.survey_admin = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
-    hc_recommendation.hc = self.request.user
-    hc_recommendation.house = self.request.user.house
-    hc_recommendation.save()
-    return super(HCRecommendationCreate, self).form_valid(form)
-
-  def get_context_data(self, **kwargs):
-    ctx = super(HCRecommendationCreate, self).get_context_data(**kwargs)
-    ctx['button_label'] = 'Submit'
-    ctx['page_title'] = 'HC Recommendation'
-    ctx['hc'] = Trainee.objects.get(id=self.request.user.id)
-    ctx['house'] = House.objects.get(id=self.request.user.house.id)
-    obj = self.get_object()
-    # if survey is open, but not within time range -> read-only
-    if (datetime.now() > obj.survey_admin.close_time or datetime.now() < obj.survey_admin.open_time) and obj.survey_admin.open_survey:
-      ctx['read_only'] = True
-    return ctx
-
-
-class HCRecommendationUpdate(HCRecommendationCreate, UpdateView):
-  model = HCRecommendation
-  template_name = 'hc/hc_recommendation.html'
-  form_class = HCRecommendationForm
-  success_url = reverse_lazy('home')
-
-  def get_context_data(self, **kwargs):
-    ctx = super(HCRecommendationUpdate, self).get_context_data(**kwargs)
-    ctx['button_label'] = 'Update'
-    ctx['page_title'] = 'Update HC Recommendation'
-    return ctx
+@group_required(['HC'])
+def hc_recommendation_view(request):
+  ctx = {}
+  hcra = HCRecommendationAdmin.objects.get_or_create(term=Term.current_term())[0]
+  if request.method == 'POST':
+    formset = HCRecommendationFormSet(data=request.POST, instance=hcra, form_kwargs={'user': request.user}, queryset=hcra.hcrecommendation_set.filter(house=request.user.house))
+    if formset.is_valid():
+      for form in formset:
+        hc_recommendation = form.save(commit=False)
+        hc_recommendation.survey_admin = hcra
+        hc_recommendation.hc = request.user
+        hc_recommendation.house = request.user.house
+        hc_recommendation.save()
+  elif request.method == "GET":
+    formset = HCRecommendationFormSet(instance=hcra, form_kwargs={'user': request.user}, queryset=hcra.hcrecommendation_set.filter(house=request.user.house))
+  ctx['button_label'] = 'Submit'
+  ctx['page_title'] = 'HC Recommendation'
+  ctx['hc'] = Trainee.objects.get(id=request.user.id)
+  ctx['house'] = House.objects.get(id=request.user.house.id)
+  ctx['formset'] = formset
+  if (datetime.now() > hcra.close_time or datetime.now() < hcra.open_time) and hcra.open_survey:
+    ctx['read_only'] = True
+  return render(request, 'hc/hc_recommendation.html', context=ctx)
 
 
 class HCSurveyTAView(GroupRequiredMixin, TemplateView):

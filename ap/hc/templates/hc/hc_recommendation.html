@@ -29,30 +29,6 @@
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript">
-$(document).ready(() => {
-  const size = $("#id_recommended_hc > option").length - 2;
-
-  $("#add_row").click(() => {
-    let val = $("tr:last").attr('id').split("_").pop();
-
-    if (val < size) {
-      $("tr:last").clone().appendTo("#table");
-      val++;
-      $("tr:last").attr("id","row_" + val);
-    } else {
-      new Notification(Notification.SUCCESS, 'Not enough people').show();
-    }
-  })
-
-
-  $("#delete_row").click(() => {
-    let val = $("tr:last").attr('id').split("_").pop();
-    if (val != 0){
-      $("tr:last").remove();
-    }
-  })
-
-})
 
 {% if read_only %}
   $('#id_hc_recommendation_form *').attr("disabled", true);
@@ -104,22 +80,8 @@ $(document).ready(() => {
 
 <form id="id_hc_recommendation_form" action="" method="post">
   {% csrf_token %}
-  <table class="table table-bordered" id="table">
-    <tr>
-      <th>Name</th>
-      <th>Choice</th>
-      <th>Recommendation</th>
-    </tr>
-    <tr id="row_0">
-      <td>{{form.recommended_hc}}</td>
-      <td>{{form.choice}}</td>
-      <td>{{form.recommendation}}
-      </tr>
-    </table>
-
-    <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
+  {% bootstrap_formset formset %}
+  <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
   </form>
-  <button class="btn btn-primary" id="delete_row">Delete</button>
-  <button class="btn btn-primary" id="add_row">Add</button>
 
 {% endblock %}
