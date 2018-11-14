@@ -238,6 +238,30 @@ class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
       ctx['read_only'] = True
     return ctx
 
+  def post(self, request, *args, **kwargs):
+    survey_admin = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
+
+    form = self.get_form()
+    field_names = form.fields.keys()
+    for i in range(len(request.POST)//len(field_names)):
+      form_data = {}
+      if i == 0:
+        for name in field_names:
+          if name == "recommended_hc":
+            form_data[name] = Trainee.objects.get(id=request.POST.get(name))
+          else:
+            form_data[name] = request.POST.get(name)
+      else:
+        for name in field_names:
+          form_data[name] = request.POST.get(name + "_" + str(i))
+      hcr = HCRecommendation(**form_data)
+      hcr.survey_admin = survey_admin
+      hcr.hc = self.request.user
+      hcr.house = self.request.user.house
+      hcr.save()
+
+    return HttpResponseRedirect('hc/hc_recommendation.html')
+
 
 class HCRecommendationUpdate(HCRecommendationCreate, UpdateView):
   model = HCRecommendation
