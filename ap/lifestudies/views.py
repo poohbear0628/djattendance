@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 
+from ap.forms import TraineeSelectForm
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
 from aputils.utils import timeit_inline
@@ -23,7 +24,7 @@ from rest_framework.decorators import permission_classes
 from teams.models import Team
 from terms.models import Term
 
-from .forms import (EditSummaryForm, HouseDisciplineForm, NewDisciplineForm,
+from .forms import (EditSummaryForm, NewDisciplineForm,
                     NewSummaryForm)
 from .models import Discipline, Summary
 from .permissions import IsOwner
@@ -123,6 +124,35 @@ class DisciplineCreateView(SuccessMessageMixin, CreateView):
   form_class = NewDisciplineForm
   success_url = reverse_lazy('lifestudies:discipline_list')
   success_message = "Discipline Assigned to Single Trainee Successfully!"
+
+  def get_context_data(self, **kwargs):
+    context = super(DisciplineCreateView, self).get_context_data(**kwargs)
+    context['trainee_select_form'] = TraineeSelectForm()
+    return context
+
+def multipleDisciplineCreateView(request):
+  data = request.body
+  list_data = data.split('&')
+  cleaned_data = {}
+  for field in list_data:
+    key_value = field.split('=')
+    key = key_value[0]
+    value = key_value[1]
+    if key != 'trainee':
+      cleaned_data.setdefault(key, request.POST.get(key))
+    else:
+      trainee_ids = cleaned_data.setdefault(key, [])
+      trainee_ids.append(value)
+
+  cleaned_data.pop('csrfmiddlewaretoken')
+  cleaned_data['quantity'] = int(cleaned_data['quantity'])
+  cleaned_data['due'] = datetime.strptime(str(cleaned_data['due']), '%m/%d/%Y %I:%M %p')
+  trainee_ids = cleaned_data.pop('trainee')
+  for t_id in trainee_ids:
+    cleaned_data['trainee'] = Trainee.objects.get(pk=t_id)
+    Discipline.objects.create(**cleaned_data)
+
+  return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
 def post_summary(summary, request):
@@ -237,40 +267,6 @@ class SummaryUpdateView(SuccessMessageMixin, UpdateView):
     return context
 
 
-class CreateHouseDiscipline(TemplateView):
-  template_name = 'lifestudies/discipline_house.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(CreateHouseDiscipline, self).get_context_data(**kwargs)
-    context['form'] = HouseDisciplineForm()
-    return context
-
-  def post(self, request, *args, **kwargs):
-    """this manually creates Disciplines for each house member"""
-    if request.method == 'POST':
-      form = HouseDisciplineForm(request.POST)
-      if form.is_valid():
-        house = House.objects.get(id=request.POST['House'])
-        listTrainee = Trainee.objects.filter(house=house)
-        for trainee in listTrainee:
-          discipline = Discipline(
-            infraction=form.cleaned_data['infraction'],
-            quantity=form.cleaned_data['quantity'],
-            due=form.cleaned_data['due'],
-            offense=form.cleaned_data['offense'],
-            note=form.cleaned_data['note'],
-            trainee=trainee)
-          try:
-            discipline.save()
-          except IntegrityError:
-            transaction.rollback()
-        messages.success(request, "Disciplines Assigned to House!")
-        return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
-    else:
-      form = HouseDisciplineForm()
-    return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
-
-
 class AttendanceAssign(ListView):
   """this view mainly displays trainees, their roll status, and the number
    of summary they are to be assigned. The actual assigning is done by
@@ -280,7 +276,7 @@ class AttendanceAssign(ListView):
   context_object_name = 'trainees'
 
   def get_context_data(self, **kwargs):
-    """this adds outstanding_trainees, a dictionary
+    """this as outstanding_trainees, a dictionary
     {trainee : num_summary} for the template to display the trainees who
     need will have outstanding summaries"""
     context = super(AttendanceAssign, self).get_context_data(**kwargs)
