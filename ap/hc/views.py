@@ -9,12 +9,14 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views.generic.edit import DeleteView, UpdateView
+from rest_framework.renderers import JSONRenderer
 from terms.models import Term
 
 from .forms import (HCRecommendationAdminForm, HCRecommendationForm,
                     HCSurveyAdminForm, HCSurveyForm, HCTraineeCommentForm)
 from .models import (HCRecommendation, HCRecommendationAdmin, HCSurvey,
                      HCSurveyAdmin, HCTraineeComment, House)
+from .serializers import HCRecommendationSerializer
 
 HCSA_FORM = 'hcsa_form'
 HCRA_FORM = 'hcra_form'
@@ -199,7 +201,7 @@ def submit_hc_survey(request):
     return render(request, 'hc/hc_survey.html', context=ctx)
 
 
-class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
+class HCRecommendationCreate(GroupRequiredMixin, TemplateView):
   model = HCRecommendation
   template_name = 'hc/hc_recommendation.html'
   form_class = HCRecommendationForm
@@ -207,36 +209,53 @@ class HCRecommendationCreate(GroupRequiredMixin, UpdateView):
   success_url = reverse_lazy('home')
   admin_model = HCRecommendationAdmin
 
-  def get_object(self, queryset=None):
-    # get the existing object or created a new one
-    hcra = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
-    obj, created = self.model.objects.get_or_create(house=self.request.user.house, survey_admin=hcra)
-    return obj
-
-  def get_form_kwargs(self):
-    kwargs = super(HCRecommendationCreate, self).get_form_kwargs()
-    kwargs['user'] = self.request.user
-    return kwargs
-
-  def form_valid(self, form):
-    hc_recommendation = form.save(commit=False)
-    hc_recommendation.survey_admin = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
-    hc_recommendation.hc = self.request.user
-    hc_recommendation.house = self.request.user.house
-    hc_recommendation.save()
-    return super(HCRecommendationCreate, self).form_valid(form)
-
   def get_context_data(self, **kwargs):
     ctx = super(HCRecommendationCreate, self).get_context_data(**kwargs)
     ctx['button_label'] = 'Submit'
     ctx['page_title'] = 'HC Recommendation'
     ctx['hc'] = Trainee.objects.get(id=self.request.user.id)
     ctx['house'] = House.objects.get(id=self.request.user.house.id)
-    obj = self.get_object()
+    hcrs = HCRecommendation.objects.filter(house=ctx['house'])
+    ctx['hcrs'] = JSONRenderer().render(HCRecommendationSerializer(hcrs, many=True).data)
+    ctx['form'] = HCRecommendationForm(user=self.request.user)
+    survey_admin = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
     # if survey is open, but not within time range -> read-only
-    if (datetime.now() > obj.survey_admin.close_time or datetime.now() < obj.survey_admin.open_time) and obj.survey_admin.open_survey:
+    if (datetime.now() > survey_admin.close_time or datetime.now() < survey_admin.open_time) and survey_admin.open_survey:
       ctx['read_only'] = True
     return ctx
+
+  def post(self, request, *args, **kwargs):
+    survey_admin = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
+
+    field_names = ["recommended_hc", "choice", "recommendation"]
+    for i in range(len(request.POST) // len(field_names)):
+      form_data = {}
+      if i == 0:
+        for name in field_names:
+          if name == "recommended_hc":
+            form_data[name] = Trainee.objects.get(id=request.POST.get(name))
+          else:
+            form_data[name] = request.POST.get(name)
+      else:
+        for name in field_names:
+          if name == "recommended_hc":
+              form_data[name] = Trainee.objects.get(id=request.POST.get(name + "_" + str(i)))
+          else:
+            form_data[name] = request.POST.get(name + "_" + str(i))
+
+      check_existing = HCRecommendation.objects.filter(recommended_hc=form_data["recommended_hc"])
+      if check_existing.count() != 0:
+        # if existing then delete and make new ones, don't bother editing
+        # not the safest thing in the world but this is a low risk module so yeah.
+        check_existing.delete()
+
+      hcr = HCRecommendation(**form_data)
+      hcr.survey_admin = survey_admin
+      hcr.hc = self.request.user
+      hcr.house = self.request.user.house
+      hcr.save()
+
+    return HttpResponseRedirect(reverse_lazy('hc:hc-recommendation'))
 
 
 class HCRecommendationUpdate(HCRecommendationCreate, UpdateView):
@@ -283,6 +302,6 @@ class HCRecommendationTAView(GroupRequiredMixin, TemplateView):
   def get_context_data(self, **kwargs):
     context = super(HCRecommendationTAView, self).get_context_data(**kwargs)
     hcra = HCRecommendationAdmin.objects.filter(term=Term.current_term())
-    context['hc_recommendations'] = HCRecommendation.objects.filter(survey_admin=hcra)
+    context['hc_recommendations'] = HCRecommendation.objects.filter(survey_admin=hcra).exclude(house__gender='C').order_by('house__gender', 'house__name')
     context['page_title'] = "HC Recommendations Report"
     return context

@@ -40,7 +40,7 @@ class NewSummaryForm(forms.ModelForm):
 
   class Meta:
     model = Summary
-    exclude = ('approved', 'discipline', 'deleted', 'fellowship', 'hard_copy')
+    exclude = ('approved', 'discipline', 'deleted', 'fellowship')
     widgets = {'minimum_words': forms.HiddenInput()}
 
   def __init__(self, *args, **kwargs):
@@ -58,6 +58,7 @@ class NewSummaryForm(forms.ModelForm):
         self.initial['chapter'] = int(chpt) + 1
 
     self.fields['book'].queryset = Book.objects.all().order_by('id')
+    self.fields['content'].required = False
 
   def save(self, commit=True):
     summary = super(NewSummaryForm, self).save(commit=False)
@@ -75,7 +76,7 @@ class EditSummaryForm(forms.ModelForm):
 
   class Meta:
     model = Summary
-    exclude = ('book', 'chapter', 'discipline', 'approved', 'deleted', 'fellowship', 'hard_copy')
+    exclude = ('book', 'chapter', 'discipline', 'approved', 'deleted', 'fellowship')
     widgets = {'minimum_words': forms.HiddenInput()}
 
   def save(self, commit=True):
