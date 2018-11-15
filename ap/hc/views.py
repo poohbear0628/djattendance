@@ -230,7 +230,7 @@ class HCRecommendationCreate(GroupRequiredMixin, TemplateView):
     survey_admin = self.admin_model.objects.get_or_create(term=Term.current_term())[0]
 
     field_names = ["recommended_hc", "choice", "recommendation"]
-    for i in range(len(request.POST)//len(field_names)):
+    for i in range(len(request.POST) // len(field_names)):
       form_data = {}
       if i == 0:
         for name in field_names:
@@ -257,7 +257,7 @@ class HCRecommendationCreate(GroupRequiredMixin, TemplateView):
       hcr.house = self.request.user.house
       hcr.save()
 
-    return HttpResponseRedirect('/')
+    return HttpResponseRedirect(reverse_lazy('hc:hc-recommendation'))
 
 
 class HCRecommendationUpdate(HCRecommendationCreate, UpdateView):
