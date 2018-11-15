@@ -1,17 +1,15 @@
 from datetime import datetime
 
+from accounts.models import Trainee
+from aputils.decorators import group_required
 from braces.views import GroupRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.forms.models import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views.generic.edit import DeleteView, UpdateView
 from rest_framework.renderers import JSONRenderer
-
-from accounts.models import Trainee
-from aputils.decorators import group_required
 from terms.models import Term
 
 from .forms import (HCRecommendationAdminForm, HCRecommendationForm,

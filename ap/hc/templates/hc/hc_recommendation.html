@@ -13,11 +13,6 @@
     float: left;
   }
 
-  #delete_row{
-    display: inline-block;
-    float: right;
-  }
-
   #add_row{
     display: inline-block;
     float: right;
@@ -76,13 +71,7 @@ $(document).ready(() => {
     addRow(NULL_HCR);
   });
 
-  $("#delete_row").click(() => {
-    let val = $("tr:last").attr('id').split("_").pop();
-    if (val != 0){
-      $("tr:last").remove();
-    }
-  });
-})
+});
 
 {% if read_only %}
   $('#id_hc_recommendation_form *').attr("disabled", true);
@@ -149,7 +138,6 @@ $(document).ready(() => {
 
     <button type="submit" class="btn btn-primary btn-save" id="submit">{{button_label|safe}}</button>
   </form>
-  <button class="btn btn-primary" id="delete_row">Delete</button>
   <button class="btn btn-primary" id="add_row">Add</button>
 
 {% endblock %}
