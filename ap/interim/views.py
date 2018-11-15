@@ -1,16 +1,16 @@
-from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView
+from datetime import datetime, timedelta
 
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
-from interim.models import InterimIntentions, InterimItinerary, InterimIntentionsAdmin
-from interim.forms import InterimIntentionsForm, InterimItineraryForm, InterimIntentionsAdminForm
-from terms.models import Term
-
 from braces.views import GroupRequiredMixin
-
 from dateutil import parser
-from datetime import datetime, timedelta
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import UpdateView
+from interim.forms import (InterimIntentionsAdminForm, InterimIntentionsForm,
+                           InterimItineraryForm)
+from interim.models import (InterimIntentions, InterimIntentionsAdmin,
+                            InterimItinerary)
+from terms.models import Term
 
 
 class InterimIntentionsView(UpdateView):
@@ -73,7 +73,7 @@ class InterimIntentionsView(UpdateView):
     return ctx
 
 
-class InterimIntentionsAdminView(UpdateView, GroupRequiredMixin):
+class InterimIntentionsAdminView(GroupRequiredMixin, UpdateView):
   model = InterimIntentionsAdmin
   form_class = InterimIntentionsAdminForm
   template_name = 'interim/interim_intentions_admin.html'
@@ -149,6 +149,7 @@ class InterimIntentionsTAView(TemplateView, GroupRequiredMixin):
     ctx['trainees'] = trainees
     ctx['page_title'] = 'Interim Intentions Report'
     return ctx
+
 
 class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
   template_name = 'interim/interim_intentions_calendar_view.html'
