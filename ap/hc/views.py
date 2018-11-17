@@ -306,8 +306,7 @@ class HCRecommendationTAView(GroupRequiredMixin, TemplateView):
     hc_recommendations = []
     for h in houses:
       hcrs = HCRecommendation.objects.filter(survey_admin=hcra, house=h)
-      # hc_ids = [r.id for r in h.residents if r.has_group(['HC'])]
-      expected = h.residents.exclude(groups__name=['HC']).filter(current_term__in=[2, 3]).count()
+      expected = h.residents.exclude(groups__name='HC').filter(current_term__in=[2, 3]).count()
       hc_recommendations.append({
         'house': h,
         'hcrs': hcrs,
