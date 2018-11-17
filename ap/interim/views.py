@@ -1,16 +1,16 @@
-from django.views.generic.base import TemplateView
-from django.views.generic.edit import UpdateView
+from datetime import datetime, timedelta
 
 from accounts.models import Trainee
 from aputils.trainee_utils import trainee_from_user
-from interim.models import InterimIntentions, InterimItinerary, InterimIntentionsAdmin
-from interim.forms import InterimIntentionsForm, InterimItineraryForm, InterimIntentionsAdminForm
-from terms.models import Term
-
 from braces.views import GroupRequiredMixin
-
 from dateutil import parser
-from datetime import datetime, timedelta
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import UpdateView
+from interim.forms import (InterimIntentionsAdminForm, InterimIntentionsForm,
+                           InterimItineraryForm)
+from interim.models import (InterimIntentions, InterimIntentionsAdmin,
+                            InterimItinerary)
+from terms.models import Term
 
 
 class InterimIntentionsView(UpdateView):
@@ -68,11 +68,12 @@ class InterimIntentionsView(UpdateView):
     ctx['itinerary_forms'] = interim_itineraries_forms
     ctx['interim_start'] = Term.current_term().end + timedelta(days=1)
     ctx['admin'] = admin
+    ctx['interim_last_day'] = admin.term_begin_date - timedelta(days=1)
 
     return ctx
 
 
-class InterimIntentionsAdminView(UpdateView, GroupRequiredMixin):
+class InterimIntentionsAdminView(GroupRequiredMixin, UpdateView):
   model = InterimIntentionsAdmin
   form_class = InterimIntentionsAdminForm
   template_name = 'interim/interim_intentions_admin.html'
@@ -147,4 +148,32 @@ class InterimIntentionsTAView(TemplateView, GroupRequiredMixin):
 
     ctx['trainees'] = trainees
     ctx['page_title'] = 'Interim Intentions Report'
+    return ctx
+
+
+class InterimIntentionsCalendarView(TemplateView, GroupRequiredMixin):
+  template_name = 'interim/interim_intentions_calendar_view.html'
+  group_required = ['training_assistant']
+
+  def get_context_data(self, **kwargs):
+    ctx = super(InterimIntentionsCalendarView, self).get_context_data(**kwargs)
+    term = Term.current_term()
+
+    interim_start = term.end + timedelta(days=1)
+    if InterimIntentionsAdmin.objects.get(term=term).term_begin_date is None:
+      interim_end = interim_start + timedelta(days=1)
+      ctx['subtitle'] = "Please enter the starting date for next term."
+    else:
+      interim_end = InterimIntentionsAdmin.objects.get(term=term).term_begin_date
+
+    ctx['interim_length'] = (interim_end - interim_start).days
+    ctx['date_list'] = [interim_start + timedelta(days=x) for x in range(0, ctx['interim_length'])]
+
+    ctx['trainees'] = Trainee.objects.values('firstname', 'lastname', 'id')
+
+    for t in ctx['trainees']:
+      t['name'] = unicode(t['firstname'] + ' ' + t['lastname'])
+      t['intention'] = InterimIntentions.objects.filter(trainee__id=t['id'], admin__term=term).first()
+
+    ctx['page_title'] = 'Interim Calendar Report'
     return ctx
