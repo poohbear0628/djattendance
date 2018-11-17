@@ -5,8 +5,6 @@ from terms.models import Term
 ROLL_STATUS = (
     ('P', 'Present'),
     ('S', 'Service'),
-    ('I', 'Illness'),
-    ('F', 'Fellowship'),
     ('A', 'Absent')
 )
 
