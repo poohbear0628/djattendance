@@ -35,7 +35,21 @@ class Command(BaseCommand):
         AM_roll = duplicates.filter(submitted_by__in=AMS)
 
         if trainee_roll.count() == 1 and TA_roll.count() == 1 and AM_roll.count() == 0:
-          pass
+          if TA_roll[0].last_modified >= trainee_roll[0].last_modified:
+            print "Deleting:", trainee_roll[0].id, trainee_roll[0].submitted_by, trainee_roll[0].trainee
+            trainee_roll.delete()
+          else:
+            print "Deleting:", TA_roll[0].id, TA_roll[0].submitted_by, TA_roll[0].trainee
+            TA_roll.delete()
+        elif (trainee_roll.count() == 1 and TA_roll.count() == 0 and AM_roll.count() == 1) or \
+              (trainee_roll.count() == 0 and TA_roll.count() == 1 and AM_roll.count() == 1):
+          print "Deleting:", AM_roll[0].id, AM_roll[0].submitted_by, AM_roll[0].trainee
+          AM_roll.delete()
+        elif trainee_roll.count() == 1 and TA_roll.count() == 1 and AM_roll.count() == 1:
+          print "Check the rolls related to:", trainee_roll[0].event
+        else:
+          #there should only be one of each max
+          print "Check the rolls related to:", trainee_roll[0].event
 
       rolls.pop()
 
