@@ -741,7 +741,7 @@ class DesignatedServiceAdderViewer(FormView):
     else:
       return reverse('services:services_view')
 
-  def form_valid(self, form):    
+  def form_valid(self, form):
     if form.is_valid():
       form.save()
     return redirect('services:services_view')

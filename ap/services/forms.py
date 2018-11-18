@@ -152,12 +152,11 @@ class ServiceForm(forms.ModelForm):
     label='Services',
     queryset=Service.objects.filter(designated=True),
     required=True
-    )    
+    )
   def save(self, commit=True):
     designated_service_cleaned = self.cleaned_data['designated_service']
     worker_cleaned = self.cleaned_data['workers']
     workergroup = designated_service_cleaned.worker_groups.all().first()
-    #worker = Worker.objects.get(trainee=worker_cleaned)
     print worker_cleaned
     # loop to extract
     for worker in worker_cleaned:
