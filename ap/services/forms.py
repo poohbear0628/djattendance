@@ -7,7 +7,7 @@ from aputils.custom_fields import CSIMultipleChoiceField
 from aputils.queryfilter import QueryFilterService
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
-from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
+from django_select2.forms import ModelSelect2Widget
 
 
 # This is written to improve query performance on admin backend
@@ -152,8 +152,7 @@ class ServiceForm(forms.ModelForm):
     label='Services',
     queryset=Service.objects.filter(designated=True),
     required=True
-    )
-    
+    )    
   def save(self, commit=True):
     designated_service_cleaned = self.cleaned_data['designated_service']
     worker_cleaned = self.cleaned_data['workers']

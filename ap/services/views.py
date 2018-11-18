@@ -734,15 +734,14 @@ class DesignatedServiceAdderViewer(FormView):
   template_name = 'services/add_trainee_service_form.html'
   form_class = ServiceForm
 
-  def get_success_url(self, form):
+  def get_success_url(self):
     if 'trainee_id' in self.kwargs:
       trainee_id = self.kwargs['trainee_id']
       return reverse('services:add_trainee_service_form', kwargs={'trainee_id': trainee_id})
-    else:      
+    else:
       return reverse('services:services_view')
 
-  def form_valid(self, form):
-    trainees = form.cleaned_data.get('workers')
+  def form_valid(self, form):    
     if form.is_valid():
       form.save()
     return redirect('services:services_view')
