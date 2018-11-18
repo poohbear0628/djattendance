@@ -28,7 +28,12 @@
     {% if discipline.infraction == 'MS' %}
     Missed Service: {{discipline.missed_service}}<br>
     {% endif %}
-    Summaries Due: <strong>{{discipline.get_num_summary_due}}</strong>
+    Summaries Due: <strong>{{discipline.get_num_summary_due}}</strong><br>
+    <form action="" method="post">
+        {% csrf_token %}
+        <label for="penalty_num">Offense Type:</label>
+        <strong><input name="penalty_num" value="{{discipline.offense}}"></strong>
+      </form>
   <p>
 
   {% for summary in discipline.summary_set.all %}
