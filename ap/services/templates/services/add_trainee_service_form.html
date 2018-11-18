@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+
+{% block scripts %}
+{{ form.media }}
+<script type="text/javascript">
+  	$(document).ready(() => {
+		$(".select-fk").select2({width: '100%'});
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>{{page_title}}</h1>
+<form method="POST" action="">	
+	{% csrf_token %}
+	<div> 
+		<h5>Designated Service:</h5>
+		{{ form.designated_service }}
+	</div>
+
+	<div>
+		<h5>Trainee</h5>
+		{{form.workers}}
+	</div>
+		{{ form.errors }}
+		{{ form.non_field_errors }}
+	<div>
+		<br/>
+		<input type="submit" value="Save">
+	</div>
+</form>
+{% endblock %}

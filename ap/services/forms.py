@@ -7,7 +7,7 @@ from aputils.custom_fields import CSIMultipleChoiceField
 from aputils.queryfilter import QueryFilterService
 from accounts.models import Trainee
 from accounts.widgets import TraineeSelect2MultipleInput
-from django_select2.forms import ModelSelect2Widget
+from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
 
 
 # This is written to improve query performance on admin backend
@@ -145,3 +145,30 @@ class ServiceCategoryAnalyzerForm(forms.Form):
       search_fields=['name__icontains'],
     ),
   )
+
+class ServiceForm(forms.ModelForm):
+  #Add trainees to services and set them into groups
+  designated_service = forms.ModelChoiceField(
+    label='Services',
+    queryset=Service.objects.filter(designated=True),
+    required=True
+    )
+    
+  def save(self, commit=True):
+    designated_service_cleaned = self.cleaned_data['designated_service']
+    worker_cleaned = self.cleaned_data['workers']
+    workergroup = designated_service_cleaned.worker_groups.all().first()
+    #worker = Worker.objects.get(trainee=worker_cleaned)
+    print worker_cleaned
+    # loop to extract
+    for worker in worker_cleaned:
+      workergroup.workers.add(worker)
+  
+  def __init__(self, *args, **kwargs):
+    super(ServiceForm, self).__init__(*args, **kwargs)
+    self.fields['designated_service'].widget.attrs['class'] = 'select-fk'
+    self.fields['workers'].widget.attrs['class'] = 'select-fk'
+
+  class Meta:
+    model = WorkerGroup
+    fields = ['designated_service', 'workers']
