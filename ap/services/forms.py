@@ -161,7 +161,7 @@ class ServiceForm(forms.ModelForm):
     # loop to extract
     for worker in worker_cleaned:
       workergroup.workers.add(worker)
-  
+
   def __init__(self, *args, **kwargs):
     super(ServiceForm, self).__init__(*args, **kwargs)
     self.fields['designated_service'].widget.attrs['class'] = 'select-fk'
