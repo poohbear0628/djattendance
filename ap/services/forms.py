@@ -146,21 +146,20 @@ class ServiceCategoryAnalyzerForm(forms.Form):
     ),
   )
 
+
 class ServiceForm(forms.ModelForm):
-  #Add trainees to services and set them into groups
+  # Add trainees to services and set them into groups
   designated_service = forms.ModelChoiceField(
     label='Services',
     queryset=Service.objects.filter(designated=True),
     required=True
-    )
+  )
+
   def save(self, commit=True):
     designated_service_cleaned = self.cleaned_data['designated_service']
     worker_cleaned = self.cleaned_data['workers']
     workergroup = designated_service_cleaned.worker_groups.all().first()
-    print worker_cleaned
-    # loop to extract
-    for worker in worker_cleaned:
-      workergroup.workers.add(worker)
+    workergroup.workers.add(*list(worker_cleaned))
 
   def __init__(self, *args, **kwargs):
     super(ServiceForm, self).__init__(*args, **kwargs)

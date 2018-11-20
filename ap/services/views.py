@@ -21,8 +21,8 @@ from rest_framework_bulk import BulkModelViewSet
 from terms.models import FIRST_WEEK, LAST_WEEK, Term
 
 from .forms import (AddExceptionForm, ServiceAttendanceForm,
-                    ServiceCategoryAnalyzerForm, ServiceRollForm,
-                    SingleTraineeServicesForm, ServiceForm)
+                    ServiceCategoryAnalyzerForm, ServiceForm, ServiceRollForm,
+                    SingleTraineeServicesForm)
 from .models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
                      Service, ServiceAttendance, ServiceException, ServiceRoll,
                      ServiceSlot, WeekSchedule, Worker)
@@ -735,38 +735,14 @@ class DesignatedServiceAdderViewer(FormView):
   form_class = ServiceForm
 
   def get_success_url(self):
-    if 'trainee_id' in self.kwargs:
-      trainee_id = self.kwargs['trainee_id']
-      return reverse('services:add_trainee_service_form', kwargs={'trainee_id': trainee_id})
-    else:
-      return reverse('services:services_view')
+    return reverse('services:add_trainee_service_form')
 
   def form_valid(self, form):
     if form.is_valid():
       form.save()
     return redirect('services:services_view')
 
-  def get_initial(self):
-    """
-    Returns the initial data to use for forms on this view.
-    """
-    initial = super(DesignatedServiceAdderViewer, self).get_initial()
-
-    trainee_id = self.kwargs.get('trainee_id', None)
-    if trainee_id:
-      initial['trainee_id'] = Trainee.objects.get(id=trainee_id)
-    else:
-      initial['trainee_id'] = Trainee.objects.filter(is_active=True).first()
-    return initial
-
   def get_context_data(self, **kwargs):
-    trainee_id = self.kwargs.get('trainee_id', None)
-    if trainee_id:
-      trainee = Trainee.objects.get(id=trainee_id)
-    else:
-      trainee = Trainee.objects.filter(is_active=True).first()
     context = super(DesignatedServiceAdderViewer, self).get_context_data(**kwargs)
     context['page_title'] = "Add Trainees to Designated Service"
-    context['trainee'] = trainee
-
     return context
