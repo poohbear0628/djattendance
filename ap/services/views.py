@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from accounts.models import Trainee
 from aputils.decorators import group_required
@@ -21,7 +21,7 @@ from rest_framework_bulk import BulkModelViewSet
 from terms.models import FIRST_WEEK, LAST_WEEK, Term
 
 from .forms import (AddExceptionForm, ServiceAttendanceForm,
-                    ServiceCategoryAnalyzerForm, ServiceRollForm,
+                    ServiceCategoryAnalyzerForm, ServiceForm, ServiceRollForm,
                     SingleTraineeServicesForm)
 from .models import (Assignment, Category, Prefetch, SeasonalServiceSchedule,
                      Service, ServiceAttendance, ServiceException, ServiceRoll,
@@ -730,4 +730,32 @@ class ServiceCategoryCountsViewer(FormView):
 
     context['count_list'] = count_list
 
+    return context
+
+
+class DesignatedServiceAdderViewer(FormView):
+  template_name = 'services/add_trainee_service_form.html'
+  form_class = ServiceForm
+
+  def get_success_url(self):
+    return reverse('services:services_form')
+
+  def form_valid(self, form):
+    if form.is_valid():
+      form.save()
+      workers = form.cleaned_data.get('workers')
+      service = form.cleaned_data.get('designated_service')
+      ct = Term.current_term()
+      start = datetime.now()
+      end = start + timedelta(hours=1)
+      for worker in workers:
+        for week in range(0, ct.term_week_of_date(date.today())):
+          sa, created = ServiceAttendance.objects.get_or_create(worker=worker, designated_service=service, term=ct, week=week)
+          if created:
+            ServiceRoll.objects.get_or_create(service_attendance=sa, start_datetime=start, end_datetime=end)
+    return super(DesignatedServiceAdderViewer, self).form_valid(form)
+
+  def get_context_data(self, **kwargs):
+    context = super(DesignatedServiceAdderViewer, self).get_context_data(**kwargs)
+    context['page_title'] = "Add Trainees to Designated Service"
     return context
