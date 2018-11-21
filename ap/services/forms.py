@@ -147,25 +147,27 @@ class ServiceCategoryAnalyzerForm(forms.Form):
   )
 
 
-class ServiceForm(forms.ModelForm):
+class ServiceForm(forms.Form):
   # Add trainees to services and set them into groups
   designated_service = forms.ModelChoiceField(
     label='Services',
-    queryset=Service.objects.filter(designated=True),
+    queryset=Service.objects.filter(designated=True).exclude(name__contains='Prep'),
+    required=True
+  )
+
+  workers = forms.ModelMultipleChoiceField(
+    label='Trainees',
+    queryset=Worker.objects.all(),
     required=True
   )
 
   def save(self, commit=True):
     designated_service_cleaned = self.cleaned_data['designated_service']
-    worker_cleaned = self.cleaned_data['workers']
+    workers_cleaned = self.cleaned_data['workers']
     workergroup = designated_service_cleaned.worker_groups.all().first()
-    workergroup.workers.add(*list(worker_cleaned))
+    workergroup.workers.add(*list(workers_cleaned))
 
   def __init__(self, *args, **kwargs):
     super(ServiceForm, self).__init__(*args, **kwargs)
     self.fields['designated_service'].widget.attrs['class'] = 'select-fk'
     self.fields['workers'].widget.attrs['class'] = 'select-fk'
-
-  class Meta:
-    model = WorkerGroup
-    fields = ['designated_service', 'workers']
