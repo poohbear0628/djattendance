@@ -22,6 +22,7 @@ class DesignatedServiceHoursMiddleware(MiddlewareMixin):
     if request.path not in url_list:
       unfinalizedService = unfinalized_service(request.user)
       if unfinalizedService and not settings.DEBUG:
-        return HttpResponseRedirect(reverse('services:designated_service_hours') + '/'
-        	+ str(unfinalizedService[0]) + '/' + str(unfinalizedService[1]))
+        return HttpResponseRedirect(
+            reverse('services:designated_service_hours') + '/' + str(unfinalizedService[0]) + '/' + str(unfinalizedService[1])
+        )
     return None
