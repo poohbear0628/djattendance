@@ -44,10 +44,7 @@ class ServiceAttendanceForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     worker = kwargs.pop('worker')
     super(ServiceAttendanceForm, self).__init__(*args, **kwargs)
-    service_ids = []
-    for assignment in worker.assignments.all().filter(service__designated=True).exclude(service__name__contains='Breakfast'):
-      service_ids.append(assignment.service.id)
-    self.fields['designated_service'].queryset = Service.objects.filter(id__in=service_ids)
+    self.fields['designated_service'].queryset = worker.designated.all()
     self.fields['designated_service'].required = True
     self.fields['week'].required = False
 
@@ -176,8 +173,15 @@ class ServiceForm(forms.Form):
     designated_service_cleaned = self.cleaned_data['designated_service']
     workers_cleaned = self.cleaned_data['workers']
     groups_cleaned = self.cleaned_data['groups']
+
+    # add to worke group, designated services should have only one worker group
     workergroup = designated_service_cleaned.worker_groups.all().first()
     workergroup.workers.add(*list(workers_cleaned))
+
+    # add service to workers
+    for w in workers_cleaned:
+      w.designated.add(designated_service_cleaned)
+
     for group in groups_cleaned:
       group.user_set.add(*list(Trainee.objects.filter(worker__in=workers_cleaned)))
 

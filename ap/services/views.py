@@ -357,16 +357,13 @@ class ServiceHours(UpdateView):
     term = Term.current_term()
     worker = trainee_from_user(self.request.user).worker
     self.designated_assignments = worker.assignments.all().filter(service__designated=True).exclude(service__name__icontains="Breakfast")
-    if 'week' in self.kwargs.keys():
-      self.week = self.kwargs['week']
-    else:
+    self.week = self.kwargs.get('week', None)
+    self.service_id = self.kwargs.get('service_id', None)
+    if not self.week:
       self.week = term.term_week_of_date(datetime.now().date())
 
-    # get service
-    if 'sevice_id' in self.kwargs.keys():
-      self.service_id = self.kwargs['service_id']
-    else:
-      self.service_id = self.designated_assignments[0].service.id
+    if not self.service_id:
+      self.service_id = self.designated_assignments.first().service.id
 
     self.service = Service.objects.get(id=self.service_id)
 
@@ -382,14 +379,8 @@ class ServiceHours(UpdateView):
   def dispatch(self, request, *args, **kwargs):
     if request.method == 'GET':
       kwarg_keys = self.kwargs.keys()
-      if 'week' in kwarg_keys and 'service_id' in kwarg_keys:
-        self.kwargs['week']
-        self.kwargs['service_id']
-      else:
-        try:
-          self.get_object()
-        except IndexError:
-          return redirect('home')
+      if ('week' not in kwarg_keys) or ('service_id' not in kwarg_keys):
+        self.get_object()  # gives values to self.service_id, self.week
         return redirect(reverse('services:designated_service_hours', kwargs={'service_id': self.service_id, 'week': self.week}))
     return super(ServiceHours, self).dispatch(request, *args, **kwargs)
 

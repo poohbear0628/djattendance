@@ -9,6 +9,7 @@ from hc.utils import hc_surveys, hc_recommendations
 from semi.utils import semi_form_available
 from services.utils import has_designated_service
 
+
 # Type Declarations
 def SubMenuItem(name, permission=None, url='#', condition=True):
   return namedtuple('SubMenuItem', 'name permission url condition')(name=name, permission=permission, url=url, condition=condition)
