@@ -1,23 +1,71 @@
-{% extends 'requests/request_form.html' %}
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+{% bootstrap_messages %}
 
-{% block extra_form_elements %}
-<hr>
-<div class="alert alert-warning">
-  <p>Please note that routine maintenance requests are usually serviced on Saturdays.</p>
-  <p>
-    For an emergency, please call:
-    <ul>
-      <li>John Blatz (714) 493-0037</li>
-      <li>Solomon Leung (714) 863-5082</li>
-      <li>Vu Tran (714) 270-3064</li>
-    </ul>
-  </p>
-</div>
+{% block title %}{{ view.model|model_verbose_name|title }} Form{% endblock %}
+
+{% block references %}
+<style type="text/css">
+  .grid {
+    display: grid;
+    grid-template-columns: 270px 120px 525px;
+    grid-template-rows: 30px repeat(3, 40px 40px 10px);
+    grid-template-areas:
+      ". . ."
+      "question1 . ldescription"
+      "input1 . description"
+      ". . description"
+      "question2 . description"
+      "input2 . description"
+      ". . description"
+      "question3 . description"
+      "input3 . description";
+    align-items: center
+  }
+
+  label[for=id_house] {
+    grid-area: question1;
+  }
+
+  #id_house {
+    grid-area: input1;
+  }
+
+  label[for=id_description] {
+    grid-area: ldescription;
+  }
+
+  #id_description {
+    grid-area: description;
+  }
+
+  label[for=id_room] {
+    grid-area: question2;
+  }
+
+  #id_room {
+    grid-area: input2;
+  }
+
+  label[for=id_request_type] {
+    grid-area: question3;
+  }
+
+  #id_request_type {
+    grid-area: input3;
+  }
+</style>
 {% endblock %}
 
 {% block scripts %}
-  {{ block.super }}
-<script>
+  {{ form.media }}
+  <script type="text/javascript">
+  $(document).ready(() => {
+    $(".select-fk").select2({width: '100%'});
+  });
+
   var rooms = {{ rooms|safe }};
   $(document).ready(() => {
     let room_elem = $('#id_room');
@@ -38,5 +86,65 @@
       }
     });
   });
+
 </script>
+{% endblock %}
+
+{% block content %}
+  <h2>{{ view.model|model_verbose_name|title}} Form</h2>
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#maintenance-request" aria-controls="home" role="tab" data-toggle="tab">Request</a></li>
+    <li role="presentation"><a href="#maintenance-request-history" aria-controls="profile" role="tab" data-toggle="tab">History</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <div id="maintenance-request" class="tab-pane active" role="tabpanel" >
+      <div class="request-form">
+        <form action="" method="post">
+          {% csrf_token %}
+
+          <div class="grid">
+            <label for="{{ form.house.id_for_label }}">Location</label>
+            {{ form.house }}
+
+            <label for="{{ form.room.id_for_label }}">Room</label>
+            {{ form.room }}
+
+            <label for="{{ form.request_type.id_for_label }}">Type</label>
+            {{ form.request_type }}
+
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+          </div>
+
+          {% buttons %}
+            {% if not read_only %}
+            <button type="submit" class="btn btn-primary">
+              Submit
+            </button>
+            {% endif%}
+          {% endbuttons %}
+        </form>
+      </div>
+
+      <div class="alert alert-warning">
+        <p>Please note that routine maintenance requests are usually serviced on Saturdays.</p>
+        <p>
+          For an emergency, please call:
+          <ul>
+            <li>John Blatz (714) 493-0037</li>
+            <li>Solomon Leung (714) 863-5082</li>
+            <li>Vu Tran (714) 270-3064</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+
+    <div id="maintenance-request-history" class="tab-pane" role="tabpanel" >
+      Test
+    </div>
+  </div>
+
 {% endblock %}

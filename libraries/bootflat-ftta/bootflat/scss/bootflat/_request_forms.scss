@@ -1,0 +1,12 @@
+// Variables
+//------------------------------------------------------
+
+// Exports
+//------------------------------------------------------
+
+@include exports("request_forms") {
+	.request-form label {
+		color: $blue-light;
+		text-transform: uppercase;
+	}
+}

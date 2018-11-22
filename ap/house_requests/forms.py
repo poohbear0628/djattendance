@@ -26,8 +26,6 @@ class MaintenanceRequestForm(forms.ModelForm):
       self.fields['house'].queryset = House.objects.filter(name__in=('MCC', 'TC'))
 
 
-
-
 class FramingRequestForm(forms.ModelForm):
   class Meta:
     model = FramingRequest
