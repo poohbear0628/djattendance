@@ -58,6 +58,26 @@
     <button class="btn btn-primary btn-save" type="submit">Submit</button>
   </form>
 </div>
+
+<div class="panel">
+    <strong>Unassigned Trainees</strong>
+    <table class="table table-bordered" id="trainee_table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Locality</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trainee in unassigned %}
+        <tr>
+          <td>{{trainee.full_name}}</td>
+          <td>{{trainee.locality.city.name}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
 {% endif %}
 
 {% endblock %}
