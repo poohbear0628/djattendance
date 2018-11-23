@@ -29,7 +29,7 @@
     Missed Service: {{discipline.missed_service}}<br>
     {% endif %}
     Summaries Due: <strong>{{discipline.get_num_summary_due}}</strong><br>
-    <form name="change_offense" action="" method="post">
+    <form action="" method="post">
         {% csrf_token %}
         <label for="offense_type">Offense Type:</label>
         <strong>
