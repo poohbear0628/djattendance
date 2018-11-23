@@ -29,10 +29,15 @@
     Missed Service: {{discipline.missed_service}}<br>
     {% endif %}
     Summaries Due: <strong>{{discipline.get_num_summary_due}}</strong><br>
-    <form action="" method="post">
+    <form name="change_offense" action="" method="post">
         {% csrf_token %}
-        <label for="penalty_num">Offense Type:</label>
-        <strong><input name="penalty_num" value="{{discipline.offense}}"></strong>
+        <label for="offense_type">Offense Type:</label>
+        <strong>
+          <select name="offense_type" onChange="form.submit();"> 
+            <option value="RO" {% if discipline.offense == "RO" %} selected="selected" {% endif %}> Regular Offense </option>
+            <option value="MO" {% if discipline.offense == "MO" %} selected="selected" {% endif %}> Monday Offense </option>
+          </select>
+        </strong>
       </form>
   <p>
 

@@ -185,11 +185,15 @@ class DisciplineDetailView(DetailView):
       if 'decrease_penalty' in request.POST:
         self.get_object().decrease_penalty(penalty_num)
         messages.success(request, "Decreased summary by x")
-
       if 'increase_penalty' in request.POST:
         self.get_object().increase_penalty(penalty_num)
         messages.success(request, "Increased Summary by x")
-
+    if 'offense_type' in request.POST:
+      d = self.get_object()
+      d.offense = request.POST['offense_type']
+      d.save()
+      messages.success(request, "Offense type changed")
+    
     return HttpResponseRedirect(reverse_lazy('lifestudies:discipline_list'))
 
 
