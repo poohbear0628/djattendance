@@ -11,7 +11,7 @@
   .grid {
     display: grid;
     grid-template-columns: 270px 120px 525px;
-    grid-template-rows: 30px repeat(3, 40px 40px 10px);
+    grid-template-rows: 30px repeat(3, 35px 35px 20px);
     grid-template-areas:
       ". . ."
       "question1 . ldescription"
@@ -21,8 +21,9 @@
       "input2 . description"
       ". . description"
       "question3 . description"
-      "input3 . description";
-    align-items: center
+      "input3 . description"
+      ". . .";
+    align-items: end;
   }
 
   label[for=id_house] {
@@ -61,33 +62,28 @@
 
 {% block scripts %}
   {{ form.media }}
-  <script type="text/javascript">
-  $(document).ready(() => {
-    $(".select-fk").select2({width: '100%'});
-  });
-
-  var rooms = {{ rooms|safe }};
-  $(document).ready(() => {
-    let room_elem = $('#id_room');
-    room_elem.empty();
-    $("#id_house").on("change", e => {
+  <script>
+    var rooms = {{ rooms|safe }};
+    $(document).ready(() => {
+      let room_elem = $('#id_room');
       room_elem.empty();
-      let house_id = parseInt(e.target.value);
-      let new_room_options = rooms.filter(r => r.fields.house == house_id);
-      new_room_options.forEach(o => {
-        let option = $('<option></option>').attr('value', o.pk)
-          .text($("#id_house :selected").text() + ' ' + o.fields.type);
-        room_elem.append(option);
+      $("#id_house").on("change", e => {
+        room_elem.empty();
+        let house_id = parseInt(e.target.value);
+        let new_room_options = rooms.filter(r => r.fields.house == house_id);
+        new_room_options.forEach(o => {
+          let option = $('<option></option>').attr('value', o.pk)
+            .text($("#id_house :selected").text() + ' ' + o.fields.type);
+          room_elem.append(option);
+        });
+        if (['MCC', 'TC'].includes($(e.currentTarget).find('option:selected').text())) {
+          room_elem.attr("disabled", true);
+        } else {
+          room_elem.attr("disabled", false);
+        }
       });
-      if (['MCC', 'TC'].includes($(e.currentTarget).find('option:selected').text())) {
-        room_elem.parent().hide();
-      } else {
-        room_elem.parent().show();
-      }
     });
-  });
-
-</script>
+  </script>
 {% endblock %}
 
 {% block content %}
@@ -106,22 +102,24 @@
           {% csrf_token %}
 
           <div class="grid">
-            <label for="{{ form.house.id_for_label }}">Location</label>
+            {{ form.house.label_tag }}
             {{ form.house }}
 
-            <label for="{{ form.room.id_for_label }}">Room</label>
+            {{ form.room.label_tag }}
             {{ form.room }}
 
-            <label for="{{ form.request_type.id_for_label }}">Type</label>
+            {{ form.request_type.label_tag }}
             {{ form.request_type }}
 
-            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description.label_tag }}
             {{ form.description }}
           </div>
 
+          {{ form.urgent }} Urgent
+
           {% buttons %}
             {% if not read_only %}
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="submit btn btn-primary">
               Submit
             </button>
             {% endif%}

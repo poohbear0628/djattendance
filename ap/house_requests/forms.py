@@ -12,11 +12,16 @@ class MaintenanceRequestForm(forms.ModelForm):
     model = MaintenanceRequest
     fields = ['house', 'request_type', 'description', 'room', 'urgent']
     labels = {
-        'description': 'Please describe the problem in detail.',
-        'house': 'House/Location',
+        'house': 'Location',
+        'request_type': 'Type'
+    }
+
+    widgets = {
+      'description': forms.Textarea(attrs={'placeholder': 'Please describe the problem in detail'}),
     }
 
   def __init__(self, user=None, *args, **kwargs):
+    kwargs.setdefault('label_suffix', '')
     super(MaintenanceRequestForm, self).__init__(*args, **kwargs)
     if user.current_term > 2 and user.groups.filter(name='facility_maintenance').exists() or is_TA(user):
       self.fields['house'].queryset = House.objects.all()
