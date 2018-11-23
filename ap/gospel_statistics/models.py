@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models
 from accounts.models import Trainee
+from django.db import models
 from teams.models import Team
 from terms.models import Term
 
-#For which gospel pair there should be exactly one gospel statistics for every week
-#Gospel Pair
+
+# For which gospel pair there should be exactly one gospel statistics for every week
+# Gospel Pair
 class GospelPair(models.Model):
-  #Which trainees composing this gospel pair
+  # Which trainees composing this gospel pair
   team = models.ForeignKey(Team, blank=True, null=True, on_delete=models.SET_NULL)
   term = models.ForeignKey(Term, blank=True, null=True, on_delete=models.SET_NULL)
   trainees = models.ManyToManyField(Trainee, related_name="gospel_statistics")
 
-#Gospel Statistics
+
+# Gospel Statistics
 class GospelStat(models.Model):
-  #Might want to change SET_NULL to CASCADE
+  # Might want to change SET_NULL to CASCADE
   gospelpair = models.ForeignKey(GospelPair, blank=True, null=True, on_delete=models.SET_NULL)
   week = models.PositiveSmallIntegerField(default=0)
   tracts_distributed = models.PositiveSmallIntegerField(default=0)
@@ -30,6 +32,6 @@ class GospelStat(models.Model):
   minutes_in_appointment = models.PositiveSmallIntegerField(default=0)
   bible_study = models.PositiveSmallIntegerField(default=0)
   small_group = models.PositiveSmallIntegerField(default=0)
-  #New students present at the district meeting
+  # New students present at the district meeting
   district_meeting = models.PositiveSmallIntegerField(default=0)
   conference = models.PositiveSmallIntegerField(default=0)
