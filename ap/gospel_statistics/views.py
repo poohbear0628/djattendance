@@ -159,12 +159,7 @@ class NewGospelPairView(TemplateView):
     context['members'] = Trainee.objects.filter(team=current_user.team)
     return context
 
-<<<<<<< HEAD
-#Create a delete function for the delete button for the gospel pairs
-=======
-
 # Create a delete function for the delete button for the gospel pairs
->>>>>>> 9f0996da1ae7e4066406a076d4bd63e521eb13a3
 def delete_pair(request):
   # Get the current pair
   current_id = request.POST['pair_id']
