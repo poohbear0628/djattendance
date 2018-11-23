@@ -1,13 +1,15 @@
-from django.core.management.base import BaseCommand
+from datetime import date, datetime, time, timedelta
+
 from accounts.models import Trainee
-from services.models.week_schedule import WeekSchedule
-from services.models.service import Service, Category, ServiceSlot
-from services.models.seasonal_service_schedule import SeasonalServiceSchedule
-from services.models.workergroup import WorkerGroup
+from django.core.management.base import BaseCommand
 from services.models.assignment import Assignment
+from services.models.seasonal_service_schedule import SeasonalServiceSchedule
+from services.models.service import Category, Service, ServiceSlot
 from services.models.service_hours import ServiceAttendance, ServiceRoll
+from services.models.week_schedule import WeekSchedule
+from services.models.worker import Worker
+from services.models.workergroup import WorkerGroup
 from terms.models import Term
-from datetime import datetime, timedelta, time
 
 
 # run populate_services before this script
@@ -44,27 +46,16 @@ class Command(BaseCommand):
     assign2.save()
 
   def _create_attendance(self):
-    t1 = Trainee.objects.get(lastname="Salamanca")
-    t2 = Trainee.objects.get(firstname="Bill")
-    serv1 = Service.objects.get(name="Attendance Project")
-    serv2 = Service.objects.get(name="Meal Ushering")
-    term = Term.current_term()
-
-    for x in range(2):
-      serv_att, created = ServiceAttendance.objects.get_or_create(worker=t1.worker, designated_service=serv1, week=x, term=term)
-      for i in range(5):
-        ServiceRoll.objects.get_or_create(
-          service_attendance=serv_att, start_datetime=datetime(2018, 2, 14 + i, 13, 0, 0),
-          end_datetime=datetime(2018, 2, 14 + i, 15, 0, 0), task_performed='I wrote {0} lines of code'.format(i)
-        )
-
-    for x in range(2):
-      serv_att, created = ServiceAttendance.objects.get_or_create(worker=t2.worker, designated_service=serv2, week=x, term=term)
-      for i in range(5):
-        ServiceRoll.objects.get_or_create(
-          service_attendance=serv_att, start_datetime=datetime(2018, 2, 14 + i, 13, 0, 0),
-          end_datetime=datetime(2018, 2, 14 + i, 15, 0, 0), task_performed='I ushered {0} tables'.format(i)
-        )
+    workers = Worker.objects.filter(trainee__is_active=True)
+    current_term = Term.curren_term()
+    week_range = range(0, current_term.term_week_of_date(date.today()))
+    for worker in workers:
+      services = worker.designated.all()
+      for service in services:
+        for week in week_range:
+          service_attendance = ServiceAttendance.objects.get_or_create(designated_service=service, worker=worker, term=current_term, week=week)[0]
+          service_attendance.excused = True
+          service_attendance.save()
 
   def _delete_duplicates(model, unique_fields):  # id/pk is always unique, so don't include it in unique_fields
     from django.db.models import Count, Min
