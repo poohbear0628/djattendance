@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 from terms.models import Term
 
 from .models import GospelPair, GospelStat
+from teams.models import Team
 
 # ctx[cols] = attributes
 attributes = [
@@ -45,7 +46,7 @@ class GospelStatisticsView(TemplateView):
     for p in gospel_pairs:
       entry = dict()
       entry['gospel_pair'] = p
-      # stat = gospel_statistics.filter(gospelpair=p, week=get_week())[0]
+      stat = gospel_statistics.filter(gospelpair=p, week=get_week())[0]
       for i in range(len(_attributes)):
         entry[_attributes[i]] = eval('stat.' + _attributes[i])
       data.append(entry)
@@ -124,7 +125,6 @@ class GospelStatisticsView(TemplateView):
 
 class GenerateReportView(TemplateView):
   template_name = "gospel_statistics/generate_report.html"
-  pass
 
 class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
@@ -174,12 +174,45 @@ def delete_pair(request):
 
 # In Progress (change to class)
 def TAGospelStatisticsView(request):
+  campus = Team.objects.filter(type='CAMPUS')
+  campus_pairs = GospelPair.objects.filter(team__in=campus)
+  campus_trainees=0
+  for i in campus_pairs:
+    campus_trainees+=len(i.trainees.all())
+  campus_all = GospelStat.objects.filter(gospelpair__in=campus_pairs)
+  campus_total = [0 for i in range(len(_attributes))]
+  if len(campus_all)>0:
+    for index in range(len(campus_all)):
+      for i in range(len(_attributes)):
+        campus_total[i]+=eval('campus_all['+str(index)+'].'+_attributes[i])
+
+  community = Team.objects.filter(type='COM')
+  community_pairs = GospelPair.objects.filter(team__in=community)
+  community_all = GospelStat.objects.filter(gospelpair__in=community_pairs)
+  community_trainees=0
+  for i in community_pairs:
+    community_trainees+=len(i.trainees.all())
+  community_total = []
+  community_total = [0 for i in range(len(_attributes))]
+  if len(community_all)>0:
+    for index in range(len(community_all)):
+      for i in range(len(_attributes)):
+        community_total[i]+=eval('community_all['+str(index)+'].'+_attributes[i])
+
+  campus_average = []
+  community_average = []
+  for i in campus_total:
+    campus_average.append(i/max(float(campus_trainees),1))
+  for i in community_total:
+    community_average.append(i/max(float(community_trainees),1))
+
+  #ct = GospelStat.objects.filter(gospelpair__in=pairs)
   context = {
     'page_title': 'Team Statistics Summary',
     'attributes': attributes,
-    'campus_total': [1,2,3,4,],
-    'campus_average': [1,2,3,4],
-    'community_total': [1,2,3,4],
-    'community_average': [1,2,3,4],
+    'campus_total': campus_total,
+    'community_total': community_total,
+    'campus_average': campus_average,
+    'community_average': community_average,
   }
   return render(request, 'gospel_statistics/ta_gospel_statistics.html', context=context)
