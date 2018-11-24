@@ -122,6 +122,9 @@ class GospelStatisticsView(TemplateView):
     context['all_stat'] = self.get_all_stats_list(context['gospel_pairs'], GospelStat.objects.filter(gospelpair__in=context['gospel_pairs']))
     return context
 
+class GenerateReportView(TemplateView):
+  template_name = "gospel_statistics/generate_report.html"
+  pass
 
 class NewGospelPairView(TemplateView):
   template_name = "gospel_statistics/new_pair.html"
@@ -172,6 +175,11 @@ def delete_pair(request):
 # In Progress (change to class)
 def TAGospelStatisticsView(request):
   context = {
-    'page_title': 'TA Gospel Statistics',
+    'page_title': 'Team Statistics Summary',
+    'attributes': attributes,
+    'campus_total': [1,2,3,4,],
+    'campus_average': [1,2,3,4],
+    'community_total': [1,2,3,4],
+    'community_average': [1,2,3,4],
   }
   return render(request, 'gospel_statistics/ta_gospel_statistics.html', context=context)

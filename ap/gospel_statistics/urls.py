@@ -8,4 +8,5 @@ urlpatterns = [
   url(r'^delete$', views.delete_pair, name='delete-pair'),
   # Change following urls
   url(r'^ta$', views.TAGospelStatisticsView, name='ta-gospel-statistics-view'),
+  url(r'^generate-report/$', views.GenerateReportView.as_view(), name='generate-report'),
 ]

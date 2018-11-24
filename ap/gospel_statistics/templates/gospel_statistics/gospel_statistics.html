@@ -7,18 +7,18 @@
 {% block references %}
 <script>
 $(document).ready(function() {
+  weekSelect();
+});
+function weekSelect() {
   //Week 0-20 selector
   for (var week_num = 0; week_num < 21; week_num++){
-    var each=$('<option></option>', {'value': week_num});
-    each.text('Week '+week_num);
+    var each=$('<option></option>', {'value': week_num, 'text': 'Week '+week_num});
     if (week_num == {{week}}){
-      //console.log(week_num);
-      //console.log({{week}});
       each.selected = true;
     };
     $('#gospelWeek').append(each);
   };
-});
+};
 function switchStats(week) {
 };
 function deletePair(pair_id) {
@@ -45,8 +45,10 @@ function deletePair(pair_id) {
       {{team}}
     </td>
     <td>
+      <!--
       <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Week Of:</b>
       <select id="gospelWeek" onchange="switchStats(this.value)"/>
+      -->
     </td>
   </table>
 </div>
