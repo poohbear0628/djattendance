@@ -1,11 +1,11 @@
 from datetime import datetime
 
+from accounts.models import User
+from aputils.utils import RequestMixin
 from django.db import models
 from django.urls import reverse
-
 from rooms.models import Room
-from aputils.utils import RequestMixin
-from accounts.models import User
+
 
 """ ROOM RESERVATIONS models.py
 
