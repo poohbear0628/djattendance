@@ -58,7 +58,7 @@ def _getMAC(ipAddress):
   proc = subprocess.Popen(["arp", "-n", str(ipAddress)], stdout=subprocess.PIPE)
   result = proc.communicate()[0]
   # Matches MAC address
-  matches = re.search('\s([a-zA-Z0-9]{1,2}(?::[a-zA-Z0-9]{1,2}){5})\s', result, re.MULTILINE)
+  matches = re.search('\s([a-zA-Z0-9]{1,2}(?::[a-zA-Z0-9]{1,2}){5})\s', result.decode('utf-8'), re.MULTILINE)
   if matches is None:
     return None
   return matches.group(1)
