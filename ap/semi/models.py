@@ -20,7 +20,7 @@ class SemiAnnual(models.Model, RequestMixin):
 
   term = models.ForeignKey(Term, null=True, on_delete=models.SET_NULL)
 
-  attendance = JSONField(default=default_attendance())
+  attendance = JSONField(default=default_attendance)
 
   location = models.CharField(max_length=5, default='TC')
 

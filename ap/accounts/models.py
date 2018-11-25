@@ -603,4 +603,4 @@ class Statistics(models.Model):
   # String containing book name + last chapter of lifestudy written ([book_id]:[chapter], Genesis:3)
   latest_ls_chpt = models.CharField(max_length=400, null=True, blank=True)
 
-  settings = JSONField(default=default_settings())
+  settings = JSONField(default=default_settings)

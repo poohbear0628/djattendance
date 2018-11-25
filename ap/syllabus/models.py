@@ -84,7 +84,7 @@ class ClassSession(models.Model):
 
   # assignment info (pages; chapters; msgs; lessons; verses; exam: "FINAL, MIDTERM, ETC")
   # can list multiple assigments, e.g. memory verses
-  assignment = ArrayField(models.CharField(max_length=100, blank=True), default=list())
+  assignment = ArrayField(models.CharField(max_length=100, blank=True), default=list)
 
   # exam (HIDDEN)
   exam = models.BooleanField(default=False)
