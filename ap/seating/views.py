@@ -1,18 +1,17 @@
-import django_filters
-from django_filters.rest_framework import DjangoFilterBackend
-from django.views.generic import TemplateView, DetailView, ListView
-from django.views import generic
-from django.urls import reverse
-from .models import Chart, Seat, Partial
-from terms.models import Term
 from accounts.models import Trainee
-from .serializers import ChartSerializer, SeatSerializer, PartialSerializer, PartialFilter
-from accounts.serializers import TraineeSerializer, TraineeRollSerializer
-
+from accounts.serializers import TraineeRollSerializer
 from django.shortcuts import redirect
-from rest_framework import viewsets, filters
+from django.urls import reverse
+from django.views import generic
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 from rest_framework.renderers import JSONRenderer
-from rest_framework_bulk import BulkModelViewSet
+from terms.models import Term
+
+from .models import Chart, Partial, Seat
+from .serializers import (ChartSerializer, PartialFilter, PartialSerializer,
+                          SeatSerializer)
+
 
 class ChartListView(generic.ListView):
   model = Chart
@@ -20,6 +19,7 @@ class ChartListView(generic.ListView):
 
   def get_queryset(self):
      return Chart.objects.filter(term=Term.current_term())
+
 
 class ChartCreateView(generic.ListView):
   model = Chart
@@ -39,11 +39,11 @@ class ChartCreateView(generic.ListView):
 
     return context
 
+
 def cloneChart(request, pk):
   chart_id = pk
   chart = Chart.objects.get(id=chart_id)
   chart.name = Chart.objects.get(id=chart_id).name + "clone"
-  trainees = Trainee.objects.filter(is_active=True)
   partitions = Partial.objects.filter(chart=chart)
   seats = Seat.objects.filter(chart=chart)
   chart.id = None
@@ -53,12 +53,14 @@ def cloneChart(request, pk):
     new_seat_arr.append(Seat(trainee=seat.trainee, chart=chart, x=seat.x, y=seat.y))
   new_partition_arr = []
   for partition in partitions:
-    new_partition_arr.append(Partial(chart=chart,section_name=partition.section_name,x_lower=partition.x_lower,x_upper=partition.x_upper,
-      y_lower=partition.y_lower,y_upper=partition.y_upper))
+    new_partition_arr.append(Partial(chart=chart, section_name=partition.section_name,
+                             x_lower=partition.x_lower, x_upper=partition.x_upper,
+                             y_lower=partition.y_lower, y_upper=partition.y_upper))
   Seat.objects.bulk_create(new_seat_arr)
   Partial.objects.bulk_create(new_partition_arr)
 
-  return redirect(reverse('seating:chart_edit', kwargs={'pk': str(chart.id)}) )
+  return redirect(reverse('seating:chart_edit', kwargs={'pk': str(chart.id)}))
+
 
 class ChartEditView(generic.DetailView):
   model = Chart
@@ -104,12 +106,14 @@ class ChartViewSet(viewsets.ModelViewSet):
   queryset = Chart.objects.all()
   serializer_class = ChartSerializer
 
+
 class SeatViewSet(viewsets.ModelViewSet):
   """
   API endpoint that allows seats to be viewed or edited.
   """
   queryset = Seat.objects.all()
   serializer_class = SeatSerializer
+
 
 class PartialViewSet(viewsets.ModelViewSet):
   """
@@ -119,5 +123,6 @@ class PartialViewSet(viewsets.ModelViewSet):
   serializer_class = PartialSerializer
   filter_backends = (DjangoFilterBackend,)
   filter_class = PartialFilter
+
   def allow_bulk_destroy(self, qs, filtered):
     return not all(x in filtered for x in qs)

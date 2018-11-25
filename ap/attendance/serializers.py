@@ -5,7 +5,6 @@ from accounts.models import Trainee
 from leaveslips.models import IndividualSlip
 from leaveslips.serializers import (GroupSlipSerializer,
                                     IndividualSlipSerializer)
-from rest_framework import filters
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin

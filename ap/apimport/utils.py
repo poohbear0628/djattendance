@@ -19,7 +19,7 @@ from django.dispatch import receiver
 from django_countries import countries
 from houses.models import House
 from localities.models import Locality
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError as ReqConnectionError
 from schedules.models import Event, Schedule
 from seating.models import Chart, Partial
 from teams.models import Team
@@ -421,7 +421,7 @@ def new_normalize_city(city, state, country):
     try:
       r = requests.get(url)
       result = r.json()['results'][0]['address_components']
-    except (IndexError, KeyError, ConnectionError) as e:
+    except (IndexError, KeyError, ReqConnectionError) as e:
       log.warning("Unable to normalize city defined by " + city + ", " + state + ", " + country + ".")
       log.warning("%s." % (e))
       return country_code, state_code, city_name

@@ -1,15 +1,14 @@
-import ast
 from datetime import datetime
 
+import ast
 import dateutil.parser
 import django_filters
+from accounts.models import TrainingAssistant
 from django.db import IntegrityError
 from django.db.models import Count
-from rest_framework import filters, serializers
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from rest_framework_bulk import BulkListSerializer, BulkSerializerMixin
-
-from accounts.models import TrainingAssistant
 from schedules.models import Event
 from schedules.serializers import EventWithDateSerializer, localized_time_iso
 from terms.models import Term
@@ -17,11 +16,12 @@ from terms.models import Term
 from .models import GroupSlip, IndividualSlip, Roll
 
 COMMON_FIELDS = ('id', 'type', 'status', 'ta_sister_approved', 'TA', 'TA_informed', 'informed',
-                  'trainee', 'submitted', 'finalized', 'description', 'comments', 'private_TA_comments',
-                  'texted', 'classname', 'periods', 'late', 'last_modified')
+                 'trainee', 'submitted', 'finalized', 'description', 'comments', 'private_TA_comments',
+                 'texted', 'classname', 'periods', 'late', 'last_modified')
 INDIVIDUAL_FIELDS = COMMON_FIELDS + ('location', 'host_name', 'host_phone', 'hc_notified', 'events')
 GROUP_FIELDS = COMMON_FIELDS + ('start', 'end', 'trainees', 'service_assignment', 'trainee_list')
 CURRENT_TERM = Term.current_term()
+
 
 def commonLeaveSlipUpdate(instance, validated_data):
   try:

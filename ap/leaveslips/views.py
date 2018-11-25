@@ -4,17 +4,15 @@ from itertools import chain
 
 from accounts.models import Statistics, Trainee, TrainingAssistant
 from aputils.decorators import group_required
-from aputils.utils import modify_model_status
 from attendance.views import react_attendance_context
 from braces.views import GroupRequiredMixin
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
 from rest_framework.renderers import JSONRenderer
 from rest_framework_bulk import BulkModelViewSet
 from schedules.serializers import AttendanceEventWithDateSerializer

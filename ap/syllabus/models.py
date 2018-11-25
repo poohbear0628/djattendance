@@ -1,12 +1,8 @@
-from django.db import models
-from classes.models import Class
 from books.models import Book
-
-from time import strftime
-
+from classes.models import Class
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 
-from django.urls import reverse, reverse_lazy
 
 """ SYLLABUS models.py
 
@@ -28,6 +24,7 @@ Data Models:
     syllabus (ForeignKey: Syllabus)
 """
 
+
 class Syllabus (models.Model):
 
   # which class this syllabus belongs to
@@ -40,7 +37,7 @@ class Syllabus (models.Model):
   #   return reverse('self.class_syllabus.code')
 
   def get_absolute_url(self):
-    return '%s/' % self.class_syllabus.term.code #reverse_lazy('detail-view', kwargs={'after': self.class_syllabus.code})
+    return '%s/' % self.class_syllabus.term.code  # reverse_lazy('detail-view', kwargs={'after': self.class_syllabus.code})
 
   def get_url(self):
     return '%s/' % self.class_syllabus.code
@@ -86,7 +83,7 @@ class ClassSession(models.Model):
   book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True)
 
   # assignment info (pages; chapters; msgs; lessons; verses; exam: "FINAL, MIDTERM, ETC")
-    # can list multiple assigments, e.g. memory verses
+  # can list multiple assigments, e.g. memory verses
   assignment = ArrayField(models.CharField(max_length=100, blank=True), default=list())
 
   # exam (HIDDEN)
@@ -97,8 +94,8 @@ class ClassSession(models.Model):
 
   def __str__(self):
     try:
-      return (self.syllabus.class_syllabus.name + " | "
-          + self.syllabus.class_syllabus.term.name + " | " +
-          self.date.strftime('%Y/%m/%d') + " | " + self.topic)
+      return (self.syllabus.class_syllabus.name + " | " +
+              self.syllabus.class_syllabus.term.name + " | " +
+              self.date.strftime('%Y/%m/%d') + " | " + self.topic)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
