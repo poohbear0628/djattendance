@@ -5,6 +5,9 @@ import os
 import django
 from django.contrib.messages import constants as message_constants
 
+# Overwritten to False in prod.py
+DEBUG = True
+
 # calculated paths for django and the site
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
