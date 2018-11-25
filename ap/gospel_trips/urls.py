@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from gospel_trips import views
 
+app_name = 'gospel_trips'
+
 urlpatterns = [
   url(r'^admin/$', views.GospelTripView.as_view(), name='admin-create'),
   url(r'^admin/(?P<pk>\d+)$', views.gospel_trip_admin_update, name='admin-update'),
