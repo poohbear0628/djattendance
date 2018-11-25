@@ -6,29 +6,40 @@
 
 {% block lifestudies_content %}
 
-  <h2>
+  <div>
     {{discipline.trainee.full_name}}
-
     <div class="pull-right">
       <form action="" method="post">
         {% csrf_token %}
-        <button type="sumbit" name="increase_penalty" class="btn btn-default btn-sm">
-          <span class="glyphicon glyphicon-plus-sign"></span>
-          Increase Penalty
+        <label for="penalty_num">Increase/Decrease by:</label><br>
+        <input name="penalty_num" value="1">
+        <button type="submit" name="increase_penalty" class="btn btn-default btn-sm">
+          <span class="glyphicon glyphicon-plus-sign"></span> Increase Penalty
         </button>
-        <button type="submit" name="hard_copy" class="btn btn-default btn-sm">
+        <button type="submit" name="decrease_penalty" class="btn btn-default btn-sm">
           <span class="glyphicon glyphicon-plus-sign"></span> Decrease Penalty
         </button>
       </form>
+      <br>Note: {{discipline.note}}</br>
     </div>
-  </h2>
-  <h5>
-    Infraction: {{discipline.get_infraction_display}}
-    {% if discipline.infraction == 'MS' %}<br>
-    Missed Service: {{discipline.missed_service}}
+  </div>
+  <p>
+    Infraction: {{discipline.get_infraction_display}}<br>
+    {% if discipline.infraction == 'MS' %}
+    Missed Service: {{discipline.missed_service}}<br>
     {% endif %}
-    
-  </h5>
+    Summaries Due: <strong>{{discipline.get_num_summary_due}}</strong><br>
+    <form action="" method="post">
+        {% csrf_token %}
+        <label for="offense_type">Offense Type:</label>
+        <strong>
+          <select name="offense_type" onChange="form.submit();"> 
+            <option value="RO" {% if discipline.offense == "RO" %} selected="selected" {% endif %}> Regular Offense </option>
+            <option value="MO" {% if discipline.offense == "MO" %} selected="selected" {% endif %}> Monday Offense </option>
+          </select>
+        </strong>
+      </form>
+  <p>
 
   {% for summary in discipline.summary_set.all %}
   <div class="container">
@@ -37,6 +48,11 @@
       <p>{{summary.content}}</p>
       <div>
         <span class="badge alert-info">{{summary.date_submitted}}</span>
+        {% if not summary.submitting_paper_copy %}
+          <span class="badge alert-info">{{ summary_wc }} words</span>
+        {% else %}
+          <span class="badge alert-info">submitted paper copy</span>
+        {% endif %}
         {% if summary.approved %}
         <span class="badge alert-success">approved</span>
         {% else %}

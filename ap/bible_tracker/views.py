@@ -62,7 +62,7 @@ def report(request):
     stat_options = [int(x) for x in p.getlist('stats[]')]
     cutoff_range = int(p.get('cutoff_range', ''))
 
-    trainee_bible_readings = BibleReading.objects.filter(Q(trainee__type='R') | Q(trainee__type='C')).select_related('trainee').all()
+    trainee_bible_readings = BibleReading.objects.filter(trainee__is_active=True).filter(Q(trainee__type='R') | Q(trainee__type='C')).select_related('trainee').all()
 
     trainee_stats = []
 
@@ -254,6 +254,7 @@ def finalizeStatus(request):
   if request.is_ajax():
     action = request.POST['action']
     week_id = request.POST['week_id']
+    forced = request.POST.get('forced', False)
 
     current_term = Term.current_term()
     term_id = current_term.id
@@ -262,9 +263,12 @@ def finalizeStatus(request):
 
     lastDayofWeek = Term.enddate_of_week(current_term, int(week_id))
     WedofNextWeek = lastDayofWeek + datetime.timedelta(days=3)
+
     # if not TA, cannot finalize till right time.
     if is_trainee(my_user):
-      if now >= WedofNextWeek or now < lastDayofWeek:
+      if forced:
+        pass
+      elif now >= WedofNextWeek or now < lastDayofWeek:
         return HttpResponse('Cannot finalize now', status=400)
     if is_TA(my_user):
       my_user = Trainee.objects.get(pk=request.POST['userId'])
@@ -272,7 +276,7 @@ def finalizeStatus(request):
     try:
       trainee_bible_reading = BibleReading.objects.get(trainee=my_user)
 
-    except:
+    except BibleReading.ObjectDoesNotExist:
       trainee_bible_reading = BibleReading(
           trainee=my_user,
           weekly_reading_status={term_week_code: EMPTY_WEEK_CODE_QUERY},

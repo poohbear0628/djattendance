@@ -34,6 +34,7 @@ class Exam(models.Model):
   training_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
   description = models.CharField(max_length=250, blank=True)
   is_open = models.BooleanField(default=False)
+  is_graded_open = models.BooleanField(default=False)
   term = models.ForeignKey(Term, null=True, on_delete=models.SET_NULL)
   duration = models.DurationField(default=timedelta(minutes=90))
 
@@ -181,6 +182,7 @@ class Section(models.Model):
 
 
 class Session(models.Model):
+
   trainee = models.ForeignKey(Trainee, related_name='exam_sessions', null=True, on_delete=models.SET_NULL)
   exam = models.ForeignKey(Exam, related_name='sessions', on_delete=models.SET_NULL, null=True)
 
@@ -198,6 +200,10 @@ class Session(models.Model):
       return "%s for %s" % (self.exam, self.trainee)
     except AttributeError as e:
       return str(self.id) + ": " + str(e)
+
+  class Meta:
+    ordering = ['trainee']
+    unique_together = ('trainee', 'exam')
 
 
 class Responses(models.Model):

@@ -1,20 +1,20 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from datetime import date
-from dailybread.models import Portion
-from django.http import HttpResponse
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from announcements.notifications import get_announcements, get_popups
-from aputils.trainee_utils import is_trainee, is_TA, trainee_from_user
-from bible_tracker.models import BibleReading, EMPTY_WEEKLY_STATUS, UNFINALIZED_STR
-from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
-from terms.models import Term
-from house_requests.models import MaintenanceRequest
-from django.urls import reverse_lazy
 import json
+from datetime import date
 
+from announcements.notifications import get_announcements, get_popups
+from aputils.trainee_utils import is_TA, is_trainee, trainee_from_user
 from aputils.utils import WEEKDAY_CODES
+from bible_tracker.models import (EMPTY_WEEKLY_STATUS, UNFINALIZED_STR,
+                                  BibleReading)
+from bible_tracker.views import EMPTY_WEEK_CODE_QUERY
+from dailybread.models import Portion
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.http import HttpResponse
+from django.shortcuts import render
+from house_requests.models import MaintenanceRequest
+from terms.models import Term
 
 
 @login_required
@@ -60,7 +60,7 @@ def home(request):
       'weekly_status': weekly_status,
       'weeks': Term.all_weeks_choices(),
       'finalized': finalized_str,
-      'weekday_codes':json.dumps(WEEKDAY_CODES)
+      'weekday_codes': json.dumps(WEEKDAY_CODES)
   }
   notifications = get_announcements(request)
   for notification in notifications:
@@ -102,9 +102,25 @@ def custom500errorview(request):
   return render(request, 'error.html', context=ctx)
 
 
+def custom502errorview(request):
+  ctx = {
+    'image_path': 'img/502error.png',
+    'page_title': 'Bad Gateway Error'
+  }
+  return render(request, 'error.html', context=ctx)
+
+
 def custom503errorview(request):
   ctx = {
     'image_path': 'img/503error.png',
     'page_title': 'Service Unavailable'
+  }
+  return render(request, 'error.html', context=ctx)
+
+
+def custom504errorview(request):
+  ctx = {
+    'image_path': 'img/504error.png',
+    'page_title': 'Gateway Timeout'
   }
   return render(request, 'error.html', context=ctx)
