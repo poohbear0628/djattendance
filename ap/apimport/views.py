@@ -166,7 +166,7 @@ def process_row(request):
       import_row(row)
       return JsonResponse({'success': True, 'name': name})
     except Exception as e:
-      print e
+      print(e)
       return JsonResponse({'success': False, 'rowNumber': row_number, 'error': str(e)})
   else:
     return JsonResponse({'success': False})

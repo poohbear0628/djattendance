@@ -42,7 +42,7 @@ class GospelTrip(models.Model):
         return True
     return False
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "[%s]" % (self.name)
     except AttributeError as e:
@@ -70,7 +70,7 @@ class Destination(models.Model):
     self.trainees.remove(trainee)
     self.set_team_contact(trainee, False)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "Section: %s - %s" % (self.gospel_trip, self.name)
     except AttributeError as e:
@@ -87,7 +87,7 @@ class Section(models.Model):
 
   show = models.CharField(max_length=25, default='SHOW')
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s - %s" % (self.gospel_trip, self.name)
     except AttributeError as e:
@@ -108,7 +108,7 @@ class Question(models.Model):
 
   answer_required = models.BooleanField(default=False)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "Question: %s - %s - %s" % (self.section.gospel_trip, self.section.name[:8], self.label)
     except AttributeError as e:
@@ -128,7 +128,7 @@ class Answer(models.Model):
 
   response = models.TextField(null=True, blank=True, max_length=500)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s - %s" % (self.question, self.trainee)
     except AttributeError as e:
@@ -145,7 +145,7 @@ class AnswerChoice(models.Model):
 
   options = models.CharField(null=True, blank=True, max_length=500)
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "AnswerChoice - %s" % (self.name)
     except AttributeError as e:
@@ -177,7 +177,7 @@ class NonTrainee(models.Model):
   def get_absolute_url(self):
     return reverse('gospel_trips:nontrainee-update', kwargs={'pk': self.gospel_trip.id, 'ntpk': self.id})
 
-  def __unicode__(self):
+  def __str__(self):
     try:
       return "%s %s" % (self.firstname, self.lastname)
     except AttributeError as e:

@@ -40,7 +40,7 @@ def export_to_json(gt):
           '_order': question._order})
   j = json.dumps(form, indent=2)
   f = open(full_path, 'w')
-  print >> f, j  # TODO: Python3
+  print(j, file=f)
   f.close()
   return full_path
 
@@ -80,7 +80,7 @@ def update_airport_codes():
     r = requests.get(url).json()
     return [res['code'] for res in r['response']]
   except (ConnectionError, KeyError) as e:
-    print e
+    print(e)
     return []
 
 
@@ -100,7 +100,7 @@ def udpate_airline_codes():
     r = requests.get(url).json()
     return [res['iata_code'] for res in r['response']]
   except (ConnectionError, KeyError) as e:
-    print e
+    print(e)
     return []
 
 

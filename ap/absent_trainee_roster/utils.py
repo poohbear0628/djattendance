@@ -115,8 +115,8 @@ def send_absentee_report(year, month, day):
   email.send(fail_silently=False)
 
   print('Absentee report email sent', datetime.now())
-  print ('Absentee roster recipients', settings.ABSENTEE_ROSTER_RECIPIENTS)
-  print ('Absentee report email sent', datetime.now())
+  print('Absentee roster recipients', settings.ABSENTEE_ROSTER_RECIPIENTS)
+  print('Absentee report email sent', datetime.now())
 
 
 def test_send_absentee_report():

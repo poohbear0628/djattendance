@@ -8,7 +8,7 @@ CURRENT_TERM = Term.current_term()
 class ExamAdmin(admin.ModelAdmin):
   readonly_fields = ('total_score', 'section_count',)
   filter = ('training_class', 'term', 'category', 'is_open', 'is_graded_open')
-  list_display = ('__unicode__', 'term', 'category', 'is_open', 'is_graded_open', 'duration', 'section_count')
+  list_display = ('__str__', 'term', 'category', 'is_open', 'is_graded_open', 'duration', 'section_count')
 
   def get_queryset(self, request):
     qs = super(ExamAdmin, self).get_queryset(request)

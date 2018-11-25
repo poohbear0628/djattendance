@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from reports import views
 
+app_name = 'reports'
+
 urlpatterns = [
   url(r'generate-attendance-report/$', views.GenerateAttendanceReport.as_view(), name='generate-attendance-report'),
   url(r'attendance-report/$', views.AttendanceReport.as_view(), name='attendance-report'),

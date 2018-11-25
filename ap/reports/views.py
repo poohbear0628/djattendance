@@ -4,7 +4,6 @@ import json
 import os
 from collections import Counter
 from datetime import datetime
-from StringIO import StringIO
 from zipfile import ZipFile
 
 from accounts.models import Trainee
@@ -15,6 +14,7 @@ from braces.views import GroupRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.generic.base import TemplateView
+from io import StringIO
 from leaveslips.models import GroupSlip
 from localities.models import Locality
 from terms.models import Term

@@ -124,7 +124,7 @@ class RollsFinalization(models.Model):
     ('HC', 'House Coordinator'),
   )
 
-  trainee = models.ForeignKey(Trainee)
+  trainee = models.ForeignKey(Trainee, on_delete=models.CASCADE)
 
   weeks = models.CharField(validators=[validate_comma_separated_integer_list], max_length=50, blank=True, null=False)
 
@@ -133,7 +133,7 @@ class RollsFinalization(models.Model):
   class Meta:
     unique_together = ('trainee', 'events_type')
 
-  def __unicode__(self):
+  def __str__(self):
     return "%s for %s" % (self.trainee, self.get_events_type_display())
 
   def has_week(self, week):

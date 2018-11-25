@@ -528,7 +528,7 @@ def validate_row(row):
     row[k] = unicode(v, errors='ignore')
     if 'phone' in k:
       if len(v) > 25:
-        print "For %s: %s - Value is too long " % (k, v)
+        print("For %s: %s - Value is too long " % (k, v))
         rm = 25 - len(v)
         v = v[:rm]
 
