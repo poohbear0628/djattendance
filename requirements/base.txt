@@ -2,11 +2,7 @@ python-dateutil==2.6.0
 pytz==2018.3
 tzlocal==1.5.1
 
-<<<<<<< HEAD
 Django==2.0.6
-=======
-Django==1.11.16
->>>>>>> dev
 psycopg2==2.7
 django-braces==1.13.0
 django-adminactions==1.5
@@ -50,12 +46,6 @@ netaddr==0.7.18
 # Cron jobs
 plan==0.5
 
-<<<<<<< HEAD
 django-easy-pdf==0.2.0-dev1
-=======
-# Django wiki
-bleach==2.0.0
-wiki==0.3b3
->>>>>>> dev
 
 ortools==6.5.4527
