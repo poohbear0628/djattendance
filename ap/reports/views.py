@@ -14,7 +14,7 @@ from braces.views import GroupRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.generic.base import TemplateView
-from io import StringIO
+from io import BytesIO, StringIO
 from leaveslips.models import GroupSlip
 from localities.models import Locality
 from terms.models import Term
@@ -128,7 +128,7 @@ def generate_zip(request):
   # for team files we don't need ot render which team the trainee is on
   records_duplicate = copy.deepcopy(stash.get_records())
   date_range = [date_from, date_to]
-  in_memory = StringIO()
+  in_memory = BytesIO()
   zfile = ZipFile(in_memory, "a")
 
   # first create dictionary object and set values used across all localities
@@ -147,7 +147,7 @@ def generate_zip(request):
     pdf_file = render_to_pdf("reports/template_report.html", context)
     path = locality["name"] + '.pdf'
 
-    with open(path, 'wb') as f:
+    with open(path, 'wb+') as f:
       f.write(pdf_file.content)
     zfile.write(path)
     os.remove(path)
@@ -161,7 +161,7 @@ def generate_zip(request):
   for record in records_duplicate:
     locality_id = record['sending_locality']
     locality_name = filter(lambda locality: locality['id'] == locality_id, localities)
-    record['sending_locality'] = locality_name[0]['name']
+    record['sending_locality'] = next(locality_name)['name']
 
   # for each team, grab only the trainees that serve on that team
   for team in teams:
@@ -172,7 +172,7 @@ def generate_zip(request):
     pdf_file = render_to_pdf("reports/template_report.html", context)
     path = team + '.pdf'
 
-    with open(path, 'w+') as f:
+    with open(path, 'wb+') as f:
       f.write(pdf_file.content)
     zfile.write(path)
     os.remove(path)
