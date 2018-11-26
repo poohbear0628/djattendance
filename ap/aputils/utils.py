@@ -1,20 +1,22 @@
-import io as StringIO
-import xhtml2pdf.pisa as pisa
-import time
 import functools
 import os
-from cgi import escape
+import time
 from datetime import date, datetime
 
+import xhtml2pdf.pisa as pisa
+from cgi import escape
+from django.conf import settings
+from django.contrib import messages
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.template.defaulttags import register
 from django.template.loader import get_template
-from django.http import HttpResponse
-from django.conf import settings
-from django.shortcuts import get_object_or_404, redirect
-from django.core.files.storage import FileSystemStorage
-from django.contrib import messages
+from io import BytesIO
 
 from .decorators import group_required
+
+
 # !! IMPORTANT: Keep this file free from any model imports to avoid cyclical dependencies!!
 
 
@@ -106,9 +108,9 @@ def link_callback(uri, rel):
 def render_to_pdf(template_src, context_dict):
   template = get_template(template_src)
   html = template.render(context=context_dict)
-  result = StringIO.StringIO()
+  result = BytesIO()
 
-  pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result, link_callback=link_callback)
+  pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result, link_callback=link_callback)
   if not pdf.err:
     return HttpResponse(result.getvalue(), content_type='application/pdf')
   return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))

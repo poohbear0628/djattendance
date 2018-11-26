@@ -219,7 +219,7 @@ class Term(models.Model):
     if self.start <= date <= self.end:
       # days since the term started
       delta = date - self.monday_start
-      return (delta.days / 7, delta.days % 7)
+      return (delta.days // 7, delta.days % 7)
     # if not within the dates the term, raise an error
     else:
       # by default return last date in term

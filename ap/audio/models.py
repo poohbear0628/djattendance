@@ -100,7 +100,7 @@ class AudioFile(models.Model):
     return self.audio_file.name.split(SEPARATOR)[2]
 
   def can_trainee_view(self, trainee):
-    class_visible = not self.year or self.year == (trainee.current_term + 1) / 2
+    class_visible = not self.year or self.year == (trainee.current_term + 1) // 2
     code = self.fellowship_code
     if code == 'YP':
       fellowship_code = 'YP' in trainee.team.code

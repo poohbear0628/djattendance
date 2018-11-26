@@ -147,7 +147,7 @@ def generate_zip(request):
     pdf_file = render_to_pdf("reports/template_report.html", context)
     path = locality["name"] + '.pdf'
 
-    with open(path, 'w+') as f:
+    with open(path, 'wb') as f:
       f.write(pdf_file.content)
     zfile.write(path)
     os.remove(path)

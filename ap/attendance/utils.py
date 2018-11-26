@@ -6,7 +6,7 @@ class Period(object):
 
   def period_of_week(self, week):
     """ for a week number, starting from zero, return the period """
-    return week / self.duration
+    return week // self.duration
 
   def period_of_date(self, date):
     """ for a calendar date, return the period """

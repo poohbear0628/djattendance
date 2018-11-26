@@ -33,7 +33,7 @@ class CreateTermView(SuperuserRequiredMixin, CreateView):
   c_totalweeks = 20
   c_initweeks = 0
   c_graceweeks = 2
-  c_periods = (c_totalweeks - c_initweeks - c_graceweeks) / 2
+  c_periods = (c_totalweeks - c_initweeks - c_graceweeks) // 2
 
   term_dates = DateForm()
 
