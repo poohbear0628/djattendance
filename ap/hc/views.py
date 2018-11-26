@@ -283,7 +283,7 @@ class HCRecommendationTAView(GroupRequiredMixin, TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(HCRecommendationTAView, self).get_context_data(**kwargs)
-    hcra = HCRecommendationAdmin.objects.filter(term=Term.current_term())
+    hcra = HCRecommendationAdmin.objects.get(term=Term.current_term())
     houses = House.objects.exclude(gender='C').order_by('gender', 'name')
     hc_recommendations = []
     for h in houses:
