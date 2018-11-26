@@ -35,7 +35,7 @@ class ChartCreateView(generic.ListView):
 
     context = super(ChartCreateView, self).get_context_data(**kwargs)
     context['trainees'] = trainees
-    context['trainees_bb'] = l_render(TraineeRollSerializer(trainees, many=True).data)
+    context['trainees_bb'] = l_render(TraineeRollSerializer(trainees, many=True).data).decode('utf-8')
 
     return context
 
@@ -76,20 +76,20 @@ class ChartEditView(generic.DetailView):
 
     context = super(ChartEditView, self).get_context_data(**kwargs)
     context['trainees'] = trainees
-    context['trainees_bb'] = l_render(TraineeRollSerializer(trainees, many=True).data)
+    context['trainees_bb'] = l_render(TraineeRollSerializer(trainees, many=True).data).decode('utf-8')
 
     chart = Chart.objects.filter(pk=self.pk)
     context['chart'] = chart.get()
-    context['chart_bb'] = l_render(ChartSerializer(chart, many=True).data)
+    context['chart_bb'] = l_render(ChartSerializer(chart, many=True).data).decode('utf-8')
     context['chart_id'] = self.pk
 
     seats = Seat.objects.filter(chart=chart)
     context['seats'] = seats
-    context['seats_bb'] = l_render(SeatSerializer(seats, many=True).data)
+    context['seats_bb'] = l_render(SeatSerializer(seats, many=True).data).decode('utf-8')
 
     partials = Partial.objects.filter(chart=chart)
     context['partial'] = partials
-    context['partial_bb'] = l_render(PartialSerializer(partials, many=True).data)
+    context['partial_bb'] = l_render(PartialSerializer(partials, many=True).data).decode('utf-8')
 
     return context
 

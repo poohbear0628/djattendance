@@ -110,7 +110,7 @@ class TableListView(generic.ListView):
     l_render = listJSONRenderer.render
     table = Table.objects.all().order_by('name')
     context = super(TableListView, self).get_context_data(**kwargs)
-    context['table_bb'] = l_render(TableSerializer(table, many=True).data)
+    context['table_bb'] = l_render(TableSerializer(table, many=True).data).decode('utf-8')
     return context
 
 

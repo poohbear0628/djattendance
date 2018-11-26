@@ -100,7 +100,7 @@ def index(request):
   listJSONRenderer = JSONRenderer()
   l_render = listJSONRenderer.render
   trainees = Trainee.objects.all()
-  trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data)
+  trainees_bb = l_render(BasicUserSerializer(trainees, many=True).data).decode('utf-8')
   current_term = Term.current_term()
   term_id = current_term.id
   start_date = current_term.start.strftime('%Y%m%d')
