@@ -34,7 +34,7 @@ class LeaveSlipUpdate(GroupRequiredMixin, generic.UpdateView):
     kwargs['period'] = self.get_object().periods[0]
     ctx.update(react_attendance_context(trainee, request_params=kwargs))
     ctx['Today'] = self.get_object().get_date().strftime('%m/%d/%Y')
-    ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data)
+    ctx['SelectedEvents'] = listJSONRenderer.render(AttendanceEventWithDateSerializer(self.get_object().events, many=True).data).decode('utf-8')
     ctx['default_transfer_ta'] = trainee.TA_secondary if (trainee.gender == 'S') else trainee.TA
     ctx['assigned_TA'] = self.get_object().TA
     ctx['sister'] = self.request.user.gender == 'S'

@@ -102,8 +102,8 @@ def react_attendance_context(trainee, request_params=None):
     events_serializer = EventWithDateSerializer
     individual_serializer = IndividualSlipTADetailSerializer
     group_serializer = GroupSlipTADetailSerializer
-    trainees_bb = {}
-    TAs_bb = {}
+    trainees_bb = b'[]'
+    TAs_bb = b'[]'
     trainee_select_form = None
 
   else:
@@ -179,7 +179,7 @@ class AttendancePersonal(AttendanceView):
     trainee = trainee_from_user(user)
     if not trainee:
       trainee = Trainee.objects.filter(groups__name='attendance_monitors').first()
-      ctx['actual_user'] = listJSONRenderer.render(TraineeForAttendanceSerializer(self.request.user).data)
+      ctx['actual_user'] = listJSONRenderer.render(TraineeForAttendanceSerializer(self.request.user).data).decode('utf-8')
     ctx.update(react_attendance_context(trainee))
     return ctx
 

@@ -26,7 +26,7 @@ CURRENT_TERM = Term.current_term()
 def commonLeaveSlipUpdate(instance, validated_data):
   try:
     # TA detail view posts TA id instead of TA objects like react
-    if isinstance(validated_data.get('TA'), basestring):
+    if isinstance(validated_data.get('TA'), str):
       TA_id = validated_data.get('TA')
     else:
       TA_id = validated_data.get('TA', instance.TA).id
@@ -34,7 +34,7 @@ def commonLeaveSlipUpdate(instance, validated_data):
 
     if validated_data.get('TA_informed') is None:
       TA_informed_id = None
-    elif isinstance(validated_data.get('TA_informed'), basestring):
+    elif isinstance(validated_data.get('TA_informed'), str):
       TA_informed_id = validated_data.get('TA_informed')
     else:
       TA_informed_id = validated_data.get('TA_informed', instance.TA_informed).id
@@ -167,18 +167,18 @@ class GroupSlipSerializer(BulkSerializerMixin, ModelSerializer):
     return internal_value
 
   def update(self, instance, validated_data):
-    if isinstance(validated_data.get('trainees'), basestring):
+    if isinstance(validated_data.get('trainees'), str):
       # ast.literal_eval is not optimal, turns a string that has a list in it into a python list
-      instance.trainees = ast.literal_eval(validated_data.get('trainees')) if validated_data.get('trainees') else instance.trainees
+      instance.trainees.set(ast.literal_eval(validated_data.get('trainees')) if validated_data.get('trainees') else instance.trainees)
     else:
-      instance.trainees = validated_data.get('trainees', instance.trainees.all())
+      instance.trainees.set(validated_data.get('trainees', instance.trainees.all()))
 
-    if isinstance(validated_data.get('start'), basestring):
+    if isinstance(validated_data.get('start'), str):
       instance.start = datetime.strptime(validated_data.get('start'), "%m/%d/%Y %I:%M %p") if validated_data.get('start') else instance.start
     else:
       instance.start = validated_data.get('start', instance.start)
 
-    if isinstance(validated_data.get('end'), basestring):
+    if isinstance(validated_data.get('end'), str):
       instance.end = datetime.strptime(validated_data.get('end'), "%m/%d/%Y %I:%M %p") if validated_data.get('end') else instance.end
     else:
       instance.end = validated_data.get('end', instance.end)
