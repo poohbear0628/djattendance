@@ -59,7 +59,7 @@ class MultipleSelectFullCalendar(SelectMultiple):
 
   def render(self, name, value, attrs=None):
     # print name, value, choices, self.choices
-    services = JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data)
+    services = JSONRenderer().render(ServiceCalendarSerializer(self.queryset, many=True).data).decode('utf-8')
     selected = ",".join(str(x) for x in value) if value is not None else ""
     categories = self.queryset.aggregate(count=Count('category', distinct=True))
     context = {'services': services, 'selected': selected, 'categories': categories}

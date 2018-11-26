@@ -121,8 +121,8 @@ def services_view(request, run_assign=False, generate_leaveslips=False):
 
   # Make workers_bb
   lJRender = JSONRenderer().render
-  workers_bb = lJRender(WorkerIDSerializer(workers, many=True).data)
-  services_bb = lJRender(ServiceCalendarSerializer(services, many=True).data)
+  workers_bb = lJRender(WorkerIDSerializer(workers, many=True).data).decode('utf-8')
+  services_bb = lJRender(ServiceCalendarSerializer(services, many=True).data).decode('utf-8')
 
   ctx = {
       'workers': workers,
