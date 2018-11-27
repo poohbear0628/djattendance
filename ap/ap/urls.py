@@ -10,8 +10,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth import login as auth_login
-from django.contrib.auth.views import logout_then_login
+from django.contrib.auth.views import logout_then_login, LoginView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from leaveslips.views import (AllGroupSlipViewSet, AllIndividualSlipViewSet,
                               GroupSlipViewSet, IndividualSlipViewSet)
@@ -37,7 +36,7 @@ admin.autodiscover()
 
 urlpatterns = [
   url(r'^$', home, name='home'),
-  url(r'^accounts/login/$', auth_login, {'extra_context': {'webaccess_form': form}}, name='login'),
+  url(r'^accounts/login/$', LoginView.as_view(extra_context={'webaccess_form': form}), name='login'),
   url(r'^accounts/logout/$', logout_then_login, name='logout'),
   url(r'^accounts/', include('accounts.urls')),
   url(r'^audio/', include('audio.urls', namespace='audio')),
@@ -146,7 +145,6 @@ urlpatterns += [
   url(r'^api/', include(attendance_router.urls)),
   # third party
   url(r'^docs/', get_swagger_view(title='DJAttendance API documentation')),
-  #url(r'^explorer/', include('explorer.urls')),
   url(r'^select2/', include('django_select2.urls')),
 ]
 
