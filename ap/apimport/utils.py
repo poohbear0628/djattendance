@@ -524,8 +524,8 @@ def lrhand_code(choice):
 
 
 def validate_row(row):
-  for k, v in row.items():
-    row[k] = unicode(v, errors='ignore')
+  for k, v in list(row.items()):
+    row[k] = str(v)
     if 'phone' in k:
       if len(v) > 25:
         print("For %s: %s - Value is too long " % (k, v))
@@ -615,7 +615,7 @@ def import_row(row):
     user.TA_secondary = ta_secondary
   elif row.get('gender', user.gender) == 'S':
     log.warning("Unable to set TA_secondary [%s] for trainee: %s %s" % (row['TASecondary'], row['stName'], row['lastName']))
-    
+
   # Mentor
   if row.get('mentor', "") != "":
     lname, fname = row.get('mentor').split(", ")

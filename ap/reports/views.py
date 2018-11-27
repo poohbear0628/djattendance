@@ -160,8 +160,8 @@ def generate_zip(request):
   # because the records use locality ids, we'll need to change those ids to names
   for record in records_duplicate:
     locality_id = record['sending_locality']
-    locality_name = filter(lambda locality: locality['id'] == locality_id, localities)
-    record['sending_locality'] = next(locality_name)['name']
+    locality_name = [locality for locality in localities if locality['id'] == locality_id]
+    record['sending_locality'] = locality_name[0]['name']
 
   # for each team, grab only the trainees that serve on that team
   for team in teams:
@@ -245,11 +245,11 @@ def attendance_report_trainee(request):
 
   week_from = ct.reverse_date(date_from)[0]
   week_to = ct.reverse_date(date_to)[0]
-  weeks = range(week_from, week_to)
+  weeks = list(range(week_from, week_to))
   w_tb = EventUtils.collapse_priority_event_trainee_table(weeks, trainee.active_schedules, [trainee])
   count = Counter()
   for kv in w_tb:
-    for ev, t in w_tb[kv].items():
+    for ev, t in list(w_tb[kv].items()):
       if ev in count:
         count[ev] += 1
       else:
