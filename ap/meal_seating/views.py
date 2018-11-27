@@ -92,7 +92,7 @@ def seatinglist(genderlist, gender):
         meal_seating["table"] = tables[tablenum]
         mealRows.append(meal_seating)
         if (len(mealRows) % maxRowPerCol) == 0:
-          rowElementPartition = len(mealRows) / maxRowPerCol
+          rowElementPartition = len(mealRows) // maxRowPerCol
           mealCols.append(mealRows[maxRowPerCol * (rowElementPartition - 1):maxRowPerCol * rowElementPartition])
         traineenum += 1
       mealCols.append(mealRows[maxRowPerCol * rowElementPartition:len(mealRows)])
