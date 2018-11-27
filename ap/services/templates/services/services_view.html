@@ -139,8 +139,13 @@ Service Scheduling
           <a href="{% url 'services:services_generate_leaveslips' %}?week_schedule={{current_week}}" class="btn btn-primary" onclick="return confirm('Are you sure? This could overwrite existing leaveslips.')">Generate Leave Slips</a>
         </div>
         &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        &nbsp;
         <div class="btn-group">
-          <a href="{% url 'services:services_assign_view' %}?week_schedule={{current_week}}" class="btn btn-success" onclick="return confirm('Are you sure? This will overwrite the current schedule.')">Make Schedule</a>
+          <a href="{% url 'services:services_assign_view' %}?week_schedule={{current_week}}" class="btn btn-success" style="color:red;" onclick="return confirm('Are you sure? This will overwrite the current schedule.')">Make Schedule</a>
         </div>
       </div>
       <div>
@@ -520,6 +525,12 @@ Service Scheduling
     <div class="row">
       <div class="col-sm-3">
         <a href="{% url 'services:single_trainee_services_viewer' %}" target="_blank" class="btn btn-primary">Single Trainee Services Viewer</a>
+        <br />
+        <br />
+        <a href="{% url 'services:service_category_not_done_viewer' %}" target="_blank" class="btn btn-primary">Have Not Done This Service Category</a>
+        <br />
+        <br />
+        <a href="{% url 'services:service_category_counts_viewer' %}" target="_blank" class="btn btn-primary">Service Category Counts</a>
       </div>
     </div>
   </div>

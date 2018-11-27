@@ -102,7 +102,7 @@ class ClassnotesListView(ListView):
   def get_context_data(self, **kwargs):
     context = super(ClassnotesListView, self).get_context_data(**kwargs)
     user = self.request.user
-    if user.type == 'R':
+    if user.type in ['R', 'C']:
       classnotes = Classnotes.objects.filter(trainee=user)
       context['classnotes'] = classnotes.exclude(status='A')
       context['classnotes_approved'] = classnotes.filter(status='A')

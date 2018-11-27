@@ -29,6 +29,13 @@
         }
       });
     });
+    if ($("#trainee_table")) {
+      $("#trainee_table").DataTable({
+        info: true,
+        paging: false,
+        autoWidth: true,
+      });
+    }
   });
 
 </script>
@@ -50,12 +57,14 @@
       <tr>
         <td>{{trainee.full_name}}</td>
         <td>{{destination.name}}</td>
-        <td>{% if trainee in destination.team_contacts.all %} Contact {% endif %}</td>
+        <td>{% if trainee in destination.team_contacts.all %} <i class="glyphicon glyphicon-check"></i> {% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+
+{% if trainees %}
 <div class="panel">
   <table class="table table-bordered" id="trainee_table">
     <thead>
@@ -76,5 +85,5 @@
     </tbody>
   </table>
 </div>
-
+{% endif %}
 {% endblock %}

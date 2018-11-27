@@ -1,9 +1,9 @@
-from django.db import models
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from schedules.models import Event, Schedule
 import os
 
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils.deconstruct import deconstructible
+from schedules.models import Event
 
 """" CLASSES models.py
 
@@ -21,7 +21,6 @@ Data Models:
 
 """
 
-from django.utils.deconstruct import deconstructible
 
 CLASS_CHOICES = (
     ('Greek', 'Greek'),
@@ -64,16 +63,12 @@ class ClassManager(models.Manager):
   def get_queryset(self):
     return super(ClassManager, self).get_queryset().filter(type='C')
 
+
 class RegularClassesManager(models.Manager):
 
   def get_queryset(self):
-    classes = Class.objects.none()
-    schedule_filters = Schedule.objects.filter(weeks__regex='.{5,}').exclude(trainee_select='GP')
-    schedule_filters = schedule_filters.filter(events__type='C', events__monitor='AM').exclude(events__class_type='AFTN').distinct()
-    for sch in schedule_filters:
-      if sch.events.count() == sch.events.filter(type='C').count():
-        classes = classes | sch.events.all()
-    return classes.order_by('weekday', 'start')
+    return Class.objects.filter(schedules__weeks__regex='.{5,}').exclude(schedules__trainee_select='GP').filter(type='C', monitor='AM').exclude(class_type="AFTN").distinct().order_by('weekday', 'start')
+
 
 class Class(Event):
   class Meta:

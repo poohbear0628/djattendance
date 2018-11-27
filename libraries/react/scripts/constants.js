@@ -1,4 +1,4 @@
-import { addDays, differenceInWeeks, getDay, setHours, setMinutes, startOfWeek, endOfWeek } from 'date-fns'
+import { addDays, differenceInWeeks, getDay, setHours, setMinutes, startOfWeek, endOfWeek, isSunday } from 'date-fns'
 
 //constants
 
@@ -132,17 +132,21 @@ export function canSubmitRoll(dateDetails) {
 }
 
 export function canFinalizeRolls(term, date, finalizedweeks) {
-  let currentWeek = getWeekFromDate(term, date)
-  let isWeekFinalized = (finalizedweeks.indexOf(currentWeek.toString()) >= 0)
+  let weekView = getWeekFromDate(term, date)
+  let isWeekFinalized = (finalizedweeks.indexOf(weekView.toString()) >= 0)
   // to enforce time limitation on when trainees can finalize
   let now = new Date()
+  let currentWeek = getWeekFromDate(term, now)
   let day = getDay(now)
   // Sunday 17:45 is when you can begin finalizing
-  let start = setMinutes(setHours(startOfWeek(now), 17), 45)
-  // Tuesday 22:30 is when you you can no longer finalize
-  let end = setMinutes(setHours(addDays(start, 2), 22), 30)
-  let canFinalizeWeek = !isWeekFinalized && now > start && now < end
+  let startFinalization = setMinutes(setHours(startOfWeek(now), 17), 45)
+  let canFinalizeWeek = !isWeekFinalized && (currentWeek > weekView ||
+                          (currentWeek == weekView && isSunday(now) && now > startFinalization))
   return canFinalizeWeek
+}
+
+export function isWeekFinalized(term, date, finalizedweeks) {
+  return finalizedweeks.indexOf(getWeekFromDate(term, date).toString()) >= 0
 }
 
 export const compareLeaveslipEvents = (e1, e2) => {
