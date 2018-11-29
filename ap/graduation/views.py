@@ -211,7 +211,7 @@ class SpeakingReport(ReportView):
   def get_context_data(self, **kwargs):
     context = super(SpeakingReport, self).get_context_data(**kwargs)
     speaking_trainees = GradAdmin.objects.get(term=term).speaking_trainees.all()
-    context['data'] = Outline.objects.filter(trainee__in=speaking_trainees)
+    context['data'] = Outline.objects.filter(grad_admin__term=term, trainee__in=speaking_trainees)
     context['title'] = 'Speaking Report'
 
     return context
