@@ -62,10 +62,8 @@ class InterimIntentionsView(UpdateView):
     interim_itineraries_forms = []
     if self.request.method == 'POST':
       interim_itineraries_forms = self.update_interim_itinerary(interim_intentions=self.get_object(), data=self.request.POST.copy())
-      print interim_itineraries_forms
     elif self.request.method == 'GET':
       interim_itineraries = InterimItinerary.objects.filter(interim_intentions=self.get_object()).order_by('start')
-      print interim_itineraries
       if interim_itineraries.count() == 0:
         interim_itineraries_forms.append(InterimItineraryForm())
       else:
