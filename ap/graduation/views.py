@@ -143,6 +143,13 @@ class GradAdminView(GroupRequiredMixin, UpdateView):
     ctx['page_title'] = "Grad Admin"
     ctx['button_label'] = 'Save'
     ctx['4th_count'] = Misc.objects.filter(grad_admin=GradAdmin.objects.get(term=Term.objects.filter(current=True).first()), trainee__in=Trainee.objects.filter(current_term=4)).count()
+    # speaking
+    speaking_trainees = GradAdmin.objects.get(term=term).speaking_trainees.all()
+    oset = Outline.objects.filter(grad_admin__term=term, trainee__in=speaking_trainees)
+    ctx['speaking_stat'] = {
+      'count': speaking_trainees.count(),
+      'responses': len(filter(lambda o: o.speaking or o.speaking, oset))
+    }
     # xb form
     xba = XBAdmin.objects.filter(term=term)
     if xba:
