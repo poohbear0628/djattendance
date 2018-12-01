@@ -128,5 +128,5 @@ def printerinstructions(request):
   ctx = {
     'image_path' : 'img/printer.jpg',
     'page_title' : 'Printer Instructions',
-  } 
+  }
   return render(request, 'printer.html', context=ctx)
