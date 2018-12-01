@@ -8,10 +8,10 @@
 {% block scripts %}
 <script type="text/javascript">
   $(document).ready(() => {
-    $(".team_contact").on("click", function() {
+    $(".trainee-contact").on("click", function() {
       $.ajax({
         type: "POST",
-        url: "{% url 'gospel_trips:assign-team-contact' pk=request.resolver_match.kwargs.pk %}",
+        url: "{% url 'gospel_trips:assign-trainee-contact' pk=request.resolver_match.kwargs.pk %}",
         data: {
           'trainee_id': $(this).val(),
           'is_contact': $(this).prop('checked')
@@ -57,7 +57,7 @@
       <tr>
         <td>{{trainee.full_name}}</td>
         <td>{{destination.name}}</td>
-        <td>{% if trainee in destination.team_contacts.all %} <i class="glyphicon glyphicon-check"></i> {% endif %}</td>
+        <td>{% if trainee in destination.trainee_contacts.all %} Yes {% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -79,7 +79,7 @@
         <tr>
           <td>{{trainee.name}}</td>
           <td>{{trainee.destination.name}}</td>
-          <td><input class="team_contact" type="checkbox" name="team_contact_selection" value="{{trainee.id}}" {% if trainee.team_contact %}checked="checked"{% endif %}></input></td>
+          <td><input class="trainee-contact" type="checkbox" name="trainee_contact_selection" value="{{trainee.id}}" {% if trainee.tranee_contact %}checked="checked"{% endif %}></input></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -54,21 +54,27 @@ class Destination(models.Model):
 
   gospel_trip = models.ForeignKey(GospelTrip, on_delete=models.CASCADE)
 
-  team_contacts = models.ManyToManyField(Trainee, related_name='team_contacts')
+  trainee_contacts = models.ManyToManyField(Trainee, related_name='trainee_contacts')
+
+  finance_coord = models.ManyToManyField(Trainee, related_name='finance_coord')
+
+  media_coord = models.ManyToManyField(Trainee, related_name='media_coord')
+
+  stat_coord = models.ManyToManyField(Trainee, related_name='stat_coord')
 
   trainees = models.ManyToManyField(Trainee, related_name='destination')
 
-  def set_team_contact(self, trainee, is_contact=True):
+  def set_trainee_contact(self, trainee, is_contact=True):
     if is_contact:
-      self.team_contacts.add(trainee)
+      self.trainee_contacts.add(trainee)
     else:
-      if trainee in self.team_contacts.all():
-        self.team_contacts.remove(trainee)
+      if trainee in self.trainee_contacts.all():
+        self.trainee_contacts.remove(trainee)
     self.save()
 
   def remove_trainee(self, trainee):
     self.trainees.remove(trainee)
-    self.set_team_contact(trainee, False)
+    self.set_trainee_contact(trainee, False)
 
   def __unicode__(self):
     try:

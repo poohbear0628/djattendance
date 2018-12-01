@@ -232,7 +232,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
   @staticmethod
   def get_trainee_dict(gospel_trip, destination_qs, question_qs, general_items):
     data = []
-    contacts = destination_qs.values_list('team_contacts', flat=True)
+    contacts = destination_qs.values_list('trainee_contacts', flat=True)
     destination_names = destination_qs.values('name')
     trainees_with_responses = question_qs.values_list('answer__trainee', flat=True)
     # trainees_assigned = Trainee.objects.all().exclude(destination=None).values_list('id', flat=True)
@@ -242,7 +242,7 @@ class GospelTripReportView(GroupRequiredMixin, TemplateView):
       entry = {
           'name': t.full_name,
           'id': t.id,
-          'team_contact': t.id in contacts,
+          'trainee_contact': t.id in contacts,
           'destination': destination_qs.filter(trainees=t).first(),
           'responses': []}
       responses = question_qs.filter(answer__trainee=t).values('answer_type', 'answer__response')
@@ -310,9 +310,9 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
   @staticmethod
   def get_trainee_dict(gospel_trip):
     data = []
-    dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'team_contacts')
-    contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('team_contacts', flat=True)
-    qs = Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()).select_related('locality__city').prefetch_related('team_contacts', 'destination')
+    dest_dict = Destination.objects.filter(gospel_trip=gospel_trip).values('id', 'name', 'trainee_contacts')
+    contacts = Destination.objects.filter(gospel_trip=gospel_trip).values_list('trainee_contacts', flat=True)
+    qs = Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()).select_related('locality__city').prefetch_related('trainee_contacts', 'destination')
     all_answers = gospel_trip.answer_set.filter(question__label__startswith='Destination Preference').values('response', 'question__label')
     for t in qs:
       answer_set = all_answers.filter(trainee=t)
@@ -322,7 +322,7 @@ class DestinationByPreferenceView(GroupRequiredMixin, TemplateView):
         'term': t.current_term,
         'locality': t.locality.city.name,
         'destination': 0,
-        'team_contact': t.id in contacts
+        'trainee_contact': t.id in contacts
       })
       dest = dest_dict.filter(trainees__in=[t])
       if dest.exists():
@@ -395,12 +395,12 @@ class RostersAllTeamsView(TemplateView):
   @staticmethod
   def get_trainee_dict(gospel_trip, destination_qs):
     data = []
-    contacts = destination_qs.values_list('team_contacts', flat=True)
+    contacts = destination_qs.values_list('trainee_contacts', flat=True)
     for t in Trainee.objects.filter(id__in=gospel_trip.get_submitted_trainees()):
       data.append({
         'name': t.full_name,
         'id': t.id,
-        'team_contact': t.id in contacts,
+        'trainee_contact': t.id in contacts,
         'destination': destination_qs.filter(trainees=t).first()
       })
     return data
@@ -486,7 +486,7 @@ def assign_destination(request, pk):
       new_dest = Destination.objects.get(id=dest_id)
       new_dest.trainees.add(tr)
       new_dest.save()
-      new_dest.set_team_contact(tr, is_contact=is_contact)
+      new_dest.set_trainee_contact(tr, is_contact=is_contact)
       return JsonResponse({'success': True})
     except ObjectDoesNotExist:
       return JsonResponse({'success': False})
@@ -494,7 +494,7 @@ def assign_destination(request, pk):
 
 
 @group_required(['training_assistant'])
-def assign_team_contact(request, pk):
+def assign_trainee_contact(request, pk):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
     trainee_id = request.POST.get('trainee_id', 0)
@@ -505,7 +505,7 @@ def assign_team_contact(request, pk):
       dests = tr.destination.filter(gospel_trip=gt)
       if dests.exists():
         dest = dests.first()
-        dest.set_team_contact(tr, is_contact=is_contact)
+        dest.set_trainee_contact(tr, is_contact=is_contact)
         dest.save()
         return JsonResponse({'success': True})
       else:

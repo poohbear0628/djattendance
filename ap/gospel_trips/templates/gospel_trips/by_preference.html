@@ -9,10 +9,10 @@
 {% with gtpk=request.resolver_match.kwargs.pk %}
 <script type="text/javascript">
   $(document).ready(() => {
-    $(".team_contact").on("click", function() {
+    $(".trainee-contact").on("click", function() {
       $.ajax({
         type: "POST",
-        url: "{% url 'gospel_trips:assign-team-contact' pk=gtpk %}",
+        url: "{% url 'gospel_trips:assign-trainee-contact' pk=gtpk %}",
         data: {
           'trainee_id': $(this).val(),
           'is_contact': $(this).prop('checked')
@@ -34,7 +34,7 @@
     $(".destination_select").on("change", function() {
       let name = $(this).attr('name').split('_');
       let trainee_id = name[name.length - 1];
-      let is_contact = $('.team-contact, [value=' + trainee_id + ']').prop('checked');
+      let is_contact = $('.trainee-contact, [value=' + trainee_id + ']').prop('checked');
       $.ajax({
         type: "POST",
         url: "{% url 'gospel_trips:assign-destination' pk=gtpk %}",
@@ -99,7 +99,7 @@
             {% endfor %}
           </select>
           </td>
-          <td><input class="team_contact" type="checkbox" name="team_contact_selection" value="{{trainee.id}}" {% if trainee.team_contact %}checked="checked"{% endif %}></input></td>
+          <td><input class="trainee-contact" type="checkbox" name="trainee_contact_selection" value="{{trainee.id}}" {% if trainee.trainee_contact %}checked="checked"{% endif %}></input></td>
         </tr>
         {% endfor %}
     </tbody>
