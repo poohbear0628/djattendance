@@ -486,7 +486,7 @@ def assign_destination(request, pk):
       new_dest = Destination.objects.get(id=dest_id)
       new_dest.trainees.add(tr)
       new_dest.save()
-      new_dest.set_trainee_contact(tr, is_contact=is_contact)
+      new_dest.set_trainee_as(tr, 'trainee_contacts',set_to=is_contact)
       return JsonResponse({'success': True})
     except ObjectDoesNotExist:
       return JsonResponse({'success': False})
@@ -494,24 +494,25 @@ def assign_destination(request, pk):
 
 
 @group_required(['training_assistant'])
-def assign_trainee_contact(request, pk):
+def assign_trainee_role(request, pk, field):
   '''Make sure to call assign_destination first'''
   if request.is_ajax() and request.method == "POST":
-    trainee_id = request.POST.get('trainee_id', 0)
-    is_contact = request.POST.get('is_contact', 'false') == 'true'
-    try:
-      gt = GospelTrip.objects.get(id=pk)
-      tr = Trainee.objects.get(id=trainee_id)
-      dests = tr.destination.filter(gospel_trip=gt)
-      if dests.exists():
-        dest = dests.first()
-        dest.set_trainee_contact(tr, is_contact=is_contact)
-        dest.save()
-        return JsonResponse({'success': True})
-      else:
-        return JsonResponse({'noDest': True})
-    except ObjectDoesNotExist:
-      return JsonResponse({'dataError': True})
+    if field in ['trainee_contacts', 'finance_coords', 'media_coords', 'stat_coords']:
+      trainee_id = request.POST.get('trainee_id', 0)
+      is_contact = request.POST.get('is_contact', 'false') == 'true'
+      try:
+        gt = GospelTrip.objects.get(id=pk)
+        tr = Trainee.objects.get(id=trainee_id)
+        dests = tr.destination.filter(gospel_trip=gt)
+        if dests.exists():
+          dest = dests.first()
+          dest.set_trainee_as(tr, field, set_to=is_contact)
+          dest.save()
+          return JsonResponse({'success': True})
+        else:
+          return JsonResponse({'noDest': True})
+      except ObjectDoesNotExist:
+        return JsonResponse({'dataError': True})
   return JsonResponse({'badRequest': True})
 
 

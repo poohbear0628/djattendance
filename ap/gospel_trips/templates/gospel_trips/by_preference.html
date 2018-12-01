@@ -12,7 +12,7 @@
     $(".trainee-contact").on("click", function() {
       $.ajax({
         type: "POST",
-        url: "{% url 'gospel_trips:assign-trainee-contact' pk=gtpk %}",
+        url: "{% url 'gospel_trips:assign-trainee-role' pk=gtpk field='trainee_contacts' %}",
         data: {
           'trainee_id': $(this).val(),
           'is_contact': $(this).prop('checked')
