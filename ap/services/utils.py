@@ -440,21 +440,20 @@ def has_designated_service(user):
 
 def unfinalized_service(user):
   # return list of service_id and week
-  try:
-    if has_designated_service(user):
-      current_term = Term.current_term()
-      # current week = up to week we want to access + 1
-      current_week = Term.reverse_date(current_term, datetime.date.today())[0]
-      worker = trainee_from_user(user).worker
-      designated_services = worker.designated.all()
-      if date.today() <= current_term.startdate_of_week(current_week) + timedelta(1):
-        # Cannot access past week's because today is less than Wednesday
-        current_week = current_week - 1
-      for service in designated_services:
-        for week in range(0, current_week):
-          if (not ServiceAttendance.objects.filter(designated_service=service).filter(worker=worker).filter(term=current_term).filter(week=week) or
-              ServiceAttendance.objects.get(designated_service=service, worker=worker, term=current_term, week=week).get_service_hours() == 0):
-            return [service.id, week]
-  except AttributeError:
-    pass
+  if has_designated_service(user):
+    current_term = Term.current_term()
+    # current week = up to week we want to access + 1
+    current_week = Term.reverse_date(current_term, datetime.date.today())[0]
+    worker = trainee_from_user(user).worker
+    designated_services = worker.designated.all()
+    if date.today() <= current_term.startdate_of_week(current_week) + timedelta(1):
+      # Cannot access past week's because today is less than Wednesday
+      current_week = current_week - 1
+    for service in designated_services:
+      for week in range(0, current_week):
+        serv_att = ServiceAttendance.objects.filter(designated_service=service, worker=worker, term=current_term, week=week)
+        if not serv_att.exists():
+          return [service.id, week]
+        elif not serv_att.first().excused and serv_att.first().get_service_hours() == 0:
+          return [service.id, week]
   return None

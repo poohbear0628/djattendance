@@ -737,13 +737,13 @@ class DesignatedServiceAdderViewer(FormView):
       workers = form.cleaned_data.get('workers')
       service = form.cleaned_data.get('designated_service')
       ct = Term.current_term()
-      start = datetime.now()
-      end = start + timedelta(hours=1)
+      week_range = range(0, ct.term_week_of_date(date.today()))
       for worker in workers:
-        for week in range(0, ct.term_week_of_date(date.today())):
+        for week in week_range:
           sa, created = ServiceAttendance.objects.get_or_create(worker=worker, designated_service=service, term=ct, week=week)
           if created:
-            ServiceRoll.objects.get_or_create(service_attendance=sa, start_datetime=start, end_datetime=end)
+            sa.excused = True
+            sa.save()
     return super(DesignatedServiceAdderViewer, self).form_valid(form)
 
   def get_context_data(self, **kwargs):
