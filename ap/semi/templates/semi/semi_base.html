@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% load common_tags %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block scripts %}
+{{form.media}}
+<script type="text/javascript">
+$( document ).ready(() => {
+	load_val = "{{form.location.value}}"
+	if (load_val != 'Other'){
+		$("#id_comments").hide()
+	};
+
+	$("#id_attendance_form").change(function(){
+		if ($("#id_location_2").prop('checked')){
+			$("#id_comments").show()
+		} else{
+			$("#id_comments").hide()
+		};
+	});
+
+
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<h2>Semi-Annual Training {{ term }}</h2>
+
+<div class="col-md-5 col-xs-12">
+	{% include 'semi/location_form2.html'%}
+</div>
+<div class="col-md-1">
+</div>
+{% if show_attendance %}
+<div class="col-md-6 col-xs-12">
+	{% include 'semi/attendance_form2.html'%}
+</div>
+{% endif %}
+
+
+{% endblock %}

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import datetime
 
 from accounts.models import Trainee
 from aputils.trainee_utils import is_trainee, trainee_from_user
@@ -13,6 +14,32 @@ from semi.models import SemiAnnual
 from semi.utils import attendance_stats, ROLL_STATUS
 from terms.models import Term
 
+class SemiView(TemplateView):
+  template_name = 'semi/semi_base.html'
+
+  def get(self, request, *args, **kwargs):
+    location_form = LocationForm(self.request.GET or None)
+    attendance_form = AttendanceForm(self.request.GET or None)
+    context = self.get_context_data(**kwargs)
+    context['location_form'] = location_form
+    context['attendance_form'] = attendance_form
+    return self.render_to_response(context)
+
+  def get_context_data(self, **kwargs):
+    context = super(SemiView, self).get_context_data(**kwargs)
+    headers = [rs[1] for rs in ROLL_STATUS]
+    headers.insert(0, '')
+    context['headers'] = headers
+    context['button_label'] = "Save"
+    context['page_title'] = "Semi-Annaul Study and Attendance"
+
+    show_attendance = False
+    ct = Term.current_term()
+    start_date = ct.startdate_of_week(19)
+    if datetime.date.today() + datetime.timedelta(days=3) >= start_date:
+      show_attendance = True
+    context['show_attendance'] = show_attendance
+    return context
 
 class LocationUpdate(UpdateView):
   model = SemiAnnual
