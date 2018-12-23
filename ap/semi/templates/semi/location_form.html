@@ -22,7 +22,7 @@ $( document ).ready(() => {
 {% block content %}
 <h3>Study Location Form</h3>
 
-<p>Indicate "Training Center" if you are burdened to study with FTTA trainees. Indicate "Ministry Conference Center" if you are burdened to study with the college students and young people. If you would like to request another location or have a conflict with this arrangement, indicate "Other" with the proposed location and submit a note to Jerome Keh’s mail slot for approval or denial indicating the reason for the request. <strong>First term trainees must study at the Training Center or Ministry Conference Center.</strong> You must indicate your choice by Friday, June 29. Otherwise, you will study at the Training Center by default.<br>
+<p>Indicate "Training Center" if you are burdened to study with FTTA trainees. Indicate "Ministry Conference Center" if you are burdened to study with the college students and young people. If you would like to request another location or have a conflict with this arrangement, indicate "Other" with the proposed location and submit a note to Jerome Keh’s mail slot for approval or denial indicating the reason for the request. <strong>First term trainees must study at the Training Center or Ministry Conference Center.</strong> You must indicate your choice by {{ location_due_date|date:"l, M j" }}. Otherwise, you will study at the Training Center by default.<br>
 <strong>Regardless of where you are assigned, all trainees are required to report to the Training Center on the Tuesday morning of semi-annual training week for a corporate study and testing time.</strong> You may study at your assigned location starting the Wednesday morning of semi-annual training week.</p>
 
 <form id="id_attendance_form" action="" method="post">{% csrf_token %}
@@ -31,13 +31,14 @@ $( document ).ready(() => {
 		<div class="panel-heading">
 			<h3>Study Location Request Form</h3>
 			{% if form.ta_comments.value %}
-			  {% bootstrap_form form exclude='location, request_status' %}
+			  {% bootstrap_form form exclude='location' %}
 			{% else %}
-			  {% bootstrap_form form exclude='location, request_status, ta_comments' %}
+			  {% bootstrap_form form exclude='location, ta_comments' %}
 			{% endif %}
-			{{form.instance.request_status}}
 		</div>
 	</div>
+	{% if not past_location_due_date %}
     <input type="submit" class="btn btn-primary btn-save" name="location_form" id="submit" value="{{button_label}}"></input>
+    {% endif %}
 </form>
 {% endblock %}

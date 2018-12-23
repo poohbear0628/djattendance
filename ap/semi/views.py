@@ -11,7 +11,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic import UpdateView
 from semi.forms import AttendanceForm, LocationForm
 from semi.models import SemiAnnual
-from semi.utils import attendance_stats, ROLL_STATUS
+from semi.utils import attendance_stats, ROLL_STATUS, semi_annual_training
 from terms.models import Term
 from copy import deepcopy
 
@@ -43,7 +43,6 @@ class SemiView(TemplateView):
     headers.insert(0, '')
     context['headers'] = headers
     context['button_label'] = "Save"
-    context['page_title'] = "Semi-Annaul Study Attendance"
 
     show_attendance = False
     ct = Term.current_term()
@@ -51,7 +50,10 @@ class SemiView(TemplateView):
     if datetime.date.today() + datetime.timedelta(days=3) >= start_date:
       show_attendance = True
     context['show_attendance'] = show_attendance
-    context['term'] = ct
+    context['term'] = semi_annual_training()
+    location_due_date = start_date - datetime.timedelta(days=3)
+    context['location_due_date'] = location_due_date
+    context['past_location_due_date'] = datetime.date.today() >  location_due_date
     return context
 
   def post(self, request, *args, **kwargs):
@@ -65,7 +67,11 @@ class SemiView(TemplateView):
         for field, value in data.items():
           setattr(semiannual, field, value)
           semiannual.save()
-
+        if data['location'] != 'Other':
+          semiannual.request_status = 'A'
+        else:
+          semiannual.request_status = 'P'
+        semiannual.save()
 
     elif 'attendance_form' in data.keys():
       del data['attendance_form']

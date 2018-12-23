@@ -28,6 +28,7 @@ class LocationForm(forms.ModelForm):
 
     self.fields['request_status'].label = "Request Status"
     self.fields['request_status'].disabled = True
+    self.fields['request_status'].required = False
 
   location = forms.ChoiceField(choices=LOCATIONS, widget=forms.RadioSelect)
   other_location = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'location'}))

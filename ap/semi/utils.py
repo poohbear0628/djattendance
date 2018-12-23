@@ -39,3 +39,10 @@ def attendance_stats(semi):
 def semi_form_available():
   week = Term.current_term().term_week_of_date(datetime.now())
   return week >= 17 and week <= 19
+
+def semi_annual_training():
+  ct = Term.current_term()
+  if ct.season == 'Spring':
+    return 'Summer ' + str(ct.year)
+  else:
+    return 'Winter ' + str(ct.year)
