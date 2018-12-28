@@ -65,7 +65,7 @@ function displayTicker(ans) {
 }
 
 function loadTicker() {
-  $.getJSON(TICKER,displayTicker)
+  $.getJSON(TICKER, displayTicker)
   .fail(function() {
     displayTicker(oldAns);
   });
@@ -151,8 +151,8 @@ function loadWeather() {
 }
 function updateWeather(weather) {
   oldWeather = weather;
-  var condition = weather.query.results.channel.item.condition;
-  var forecasts = weather.query.results.channel.item.forecast;
+  var condition = weather.condition;
+  var forecasts = weather.forecast;
   $("#today-temp").html(condition.temp + "&deg;");
   var conditions = [$("#today-condition"), $("#tomorrow-condition"), $("#daft-condition")];
   var lows = [$("#today-low"), $("#tomorrow-low"), $("#daft-low")];
@@ -204,7 +204,7 @@ $(document).ready(function() {
         location.reload(true);
       }
     });
-  }, 60*1000);
+  }, 60*60*1000);
   $.get(PAGE_VERSION, function(data) {
     pageVersion = data;
   });
